@@ -53,6 +53,8 @@
   - [x] 1.1 Create login page with JWT authentication
   - [x] 1.2 Implement glassmorphism design system across all components
   - [x] 1.3 Build base layout with responsive sidemenu and feature toggles
+  - [x] 1.3.1 Integrate Customer Management into sidebar with permissions
+  - [x] 1.3.2 Integrate Client Management into sidebar with permissions
   - [x] 1.4 Set up role-based permission system (admin, full_access, user roles)
   - [x] 1.5 Implement user session management
   - [x] 1.6 Create main application dashboard with key metrics
@@ -67,14 +69,14 @@
   - [x] 2.7 create functionality of bulk import of customers 
 
 - [ ] 3.0 Client Management Module
-  - [ ] 3.1 Create client listing page with filter and sort functionality
-  - [ ] 3.2 Implement client creation form with customer association
-  - [ ] 3.3 Build client detail view with edit capabilities
+  - [x] 3.1 Create client listing page with filter and sort functionality
+  - [x] 3.2 Implement client creation form with customer association
+  - [x] 3.3 Build client detail view with edit capabilities
   - [ ] 3.4 Add client deletion with confirmation
-  - [ ] 3.5 Implement client search functionality
+  - [x] 3.5 Implement client search functionality
   - [ ] 3.6 Create client dashboard showing event summaries
-  - [ ] 3.7 create functionality of bulk import of clients
-  - [ ] 3.8 provide bulk import template on the same page
+  - [x] 3.7 Create functionality of bulk import of clients
+  - [x] 3.8 Provide bulk import template on the same page
 
 - [ ] 4.0 Event Management Module
   - [ ] 4.1 Create event listing page with filter and sort functionality

@@ -221,6 +221,18 @@ export const clientAPI = {
   })
 };
 
+// Event Management API
+export const eventAPI = {
+  getEvents: (params) => api.get('/events', { params }),
+  getEvent: (id) => api.get(`/events/${id}`),
+  createEvent: (eventData) => api.post('/events', eventData),
+  updateEvent: (id, eventData) => api.put(`/events/${id}`, eventData),
+  deleteEvent: (id) => api.delete(`/events/${id}`),
+  getEventsByClient: (clientId) => api.get(`/clients/${clientId}/events`),
+  getEventSchedule: (eventId) => api.get(`/crud/event-schedule/${eventId}`),
+  getEventStats: (eventId) => api.get(`/events/${eventId}/stats`)
+};
+
 // Feature Toggles API
 export const featureToggleAPI = {
   getToggles: () => api.get('/feature-toggles'),
