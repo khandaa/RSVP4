@@ -138,6 +138,31 @@ app.use('/api', widgetConfigRoutes);
 const fileUploadRoutes = require('./routes/file-upload');
 app.use('/api', fileUploadRoutes);
 
+// Register RSVP4 CRUD routes
+const customerRoutes = require('./routes/customers');
+app.use('/api/customers', customerRoutes);
+
+const clientRoutes = require('./routes/clients');
+app.use('/api/clients', clientRoutes);
+
+const eventRoutes = require('./routes/events');
+app.use('/api/events', eventRoutes);
+
+const guestRoutes = require('./routes/guests');
+app.use('/api/guests', guestRoutes);
+
+const venueRoutes = require('./routes/venues');
+app.use('/api/venues', venueRoutes);
+
+const masterDataRoutes = require('./routes/master-data');
+app.use('/api/master-data', masterDataRoutes);
+
+const employeeManagementRoutes = require('./routes/employee-management');
+app.use('/api/employee-management', employeeManagementRoutes);
+
+const comprehensiveCrudRoutes = require('./routes/comprehensive-crud');
+app.use('/api/crud', comprehensiveCrudRoutes);
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);

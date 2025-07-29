@@ -98,6 +98,7 @@ The RSVP Event Application is a comprehensive event management system specifical
 ## 6. Design Considerations
 
 - The application uses Material UI and Bootstrap for a clean, modern, responsive design
+- The application should use gla
 - The dashboard layout provides easy navigation to all major sections
 - The interface should be intuitive for users with minimal technical experience
 - Mobile responsiveness is essential for both admin and guest interfaces
