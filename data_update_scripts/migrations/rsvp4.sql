@@ -49,17 +49,6 @@ DROP TABLE IF EXISTS rsvp_master_subevents;
 DROP TABLE IF EXISTS rsvp_master_events;
 DROP TABLE IF EXISTS rsvp_master_clients;
 DROP TABLE IF EXISTS master_customers;
-DROP TABLE IF EXISTS master_events;
-DROP TABLE IF EXISTS master_event_types;
-DROP TABLE IF EXISTS master_venues;
-DROP TABLE IF EXISTS master_rooms;
-DROP TABLE IF EXISTS master_tasks;
-DROP TABLE IF EXISTS master_teams;
-DROP TABLE IF EXISTS master_employees;
-DROP TABLE IF EXISTS master_departments;
-DROP TABLE IF EXISTS master_roles;
-DROP TABLE IF EXISTS master_notification_types;
-DROP TABLE IF EXISTS master_notifications;
 
 
 
