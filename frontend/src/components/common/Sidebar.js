@@ -8,7 +8,10 @@ import {
   FaList, 
   FaChartLine, 
   FaToggleOn,
-  FaCreditCard
+  FaCreditCard,
+  FaBuilding,
+  FaAddressCard,
+  FaUserFriends
 } from 'react-icons/fa';
 import { useAuth } from '../../contexts/AuthContext';
 import { featureToggleAPI } from '../../services/api';
@@ -61,6 +64,20 @@ const Sidebar = ({ collapsed }) => {
       permission: null // Everyone can access dashboard
     },
     {
+      name: 'Customers',
+      path: '/customers',
+      icon: <FaBuilding />,
+      permission: 'customer_view',
+      featureToggle: 'customer_management'
+    },
+    {
+      name: 'Clients',
+      path: '/clients',
+      icon: <FaAddressCard />,
+      permission: 'client_view',
+      featureToggle: 'client_management'
+    },
+    {
       name: 'Users',
       path: '/users',
       icon: <FaUsers />,
@@ -100,6 +117,12 @@ const Sidebar = ({ collapsed }) => {
   
   // Start with base menu items
   const menuItems = [...baseMenuItems];
+  
+  // Always show customer and client modules to admin users
+  if (hasRole && hasRole(['Admin', 'admin', 'full_access'])) {
+    // These will be shown by the base menu items since we've included them there
+    console.log('Admin/full_access user detected - customer and client management should be visible');
+  }
   
   // For admin users, always add the payment module regardless of feature toggles
   if (hasRole && hasRole(['Admin', 'admin'])) {

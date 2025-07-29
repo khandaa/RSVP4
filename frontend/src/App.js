@@ -16,6 +16,20 @@ import ResetPassword from './components/authentication/ResetPassword';
 // Dashboard Components
 import Dashboard from './components/dashboard/Dashboard';
 
+// Customer Management Components
+import CustomerList from './components/customers/CustomerList';
+import CustomerDetails from './components/customers/CustomerDetail';
+import CustomerCreate from './components/customers/CustomerCreate';
+import CustomerEdit from './components/customers/CustomerEdit';
+import CustomerBulkImport from './components/customers/CustomerImport';
+
+// Client Management Components
+import ClientList from './components/clients/ClientList';
+import ClientDetails from './components/clients/ClientDetail';
+import ClientCreate from './components/clients/ClientCreate';
+import ClientEdit from './components/clients/ClientEdit';
+import ClientBulkImport from './components/clients/ClientImport';
+
 // User Management Components
 import UserList from './components/users/UserList';
 import UserDetails from './components/users/UserDetails';
@@ -90,6 +104,24 @@ function App() {
         }>
           <Route index element={<Navigate to="/dashboard" />} />
           <Route path="dashboard" element={<Dashboard />} />
+          
+          {/* Customer Management Routes */}
+          <Route path="customers">
+            <Route index element={<CustomerList />} />
+            <Route path=":id" element={<CustomerDetails />} />
+            <Route path="create" element={<CustomerCreate />} />
+            <Route path="edit/:id" element={<CustomerEdit />} />
+            <Route path="import" element={<CustomerBulkImport />} />
+          </Route>
+          
+          {/* Client Management Routes */}
+          <Route path="clients">
+            <Route index element={<ClientList />} />
+            <Route path=":id" element={<ClientDetails />} />
+            <Route path="create" element={<ClientCreate />} />
+            <Route path="edit/:id" element={<ClientEdit />} />
+            <Route path="import" element={<ClientBulkImport />} />
+          </Route>
           
           {/* User Management Routes */}
           <Route path="users">

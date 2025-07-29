@@ -157,6 +157,70 @@ export const loggingAPI = {
   getStats: () => api.get('/logging/stats'),
 };
 
+// Customer Management API
+export const customerAPI = {
+  getCustomers: (params) => api.get('/customers', { params }),
+  getCustomer: (id) => api.get(`/customers/${id}`),
+  createCustomer: (customerData) => api.post('/customers', customerData),
+  updateCustomer: (id, customerData) => api.put(`/customers/${id}`, customerData),
+  deleteCustomer: (id) => api.delete(`/customers/${id}`),
+  uploadBulkCustomers: (formData) => api.post('/customers/bulk', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  }),
+  downloadCustomerTemplate: () => api.get('/customers/template', {
+    responseType: 'blob'
+  }).then(response => {
+    // Create blob link to download
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'customer-template.csv');
+    
+    // Append to html page
+    document.body.appendChild(link);
+    
+    // Force download
+    link.click();
+    
+    // Clean up and remove the link
+    link.parentNode.removeChild(link);
+  })
+};
+
+// Client Management API
+export const clientAPI = {
+  getClients: (params) => api.get('/clients', { params }),
+  getClient: (id) => api.get(`/clients/${id}`),
+  createClient: (clientData) => api.post('/clients', clientData),
+  updateClient: (id, clientData) => api.put(`/clients/${id}`, clientData),
+  deleteClient: (id) => api.delete(`/clients/${id}`),
+  uploadBulkClients: (formData) => api.post('/clients/bulk', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  }),
+  downloadClientTemplate: () => api.get('/clients/template', {
+    responseType: 'blob'
+  }).then(response => {
+    // Create blob link to download
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'client-template.csv');
+    
+    // Append to html page
+    document.body.appendChild(link);
+    
+    // Force download
+    link.click();
+    
+    // Clean up and remove the link
+    link.parentNode.removeChild(link);
+  })
+};
+
 // Feature Toggles API
 export const featureToggleAPI = {
   getToggles: () => api.get('/feature-toggles'),
