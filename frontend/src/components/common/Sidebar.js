@@ -163,7 +163,7 @@ const Sidebar = ({ collapsed }) => {
       // Add Sub Events module
       menuItems.push({
         name: 'Sub Events',
-        path: '/subevents',
+        path: '/subevents/list',
         icon: <FaCalendarPlus />,
         permission: null
       });
@@ -171,7 +171,7 @@ const Sidebar = ({ collapsed }) => {
       // Add Guests module
       menuItems.push({
         name: 'Guests',
-        path: '/guests',
+        path: '/guests/list',
         icon: <FaUserCheck />,
         permission: null
       });
@@ -179,7 +179,7 @@ const Sidebar = ({ collapsed }) => {
       // Add RSVPs module
       menuItems.push({
         name: 'RSVPs',
-        path: '/rsvps',
+        path: '/rsvps/list',
         icon: <FaReply />,
         permission: null
       });
@@ -187,7 +187,7 @@ const Sidebar = ({ collapsed }) => {
       // Add Travel module
       menuItems.push({
         name: 'Travel',
-        path: '/travel',
+        path: '/travel/list',
         icon: <FaPlane />,
         permission: null
       });
@@ -195,7 +195,7 @@ const Sidebar = ({ collapsed }) => {
       // Add Accommodation module
       menuItems.push({
         name: 'Accommodation',
-        path: '/accommodation',
+        path: '/accommodation/list',
         icon: <FaBed />,
         permission: null
       });
@@ -242,7 +242,7 @@ const Sidebar = ({ collapsed }) => {
       // Add Events module
       menuItems.push({
         name: 'Events',
-        path: '/events',
+        path: '/events/list',
         icon: <FaCalendarAlt />,
         permission: null
       });
@@ -250,7 +250,7 @@ const Sidebar = ({ collapsed }) => {
       // Add Sub Events module
       menuItems.push({
         name: 'Sub Events',
-        path: '/subevents',
+        path: '/subevents/list',
         icon: <FaCalendarPlus />,
         permission: null
       });
@@ -274,7 +274,7 @@ const Sidebar = ({ collapsed }) => {
       // Add Guests module
       menuItems.push({
         name: 'Guests',
-        path: '/guests',
+        path: '/guests/list',
         icon: <FaUserCheck />,
         permission: null
       });
@@ -282,7 +282,7 @@ const Sidebar = ({ collapsed }) => {
       // Add RSVPs module
       menuItems.push({
         name: 'RSVPs',
-        path: '/rsvps',
+        path: '/rsvps/list',
         icon: <FaReply />,
         permission: null
       });
@@ -290,7 +290,7 @@ const Sidebar = ({ collapsed }) => {
       // Add Travel module
       menuItems.push({
         name: 'Travel',
-        path: '/travel',
+        path: '/travel/list',
         icon: <FaPlane />,
         permission: null
       });
@@ -298,7 +298,7 @@ const Sidebar = ({ collapsed }) => {
       // Add Accommodation module
       menuItems.push({
         name: 'Accommodation',
-        path: '/accommodation',
+        path: '/accommodation/list',
         icon: <FaBed />,
         permission: null
       });
@@ -337,7 +337,7 @@ const Sidebar = ({ collapsed }) => {
       // Add Events module
       menuItems.push({
         name: 'Events',
-        path: '/events',
+        path: '/events/list',
         icon: <FaCalendarAlt />,
         permission: null
       });
@@ -345,7 +345,7 @@ const Sidebar = ({ collapsed }) => {
       // Add Sub Events module
       menuItems.push({
         name: 'Sub Events',
-        path: '/subevents',
+        path: '/subevents/list',
         icon: <FaCalendarPlus />,
         permission: null
       });
@@ -353,7 +353,7 @@ const Sidebar = ({ collapsed }) => {
       // Add Guests module
       menuItems.push({
         name: 'Guests',
-        path: '/guests',
+        path: '/guests/list',
         icon: <FaUserCheck />,
         permission: null
       });
@@ -361,7 +361,7 @@ const Sidebar = ({ collapsed }) => {
       // Add RSVPs module
       menuItems.push({
         name: 'RSVPs',
-        path: '/rsvps',
+        path: '/rsvps/list',
         icon: <FaReply />,
         permission: null
       });
@@ -369,7 +369,7 @@ const Sidebar = ({ collapsed }) => {
       // Add Travel module
       menuItems.push({
         name: 'Travel',
-        path: '/travel',
+        path: '/travel/list',
         icon: <FaPlane />,
         permission: null
       });
@@ -377,7 +377,7 @@ const Sidebar = ({ collapsed }) => {
       // Add Accommodation module
       menuItems.push({
         name: 'Accommodation',
-        path: '/accommodation',
+        path: '/accommodation/list',
         icon: <FaBed />,
         permission: null
       });

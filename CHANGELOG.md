@@ -29,6 +29,8 @@
   - Customer Admin users see clients, events, sub-events, team, employees, guests, RSVPs, travel, accommodation, communications, and notifications
   - Client Admin users see events, sub-events, guests, RSVPs, travel, and accommodation
 - Standardized navigation paths between dashboard cards and sidebar links for consistent user experience
+- Updated all sidebar navigation links to point to list pages (events/list, guests/list, subevents/list, rsvps/list, travel/list, accommodation/list)
+- Ensured client dashboard card buttons match sidebar navigation paths for seamless user experience
 - Updated task list (rsvp_tasks.md) to reflect implemented code for sections 7, 8, 9, and 10
 - Marked as complete the RSVP dashboard, reports, logistics interfaces, notification system, and main dashboard features
 - Added SubEvent, Guest, RSVP, Logistics, and Notification modules to admin sidemenu

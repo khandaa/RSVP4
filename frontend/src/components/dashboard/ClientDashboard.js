@@ -194,7 +194,7 @@ const ClientDashboard = () => {
               <Button 
                 variant="primary" 
                 size="sm"
-                onClick={() => navigateTo('/events')}
+                onClick={() => navigateTo('/events/list')}
                 className="w-100"
               >
                 Manage Events
@@ -255,7 +255,7 @@ const ClientDashboard = () => {
               <Button 
                 variant="secondary" 
                 size="sm"
-                onClick={() => navigateTo('/subevents')}
+                onClick={() => navigateTo('/subevents/list')}
                 className="w-100"
               >
                 View All Sub Events
@@ -332,7 +332,7 @@ const ClientDashboard = () => {
               <Button 
                 variant="info" 
                 size="sm"
-                onClick={() => navigateTo('/guests')}
+                onClick={() => navigateTo('/guests/list')}
                 className="w-100 text-white"
               >
                 Manage Guests
@@ -407,7 +407,7 @@ const ClientDashboard = () => {
               <Button 
                 variant="success" 
                 size="sm"
-                onClick={() => navigateTo('/rsvps')}
+                onClick={() => navigateTo('/rsvps/list')}
                 className="w-100"
               >
                 Manage RSVPs
@@ -477,7 +477,7 @@ const ClientDashboard = () => {
               <Button 
                 variant="warning" 
                 size="sm"
-                onClick={() => navigateTo('/travel')}
+                onClick={() => navigateTo('/travel/list')}
                 className="w-100 text-white"
               >
                 Manage Travel
@@ -545,7 +545,7 @@ const ClientDashboard = () => {
               <Button 
                 variant="danger" 
                 size="sm"
-                onClick={() => navigateTo('/accommodation')}
+                onClick={() => navigateTo('/accommodation/list')}
                 className="w-100"
               >
                 Manage Accommodation
