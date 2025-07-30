@@ -1,6 +1,8 @@
 ## [Unreleased]
 
 ### 2025-07-30
+- Fixed EventList component error "eventTypes.map is not a function" by ensuring eventTypes is always initialized as an array
+- Added routes for new RSVPBulkManagement component at '/rsvps/bulk'
 - Fixed ESLint error in GuestDetail.js by properly importing FaEye icon
 - Fixed Events page blank screen issue by properly configuring all event routes in App.js
 - Fixed SubEvents page by adding correct route configuration

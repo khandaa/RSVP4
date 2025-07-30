@@ -332,11 +332,11 @@ const Dashboard = () => {
         </Col>
       </Row>
 
-      <Row>
+      {/* <Row>
         <Col>
           <FileUploadWidget />
         </Col>
-      </Row>
+      </Row> */}
     </Container>
   );
 };

@@ -63,10 +63,20 @@ const EventList = () => {
       
       setEvents(eventsResponse.data);
       setClients(clientsResponse.data);
-      setEventTypes(eventTypesResponse);
+      
+      // Ensure eventTypes is always an array
+      if (Array.isArray(eventTypesResponse)) {
+        setEventTypes(eventTypesResponse);
+      } else if (eventTypesResponse && Array.isArray(eventTypesResponse.data)) {
+        setEventTypes(eventTypesResponse.data);
+      } else {
+        console.error('Event types response is not an array:', eventTypesResponse);
+        setEventTypes([]);
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
       toast.error('Failed to fetch events data');
+      setEventTypes([]); // Set to empty array in case of error
     } finally {
       setIsLoading(false);
     }

@@ -71,13 +71,13 @@ import SubeventAllocation from './components/subevents/SubeventAllocation';
 import SubeventTimeline from './components/subevents/SubeventTimeline';
 
 import GuestList from './components/guests/GuestList';
-import GuestGroupManagement from './components/guests/GuestGroupManagement';
+// import GuestGroupManagement from './components/guests/GuestGroupManagement';
 import GuestCreate from './components/guests/GuestCreate';
 import GuestDetail from './components/guests/GuestDetail';
 import GuestImport from './components/guests/GuestImport';
 
 import RSVPList from './components/rsvp/RSVPForm';
-import RSVPCalendar from './components/rsvp/RSVPCalendar';
+// import RSVPCalendar from './components/rsvp/RSVPCalendar';
 import RSVPBulkManagement from './components/rsvp/RSVPBulkManagement';
 
 
