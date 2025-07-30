@@ -24,6 +24,8 @@
 - Created custom dashboard for customer_admin users with overview of clients, active events, teams, and employees
 - Created custom dashboard for client_admin users with overview of events, sub-events, guests, RSVPs, travel, and accommodation
 - Implemented role-based dashboard routing to display different dashboards based on user role
+- Enhanced sidebar navigation with role-specific links for client_admin and customer_admin users
+- Standardized navigation paths between dashboard cards and sidebar links for consistent user experience
 - Updated task list (rsvp_tasks.md) to reflect implemented code for sections 7, 8, 9, and 10
 - Marked as complete the RSVP dashboard, reports, logistics interfaces, notification system, and main dashboard features
 - Added SubEvent, Guest, RSVP, Logistics, and Notification modules to admin sidemenu

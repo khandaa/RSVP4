@@ -255,7 +255,7 @@ const ClientDashboard = () => {
               <Button 
                 variant="secondary" 
                 size="sm"
-                onClick={() => navigateTo('/sub-events')}
+                onClick={() => navigateTo('/subevents')}
                 className="w-100"
               >
                 View All Sub Events
@@ -477,7 +477,7 @@ const ClientDashboard = () => {
               <Button 
                 variant="warning" 
                 size="sm"
-                onClick={() => navigateTo('/travel')}
+                onClick={() => navigateTo('/logistics')}
                 className="w-100 text-white"
               >
                 Manage Travel
@@ -545,7 +545,7 @@ const ClientDashboard = () => {
               <Button 
                 variant="danger" 
                 size="sm"
-                onClick={() => navigateTo('/accommodation')}
+                onClick={() => navigateTo('/logistics')}
                 className="w-100"
               >
                 Manage Accommodation

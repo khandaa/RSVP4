@@ -194,15 +194,100 @@ const Sidebar = ({ collapsed }) => {
     });
     
     // Also add Feature Toggles menu item for admin
+  } 
+  // Add event-related sidebar items for Client Admin users
+  else if (hasRole && hasRole(['Client Admin'])) {
+    console.log('Client Admin user detected - adding event management modules');
+    
+    // Add Events module for client admin
+    menuItems.push({
+      name: 'Events',
+      path: '/events',
+      icon: <FaCalendarAlt />,
+      permission: null // No permission check needed
+    });
+    
+    // Add SubEvent module for client admin
+    menuItems.push({
+      name: 'Sub Events',
+      path: '/subevents',
+      icon: <FaCalendarPlus />,
+      permission: null
+    });
+    
+    // Add Guest module for client admin
+    menuItems.push({
+      name: 'Guests',
+      path: '/guests',
+      icon: <FaUserCheck />,
+      permission: null
+    });
+    
+    // Add RSVP module for client admin
+    menuItems.push({
+      name: 'RSVPs',
+      path: '/rsvps',
+      icon: <FaReply />,
+      permission: null
+    });
+    
+    // Add Logistics module for client admin
+    menuItems.push({
+      name: 'Logistics',
+      path: '/logistics',
+      icon: <FaTruckMoving />,
+      permission: null
+    });
+  }
+  // Add relevant sidebar items for Customer Admin users
+  else if (hasRole && hasRole(['Customer Admin'])) {
+    console.log('Customer Admin user detected - adding client and event management modules');
+    
+    // Add Clients module for customer admin
+    menuItems.push({
+      name: 'Clients',
+      path: '/clients',
+      icon: <FaAddressCard />,
+      permission: null
+    });
+    
+    // Add Events module for customer admin
+    menuItems.push({
+      name: 'Events',
+      path: '/events',
+      icon: <FaCalendarAlt />,
+      permission: null
+    });
+    
+    // Add Guest module for customer admin
+    menuItems.push({
+      name: 'Guests',
+      path: '/guests',
+      icon: <FaUserCheck />,
+      permission: null
+    });
+    
+    // Add Teams/Users module for customer admin
+    menuItems.push({
+      name: 'Team Members',
+      path: '/users',
+      icon: <FaUsers />,
+      permission: null
+    });
+  }
+  
+  // Always add Feature Toggles menu item for admin for admin users only
+  if (hasRole && hasRole(['Admin', 'admin'])) {
     menuItems.push({
       name: 'Feature Toggles',
       path: '/roles/feature-toggles',
       icon: <FaToggleOn />,
       permission: null
     });
-  } 
+  }
+  
   // For non-admin users who have payment_view permission, show payment module if feature toggle is enabled
-  else if (hasPermission(['payment_view']) && featureToggles['payment_integration']) {
+  if (hasPermission(['payment_view']) && featureToggles['payment_integration']) {
     console.log('Non-admin user with payment_view permission - adding Payment module');
     menuItems.push({
       name: 'Payment',
