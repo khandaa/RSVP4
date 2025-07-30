@@ -322,4 +322,56 @@ export const rsvpAPI = {
   }
 };
 
+// Logistics API for room allocation and travel arrangements
+export const logisticsAPI = {
+  // Accommodation operations for room allocation
+  getAccommodations: (params) => api.get('/logistics/accommodations', { params }),
+  getAccommodation: (id) => api.get(`/logistics/accommodations/${id}`),
+  createAccommodation: (data) => api.post('/logistics/accommodations', data),
+  updateAccommodation: (id, data) => api.put(`/logistics/accommodations/${id}`, data),
+  deleteAccommodation: (id) => api.delete(`/logistics/accommodations/${id}`),
+  
+  // Room allocation operations for guests
+  getRoomAllocations: (params) => api.get('/logistics/room-allocations', { params }),
+  getRoomAllocationsByGuest: (guestId) => api.get(`/logistics/room-allocations/guest/${guestId}`),
+  getRoomAllocationsByEvent: (eventId) => api.get(`/logistics/room-allocations/event/${eventId}`),
+  allocateRoom: (allocationData) => api.post('/logistics/room-allocations', allocationData),
+  updateRoomAllocation: (id, allocationData) => api.put(`/logistics/room-allocations/${id}`, allocationData),
+  removeRoomAllocation: (id) => api.delete(`/logistics/room-allocations/${id}`),
+  bulkAllocateRooms: (allocations) => api.post('/logistics/room-allocations/bulk', allocations),
+  
+  // Travel arrangement operations
+  getTravelArrangements: (params) => api.get('/logistics/travel-arrangements', { params }),
+  getTravelArrangementsByGuest: (guestId) => api.get(`/logistics/travel-arrangements/guest/${guestId}`),
+  getTravelArrangementsByEvent: (eventId) => api.get(`/logistics/travel-arrangements/event/${eventId}`),
+  createTravelArrangement: (data) => api.post('/logistics/travel-arrangements', data),
+  updateTravelArrangement: (id, data) => api.put(`/logistics/travel-arrangements/${id}`, data),
+  deleteTravelArrangement: (id) => api.delete(`/logistics/travel-arrangements/${id}`),
+  bulkCreateTravelArrangements: (arrangements) => api.post('/logistics/travel-arrangements/bulk', arrangements),
+  
+  // Vehicle allocation operations
+  getVehicles: (params) => api.get('/logistics/vehicles', { params }),
+  getVehicle: (id) => api.get(`/logistics/vehicles/${id}`),
+  createVehicle: (vehicleData) => api.post('/logistics/vehicles', vehicleData),
+  updateVehicle: (id, vehicleData) => api.put(`/logistics/vehicles/${id}`, vehicleData),
+  deleteVehicle: (id) => api.delete(`/logistics/vehicles/${id}`),
+  allocateVehicle: (allocationData) => api.post('/logistics/vehicle-allocations', allocationData),
+  getVehicleAllocations: (params) => api.get('/logistics/vehicle-allocations', { params }),
+  
+  // Logistics reports
+  getLogisticsReports: (params) => api.get('/logistics/reports', { params }),
+  getLogisticsReportsByType: (type, params) => api.get(`/logistics/reports/${type}`, { params }),
+  exportLogisticsReport: (type, params) => api.get(`/logistics/reports/${type}/export`, {
+    params,
+    responseType: 'blob'
+  }),
+  
+  // Logistics dashboard data
+  getDashboardData: (params) => api.get('/logistics/dashboard', { params }),
+  getDashboardSummary: (eventId) => api.get(`/logistics/dashboard/summary/${eventId}`),
+  getScheduleOverview: (date, eventId) => api.get(`/logistics/dashboard/schedule`, {
+    params: { date, event_id: eventId }
+  })
+};
+
 export default api;

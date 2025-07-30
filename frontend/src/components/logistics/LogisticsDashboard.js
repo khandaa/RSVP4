@@ -15,7 +15,7 @@ import {
   FaFileExport,
   FaFilter,
   FaSearch,
-  FaRefresh,
+  // FaRefresh,
   FaInfoCircle,
   FaCheckCircle,
   FaExclamationTriangle,
@@ -347,7 +347,8 @@ const LogisticsDashboard = () => {
               onClick={fetchDashboardData}
               title="Refresh"
             >
-              <FaRefresh />
+              {/* <FaRefresh /> */}
+              <FaSearch />
             </button>
             <button 
               className="btn btn-outline-secondary glass-btn"

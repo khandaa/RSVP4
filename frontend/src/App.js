@@ -57,6 +57,14 @@ import PermissionDetails from './components/permissions/PermissionDetails';
 import PermissionCreate from './components/permissions/PermissionCreate';
 import PermissionEdit from './components/permissions/PermissionEdit';
 
+// Logistics Components
+import LogisticsDashboard from './components/logistics/LogisticsDashboard';
+import TravelManagement from './components/logistics/TravelManagement';
+import AccommodationManagement from './components/logistics/AccommodationManagement';
+import VehicleAllocation from './components/logistics/VehicleAllocation';
+import GuestLogisticsProfile from './components/logistics/GuestLogisticsProfile';
+import LogisticsReports from './components/logistics/LogisticsReports';
+
 // Events and Related Components
 import EventList from './components/events/EventList';
 import EventCreate from './components/events/EventCreate';
@@ -236,16 +244,15 @@ function App() {
             <Route path="dashboard" element={<RSVPDashboard />} />
           </Route>
 
-          {/* Travel Routes */}
-          <Route path="travel">
-            <Route index element={<Navigate to="/dashboard" />} />
-            <Route path="list" element={<TravelList />} />
-          </Route>
-
-          {/* Accommodation Routes */}
-          <Route path="accommodation">
-            <Route index element={<Navigate to="/dashboard" />} />
-            <Route path="list" element={<AccommodationList />} />
+          {/* Logistics Routes */}
+          <Route path="logistics">
+            <Route index element={<Navigate to="/logistics/dashboard" />} />
+            <Route path="dashboard" element={<LogisticsDashboard />} />
+            <Route path="travel" element={<TravelManagement />} />
+            <Route path="accommodation" element={<AccommodationManagement />} />
+            <Route path="vehicles" element={<VehicleAllocation />} />
+            <Route path="guest/:id" element={<GuestLogisticsProfile />} />
+            <Route path="reports" element={<LogisticsReports />} />
           </Route>
 
           {/* Team Routes */}

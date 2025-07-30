@@ -1,6 +1,14 @@
 ## [Unreleased]
 
 ### 2025-07-31
+- Enhanced application to support room allocation for all guests
+- Added support for local travel arrangements for all guests
+- Integrated existing logistics components into main application
+- Created comprehensive Logistics section in sidebar menu with submenu items
+- Added routes for LogisticsDashboard, TravelManagement, AccommodationManagement, VehicleAllocation, and Reports
+- Consolidated travel and accommodation functionality under unified Logistics module
+
+### 2025-07-31
 - Implemented RSVP Dashboard for monitoring guest response statistics
 - Added visualization for attendance, declines, and pending responses
 - Added RSVP API service with endpoints for statistics and management

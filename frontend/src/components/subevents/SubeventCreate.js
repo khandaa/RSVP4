@@ -494,6 +494,10 @@ const SubeventCreate = () => {
                         <div className="invalid-feedback">{errors.subevent_end_datetime}</div>
                       )}
                     </div>
+                    
+                    <div className="mb-3">
+                      <label className="form-label">
+                        Room
                       </label>
                       <select
                         name="room_id"
