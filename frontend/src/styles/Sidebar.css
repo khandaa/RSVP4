@@ -1,0 +1,103 @@
+.sidebar {
+  width: 250px;
+  min-height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: #343a40;
+  transition: width 0.3s;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  padding: 20px 0;
+  z-index: 1030;
+}
+
+.sidebar.collapsed {
+  width: 70px;
+}
+
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-link {
+  color: #ced4da;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  text-decoration: none;
+  margin: 5px 10px;
+  border-radius: 4px;
+  transition: all 0.3s;
+}
+
+.sidebar-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.sidebar-link.active {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-icon {
+  margin-right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+}
+
+.sidebar-text {
+  flex: 1;
+}
+
+.sidebar-submenu-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-submenu {
+  display: flex;
+  flex-direction: column;
+  margin-left: 20px;
+}
+
+.submenu-link {
+  padding: 8px 15px;
+}
+
+.submenu-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+}
+
+/* Fix for the collapsed state */
+.sidebar.collapsed .sidebar-link {
+  justify-content: center;
+  padding: 10px 0;
+}
+
+/* Company branding */
+.sidebar-brand {
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px 0;
+  margin-bottom: 20px;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  text-align: center;
+  padding: 15px;
+  color: #6c757d;
+  font-size: 0.8rem;
+}

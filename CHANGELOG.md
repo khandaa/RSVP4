@@ -1,6 +1,10 @@
 ## [Unreleased]
 
 ### 2025-07-30
+- Reorganized sidebar navigation to group Events, Sub-events, Guests, RSVP, Travel, Accommodation, and Communications under a single "Manage Events" menu
+- Created dedicated Sidebar.css stylesheet for improved sidebar styling
+- Implemented expandable submenu functionality for grouped navigation items
+- Enhanced sidebar UI with dropdown indicators for submenu sections
 - Created comprehensive permission and feature toggle setup for all backend routes
 - Added database entries for all API routes in permissions_master table with appropriate descriptions and module categorization
 - Assigned all permissions to Admin and Full Access roles in role_permissions_tx table

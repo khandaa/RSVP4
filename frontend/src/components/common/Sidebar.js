@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import '../../styles/Sidebar.css';
 import { 
   FaHome, 
   FaUsers, 
@@ -19,7 +20,9 @@ import {
   FaTruckMoving,
   FaBell,
   FaPlane,
-  FaBed
+  FaBed,
+  FaCaretDown,
+  FaCaretUp
 } from 'react-icons/fa';
 import { useAuth } from '../../contexts/AuthContext';
 import { featureToggleAPI } from '../../services/api';
@@ -30,6 +33,15 @@ const Sidebar = ({ collapsed }) => {
   const token = localStorage.getItem('token');
   const [featureToggles, setFeatureToggles] = useState({});
   const [loading, setLoading] = useState(true);
+  const [expandedMenus, setExpandedMenus] = useState({});
+  
+  // Toggle submenu expansion
+  const toggleSubmenu = (menuName) => {
+    setExpandedMenus(prev => ({
+      ...prev,
+      [menuName]: !prev[menuName]
+    }));
+  };
   
   // Fetch feature toggles when component mounts
   useEffect(() => {
@@ -152,60 +164,56 @@ const Sidebar = ({ collapsed }) => {
       console.log('Admin or full_access user detected - showing all capabilities');
       // Base items are already included - just add all additional items
       
-      // Add Payment module
+      // Add Manage Events menu with submenu items
       menuItems.push({
-        name: 'Payment',
-        path: '/payment',
-        icon: <FaCreditCard />,
-        permission: null
-      });
-
-      // Add Sub Events module
-      menuItems.push({
-        name: 'Sub Events',
-        path: '/subevents/list',
-        icon: <FaCalendarPlus />,
-        permission: null
-      });
-      
-      // Add Guests module
-      menuItems.push({
-        name: 'Guests',
-        path: '/guests/list',
-        icon: <FaUserCheck />,
-        permission: null
-      });
-      
-      // Add RSVPs module
-      menuItems.push({
-        name: 'RSVPs',
-        path: '/rsvps/list',
-        icon: <FaReply />,
-        permission: null
-      });
-      
-      // Add Travel module
-      menuItems.push({
-        name: 'Travel',
-        path: '/travel/list',
-        icon: <FaPlane />,
-        permission: null
-      });
-      
-      // Add Accommodation module
-      menuItems.push({
-        name: 'Accommodation',
-        path: '/accommodation/list',
-        icon: <FaBed />,
-        permission: null
-      });
-      
-      // Add Communications module
-      menuItems.push({
-        name: 'Communications',
-        path: '/communications',
-        icon: <FaBell />,
-        permission: null
+        name: 'Manage Events',
+        icon: <FaCalendarAlt />,
+        permission: null,
+        submenu: true,
+        items: [
+          {
+            name: 'Events',
+            path: '/events',
+            icon: <FaCalendarAlt />,
+            permission: null
+          },
+          {
+            name: 'Sub Events',
+            path: '/subevents/list',
+            icon: <FaCalendarPlus />,
+            permission: null
+          },
+          {
+            name: 'Guests',
+            path: '/guests/list',
+            icon: <FaUserCheck />,
+            permission: null
+          },
+          {
+            name: 'RSVPs',
+            path: '/rsvps/list',
+            icon: <FaReply />,
+            permission: null
+          },
+          {
+            name: 'Travel',
+            path: '/travel/list',
+            icon: <FaPlane />,
+            permission: null
+          },
+          {
+            name: 'Accommodation',
+            path: '/accommodation/list',
+            icon: <FaBed />,
+            permission: null
+          },
+          {
+            name: 'Communications',
+            path: '/communications',
+            icon: <FaBell />,
+            permission: null
+          }
+        ]
       });
       
       // Add Notifications module
@@ -239,20 +247,56 @@ const Sidebar = ({ collapsed }) => {
         permission: null
       });
       
-      // Add Events module
+      // Add Manage Events menu with submenu items for Customer Admin
       menuItems.push({
-        name: 'Events',
-        path: '/events/list',
+        name: 'Manage Events',
         icon: <FaCalendarAlt />,
-        permission: null
-      });
-      
-      // Add Sub Events module
-      menuItems.push({
-        name: 'Sub Events',
-        path: '/subevents/list',
-        icon: <FaCalendarPlus />,
-        permission: null
+        permission: null,
+        submenu: true,
+        items: [
+          {
+            name: 'Events',
+            path: '/events/list',
+            icon: <FaCalendarAlt />,
+            permission: null
+          },
+          {
+            name: 'Sub Events',
+            path: '/subevents/list',
+            icon: <FaCalendarPlus />,
+            permission: null
+          },
+          {
+            name: 'Guests',
+            path: '/guests/list',
+            icon: <FaUserCheck />,
+            permission: null
+          },
+          {
+            name: 'RSVPs',
+            path: '/rsvps/list',
+            icon: <FaReply />,
+            permission: null
+          },
+          {
+            name: 'Travel',
+            path: '/travel/list',
+            icon: <FaPlane />,
+            permission: null
+          },
+          {
+            name: 'Accommodation',
+            path: '/accommodation/list',
+            icon: <FaBed />,
+            permission: null
+          },
+          {
+            name: 'Communications',
+            path: '/communications',
+            icon: <FaBell />,
+            permission: null
+          }
+        ]
       });
       
       // Add Team module
@@ -268,54 +312,6 @@ const Sidebar = ({ collapsed }) => {
         name: 'Employees',
         path: '/employees',
         icon: <FaUserFriends />,
-        permission: null
-      });
-      
-      // Add Guests module
-      menuItems.push({
-        name: 'Guests',
-        path: '/guests/list',
-        icon: <FaUserCheck />,
-        permission: null
-      });
-      
-      // Add RSVPs module
-      menuItems.push({
-        name: 'RSVPs',
-        path: '/rsvps/list',
-        icon: <FaReply />,
-        permission: null
-      });
-      
-      // Add Travel module
-      menuItems.push({
-        name: 'Travel',
-        path: '/travel/list',
-        icon: <FaPlane />,
-        permission: null
-      });
-      
-      // Add Accommodation module
-      menuItems.push({
-        name: 'Accommodation',
-        path: '/accommodation/list',
-        icon: <FaBed />,
-        permission: null
-      });
-      
-      // Add Communications module
-      menuItems.push({
-        name: 'Communications',
-        path: '/communications',
-        icon: <FaBell />,
-        permission: null
-      });
-      
-      // Add Notifications module
-      menuItems.push({
-        name: 'Notifications',
-        path: '/notifications',
-        icon: <FaBell />,
         permission: null
       });
     }
@@ -334,52 +330,50 @@ const Sidebar = ({ collapsed }) => {
         permission: null
       });
       
-      // Add Events module
+      // Add Manage Events menu with submenu items for Client Admin
       menuItems.push({
-        name: 'Events',
-        path: '/events/list',
+        name: 'Manage Events',
         icon: <FaCalendarAlt />,
-        permission: null
-      });
-      
-      // Add Sub Events module
-      menuItems.push({
-        name: 'Sub Events',
-        path: '/subevents/list',
-        icon: <FaCalendarPlus />,
-        permission: null
-      });
-      
-      // Add Guests module
-      menuItems.push({
-        name: 'Guests',
-        path: '/guests/list',
-        icon: <FaUserCheck />,
-        permission: null
-      });
-      
-      // Add RSVPs module
-      menuItems.push({
-        name: 'RSVPs',
-        path: '/rsvps/list',
-        icon: <FaReply />,
-        permission: null
-      });
-      
-      // Add Travel module
-      menuItems.push({
-        name: 'Travel',
-        path: '/travel/list',
-        icon: <FaPlane />,
-        permission: null
-      });
-      
-      // Add Accommodation module
-      menuItems.push({
-        name: 'Accommodation',
-        path: '/accommodation/list',
-        icon: <FaBed />,
-        permission: null
+        permission: null,
+        submenu: true,
+        items: [
+          {
+            name: 'Events',
+            path: '/events/list',
+            icon: <FaCalendarAlt />,
+            permission: null
+          },
+          {
+            name: 'Sub Events',
+            path: '/subevents/list',
+            icon: <FaCalendarPlus />,
+            permission: null
+          },
+          {
+            name: 'Guests',
+            path: '/guests/list',
+            icon: <FaUserCheck />,
+            permission: null
+          },
+          {
+            name: 'RSVPs',
+            path: '/rsvps/list',
+            icon: <FaReply />,
+            permission: null
+          },
+          {
+            name: 'Travel',
+            path: '/travel/list',
+            icon: <FaPlane />,
+            permission: null
+          },
+          {
+            name: 'Accommodation',
+            path: '/accommodation/list',
+            icon: <FaBed />,
+            permission: null
+          }
+        ]
       });
     }
   }
@@ -417,69 +411,66 @@ const Sidebar = ({ collapsed }) => {
   }
 
   return (
-    <div className={`sidebar ${collapsed ? 'collapsed' : ''}`} style={{
-      width: collapsed ? '70px' : '250px',
-      minHeight: '100vh',
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      backgroundColor: '#343a40',
-      transition: 'width 0.3s',
-      boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
-      padding: '20px 0',
-      zIndex: 1030
-    }}>
-      <div className="d-flex justify-content-center align-items-center py-3 mb-4" style={{ color: '#fff' }}>
+    <div className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
+      <div className="sidebar-brand">
         {!collapsed && <h4 className="m-0">EmployDEX</h4>}
         {collapsed && <h4 className="m-0">E</h4>}
       </div>
-      <ul className="nav flex-column">
-        {menuItems.filter(item => {
-          // Admin/full_access always see all menu items
-          if (hasRole(['Admin', 'admin', 'full_access'])) {
-            return true;
-          }
-          
-          // If no permission required OR user has permission
-          const hasRequiredPermission = !item.permission || hasPermission([item.permission]);
-          
-          // If no feature toggle required OR toggle is enabled
-          const isFeatureEnabled = !item.featureToggle || featureToggles[item.featureToggle];
-          
-          return hasRequiredPermission && isFeatureEnabled;
-        }).map(item => {
-          
-          const isActive = location.pathname.startsWith(item.path);
-          
-          return (
-            <li 
-              key={item.name} 
-              className="nav-item mb-2"
-              title={collapsed ? item.name : ''}
-            >
+      <div className="sidebar-menu">
+        {menuItems
+          .filter(item => !loading && (!item.featureToggle || featureToggles[item.featureToggle]))
+          .filter(item => !item.permission || hasPermission([item.permission]))
+          .map((item, index) => (
+            item.submenu ? (
+              <div key={index} className="sidebar-submenu-container">
+                <div 
+                  className={`sidebar-link ${item.items?.some(subItem => location.pathname === subItem.path) ? 'active' : ''}`}
+                  onClick={() => toggleSubmenu(item.name)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <span className="sidebar-icon">{item.icon}</span>
+                  {!collapsed && (
+                    <>
+                      <span className="sidebar-text">{item.name}</span>
+                      <span className="submenu-icon">
+                        {expandedMenus[item.name] ? <FaCaretUp /> : <FaCaretDown />}
+                      </span>
+                    </>
+                  )}
+                </div>
+                {expandedMenus[item.name] && !collapsed && (
+                  <div className="sidebar-submenu">
+                    {item.items.map((subItem, subIndex) => (
+                      <Link
+                        key={`${index}-${subIndex}`}
+                        to={subItem.path}
+                        className={`sidebar-link submenu-link ${
+                          location.pathname === subItem.path ? 'active' : ''
+                        }`}
+                      >
+                        <span className="sidebar-icon">{subItem.icon}</span>
+                        <span className="sidebar-text">{subItem.name}</span>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : (
               <Link 
+                key={index} 
                 to={item.path} 
-                className={`nav-link ${isActive ? 'active' : ''}`} 
-                style={{
-                  color: isActive ? '#fff' : '#ced4da',
-                  backgroundColor: isActive ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
-                  padding: collapsed ? '10px 0' : '10px 20px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: collapsed ? 'center' : 'flex-start',
-                  borderRadius: '4px',
-                  margin: '0 10px',
-                  transition: 'all 0.3s'
-                }}
+                className={`sidebar-link ${
+                  location.pathname === item.path ? 'active' : ''
+                }`}
               >
-                <span className="me-2">{item.icon}</span>
-                {!collapsed && <span>{item.name}</span>}
+                <span className="sidebar-icon">{item.icon}</span>
+                {!collapsed && <span className="sidebar-text">{item.name}</span>}
               </Link>
-            </li>
-          );
-        })}
-      </ul>
-      <div className="mt-auto text-center p-3" style={{ color: '#6c757d', fontSize: '0.8rem' }}>
+            )
+          ))
+        }
+      </div>
+      <div className="sidebar-footer">
         {!collapsed && <span>EmployDEX &copy; 2025</span>}
       </div>
     </div>

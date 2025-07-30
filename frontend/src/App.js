@@ -6,7 +6,7 @@ import { Nav } from 'react-bootstrap';
 // Layout Components
 import MainLayout from './components/common/MainLayout';
 import ProtectedRoute from './components/common/ProtectedRoute';
-import Unauthorized from './components/common/Unauthorized';
+// import Unauthorized from './components/common/Unauthorized';
 
 // Authentication Components
 import Login from './components/authentication/Login';
@@ -15,7 +15,7 @@ import ForgotPassword from './components/authentication/ForgotPassword';
 import ResetPassword from './components/authentication/ResetPassword';
 
 // Dashboard Components
-import Dashboard from './components/dashboard/Dashboard';
+// import Dashboard from './components/dashboard/Dashboard';
 import DashboardSelector from './components/dashboard/DashboardSelector';
 
 // Customer Management Components
@@ -39,13 +39,17 @@ import UserCreate from './components/users/UserCreate';
 import UserEdit from './components/users/UserEdit';
 import UserBulkUpload from './components/users/UserBulkUpload';
 
+
 // Role Management Components
 import RoleList from './components/roles/RoleList';
-import FeatureToggleList from './components/feature/FeatureToggleList';
 import RoleDetails from './components/roles/RoleDetails';
 import RoleCreate from './components/roles/RoleCreate';
 import RoleEdit from './components/roles/RoleEdit';
 import RoleBulkUpload from './components/roles/RoleBulkUpload';
+
+// Feature toggle components
+import FeatureToggleList from './components/feature/FeatureToggleList';
+
 
 // Permission Management Components
 import PermissionList from './components/permissions/PermissionList';
@@ -55,8 +59,26 @@ import PermissionEdit from './components/permissions/PermissionEdit';
 
 // Events and Related Components
 import EventList from './components/events/EventList';
+// import EventCreate from './components/events/EventCreate';
+// import EventDetail from './components/events/EventDetail';
+// import EventEdit from './components/events/EventEdit';
+// import EventCalendar from './components/events/EventCalendar';
+
 import SubeventList from './components/subevents/SubeventList';
+// import SubeventCreate from './components/subevents/SubeventCreate';
+// import SubeventDetail from './components/subevents/SubeventDetail';
+// import SubeventAllocation from './components/events/SubeventAllocation';
+// import SubeventTimeline from './components/events/SubeventTimeline';
+
 import GuestList from './components/guests/GuestList';
+// import GuestGroupManagement from './components/guests/GuestGroupManagement';
+// import GuestCreate from './components/guests/GuestCreate';
+// import GuestDetail from './components/guests/GuestDetail';
+// import GuestImport from './components/guests/GuestImport';
+
+import RSVPList from './components/rsvp/RSVPForm';
+// import RSVPCalendar from './components/rsvp/RSVPCalendar';
+
 
 // Logging Components
 import ActivityLogs from './components/logging/ActivityLogs';
@@ -66,7 +88,7 @@ import PaymentAdmin from './pages/admin/PaymentAdmin';
 import FileUploadConfig from './components/fileupload/FileUploadConfig';
 
 // Placeholder components for routes that don't have implementations yet
-const RSVPList = () => <div className="container mt-4"><h2>RSVP List</h2><p>This feature is coming soon.</p></div>;
+// const RSVPList = () => <div className="container mt-4"><h2>RSVP List</h2><p>This feature is coming soon.</p></div>;
 const TravelList = () => <div className="container mt-4"><h2>Travel List</h2><p>This feature is coming soon.</p></div>;
 const AccommodationList = () => <div className="container mt-4"><h2>Accommodation List</h2><p>This feature is coming soon.</p></div>;
 const TeamList = () => <div className="container mt-4"><h2>Team Management</h2><p>This feature is coming soon.</p></div>;
