@@ -245,8 +245,8 @@ export const eventAPI = {
   updateEvent: (id, eventData) => api.put(`/events/${id}`, eventData),
   deleteEvent: (id) => api.delete(`/events/${id}`),
   getEventsByClient: (clientId) => api.get(`/clients/${clientId}/events`),
-  // Fixed endpoint for event schedule (using subevents endpoint instead of comprehensive-crud)
-  getEventSchedule: (eventId) => api.get(`/subevents/event/${eventId}`),
+  // Fixed endpoint for event schedule - using correct path from comprehensive-crud
+  getEventSchedule: (eventId) => api.get(`/comprehensive-crud/event-schedule/${eventId}`),
   getEventStats: (eventId) => api.get(`/events/${eventId}/stats`)
 };
 

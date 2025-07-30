@@ -1,7 +1,8 @@
 ## [Unreleased]
 
 ### 2025-07-30
-- Fixed event schedule API endpoint from `/comprehensive-crud/event-schedule` to `/subevents/event`
+- Fixed event schedule API endpoint by reverting back to the correct `/comprehensive-crud/event-schedule` path
+- Added better error handling with toast notifications for failed API calls
 - Fixed syntax and formatting issues in the API service file
 - Fixed authentication issues in API calls with proper token handling
 - Improved error handling for API calls in EventList and EventDetail components

@@ -54,6 +54,8 @@ const EventDetail = () => {
         scheduleResponse = await eventAPI.getEventSchedule(id);
       } catch (err) {
         console.error('Failed to fetch event schedule:', err);
+        // Add toast notification for better user feedback
+        toast.warning('Could not load event schedule. Please try again later.');
       }
       
       try {
