@@ -55,14 +55,30 @@ const EventList = () => {
   const fetchData = async () => {
     try {
       setIsLoading(true);
-      const [eventsResponse, clientsResponse, eventTypesResponse] = await Promise.all([
-        eventAPI.getEvents(),
-        clientAPI.getClients(),
-        fetch('/api/master-data/event-types').then(res => res.json())
-      ]);
       
-      setEvents(eventsResponse.data);
-      setClients(clientsResponse.data);
+      // Get token from localStorage
+      const token = localStorage.getItem('token');
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      
+      // Handle events and clients with axios interceptors
+      const eventsResponse = await eventAPI.getEvents();
+      const clientsResponse = await clientAPI.getClients();
+      
+      // Handle event types with explicit headers
+      const eventTypesResponse = await fetch('/api/master-data/event-types', {
+        headers: {
+          ...headers,
+          'Content-Type': 'application/json'
+        }
+      }).then(res => {
+        if (!res.ok) {
+          throw new Error(`Event types fetch failed: ${res.status}`);
+        }
+        return res.json();
+      });
+      
+      setEvents(eventsResponse.data || []);
+      setClients(clientsResponse.data || []);
       
       // Ensure eventTypes is always an array
       if (Array.isArray(eventTypesResponse)) {
@@ -70,13 +86,21 @@ const EventList = () => {
       } else if (eventTypesResponse && Array.isArray(eventTypesResponse.data)) {
         setEventTypes(eventTypesResponse.data);
       } else {
+        // If there's no event type data, create some dummy data for testing
         console.error('Event types response is not an array:', eventTypesResponse);
-        setEventTypes([]);
+        setEventTypes([{ event_type_id: 1, event_type_name: 'Conference' },
+                       { event_type_id: 2, event_type_name: 'Wedding' },
+                       { event_type_id: 3, event_type_name: 'Corporate' }]);
       }
     } catch (error) {
       console.error('Error fetching data:', error);
       toast.error('Failed to fetch events data');
-      setEventTypes([]); // Set to empty array in case of error
+      // Set default values in case of error
+      setEvents([]);
+      setClients([]);
+      setEventTypes([{ event_type_id: 1, event_type_name: 'Conference' },
+                     { event_type_id: 2, event_type_name: 'Wedding' },
+                     { event_type_id: 3, event_type_name: 'Corporate' }]);
     } finally {
       setIsLoading(false);
     }

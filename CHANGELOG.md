@@ -1,6 +1,11 @@
 ## [Unreleased]
 
 ### 2025-07-30
+- Fixed event schedule API endpoint from `/comprehensive-crud/event-schedule` to `/subevents/event`
+- Fixed syntax and formatting issues in the API service file
+- Fixed authentication issues in API calls with proper token handling
+- Improved error handling for API calls in EventList and EventDetail components
+- Added fallback data for event types when API calls fail
 - Fixed EventList component error "eventTypes.map is not a function" by ensuring eventTypes is always initialized as an array
 - Added routes for new RSVPBulkManagement component at '/rsvps/bulk'
 - Fixed ESLint error in GuestDetail.js by properly importing FaEye icon

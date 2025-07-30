@@ -38,15 +38,43 @@ const EventDetail = () => {
     try {
       setIsLoading(true);
       
+      // Get token from localStorage for authentication
+      const token = localStorage.getItem('token');
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      
       // Fetch event details
       const eventResponse = await eventAPI.getEvent(id);
       setEvent(eventResponse.data);
 
-      // Fetch related data
-      const [scheduleResponse, guestsResponse] = await Promise.all([
-        eventAPI.getEventSchedule(id).catch(() => ({ data: [] })),
-        fetch(`/api/guests/event/${id}`).then(res => res.json()).catch(() => [])
-      ]);
+      // Fetch related data with error handling
+      let scheduleResponse = { data: [] };
+      let guestsResponse = [];
+      
+      try {
+        scheduleResponse = await eventAPI.getEventSchedule(id);
+      } catch (err) {
+        console.error('Failed to fetch event schedule:', err);
+      }
+      
+      try {
+        // Use authorization header for guests API call
+        const guestsRes = await fetch(`/api/guests/event/${id}`, {
+          headers: {
+            ...headers,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!guestsRes.ok) {
+          throw new Error(`Guests fetch failed: ${guestsRes.status}`);
+        }
+        
+        const guestsData = await guestsRes.json();
+        guestsResponse = Array.isArray(guestsData) ? guestsData : 
+                       (guestsData && Array.isArray(guestsData.data)) ? guestsData.data : [];
+      } catch (err) {
+        console.error('Failed to fetch guests:', err);
+      }
 
       setSubevents(scheduleResponse.data || []);
       setGuests(guestsResponse || []);

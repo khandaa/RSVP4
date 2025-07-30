@@ -245,7 +245,8 @@ export const eventAPI = {
   updateEvent: (id, eventData) => api.put(`/events/${id}`, eventData),
   deleteEvent: (id) => api.delete(`/events/${id}`),
   getEventsByClient: (clientId) => api.get(`/clients/${clientId}/events`),
-  getEventSchedule: (eventId) => api.get(`/comprehensive-crud/event-schedule/${eventId}`),
+  // Fixed endpoint for event schedule (using subevents endpoint instead of comprehensive-crud)
+  getEventSchedule: (eventId) => api.get(`/subevents/event/${eventId}`),
   getEventStats: (eventId) => api.get(`/events/${eventId}/stats`)
 };
 
@@ -253,7 +254,7 @@ export const eventAPI = {
 export const featureToggleAPI = {
   getToggles: () => api.get('/feature-toggles'),
   getToggle: (name) => api.get(`/feature-toggles/${name}`),
-  updateToggle: (name, isEnabled) => api.patch('/feature-toggles/update', { name, is_enabled: isEnabled }),
+  updateToggle: (name, isEnabled) => api.patch('/feature-toggles/update', { name, is_enabled: isEnabled })
 };
 
 // Payment API
