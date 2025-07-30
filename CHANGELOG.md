@@ -22,6 +22,7 @@
 - Added duplicate user detection to prevent creation of multiple users with same email
 - Improved frontend API interceptors to ensure authentication tokens are always included in requests
 - Created custom dashboard for customer_admin users with overview of clients, active events, teams, and employees
+- Created custom dashboard for client_admin users with overview of events, sub-events, guests, RSVPs, travel, and accommodation
 - Implemented role-based dashboard routing to display different dashboards based on user role
 - Updated task list (rsvp_tasks.md) to reflect implemented code for sections 7, 8, 9, and 10
 - Marked as complete the RSVP dashboard, reports, logistics interfaces, notification system, and main dashboard features
