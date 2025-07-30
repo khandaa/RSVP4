@@ -17,6 +17,10 @@
 - Implemented secure default password handling using bcrypt for new customer and client admin accounts
 - Integrated user creation in both single customer creation and bulk import processes
 - Added database transaction support to ensure data integrity during user and role creation processes
+- Fixed authentication issues in API routes by improving token handling
+- Enhanced error handling in customer and client routes to prevent promise rejection errors
+- Added duplicate user detection to prevent creation of multiple users with same email
+- Improved frontend API interceptors to ensure authentication tokens are always included in requests
 - Updated task list (rsvp_tasks.md) to reflect implemented code for sections 7, 8, 9, and 10
 - Marked as complete the RSVP dashboard, reports, logistics interfaces, notification system, and main dashboard features
 - Added SubEvent, Guest, RSVP, Logistics, and Notification modules to admin sidemenu
