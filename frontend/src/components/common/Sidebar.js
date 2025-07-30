@@ -12,7 +12,12 @@ import {
   FaBuilding,
   FaAddressCard,
   FaUserFriends,
-  FaCalendarAlt
+  FaCalendarAlt,
+  FaCalendarPlus,
+  FaUserCheck,
+  FaReply,
+  FaTruckMoving,
+  FaBell
 } from 'react-icons/fa';
 import { useAuth } from '../../contexts/AuthContext';
 import { featureToggleAPI } from '../../services/api';
@@ -145,6 +150,46 @@ const Sidebar = ({ collapsed }) => {
       name: 'Payment',
       path: '/payment',
       icon: <FaCreditCard />,
+      permission: null // No permission check for admins
+    });
+
+    // Add SubEvent module for admin
+    menuItems.push({
+      name: 'Sub Events',
+      path: '/subevents',
+      icon: <FaCalendarPlus />,
+      permission: null // No permission check for admins
+    });
+    
+    // Add Guest module for admin
+    menuItems.push({
+      name: 'Guests',
+      path: '/guests',
+      icon: <FaUserCheck />,
+      permission: null // No permission check for admins
+    });
+    
+    // Add RSVP module for admin
+    menuItems.push({
+      name: 'RSVPs',
+      path: '/rsvps',
+      icon: <FaReply />,
+      permission: null // No permission check for admins
+    });
+    
+    // Add Logistics module for admin
+    menuItems.push({
+      name: 'Logistics',
+      path: '/logistics',
+      icon: <FaTruckMoving />,
+      permission: null // No permission check for admins
+    });
+    
+    // Add Notification module for admin
+    menuItems.push({
+      name: 'Notifications',
+      path: '/notifications',
+      icon: <FaBell />,
       permission: null // No permission check for admins
     });
     

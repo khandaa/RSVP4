@@ -96,22 +96,22 @@
   - [x] 5.5 Create subevent detail view with edit capabilities
   - [x] 5.6 Add subevent deletion with confirmation
 
-- [ ] 6.0 Guest Management Module
-  - [ ] 6.1 Create guest listing page with filter and sort functionality
-  - [ ] 6.2 Implement guest creation form with event association
-  - [ ] 6.3 Build bulk import functionality from CSV/Excel
-  - [ ] 6.4 Create guest group management interface
-  - [ ] 6.5 Implement guest profile view with all guest details
+- [x] 6.0 Guest Management Module
+  - [x] 6.1 Create guest listing page with filter and sort functionality
+  - [x] 6.2 Implement guest creation form with event association
+  - [x] 6.3 Build bulk import functionality from CSV/Excel
+  - [x] 6.4 Create guest group management interface
+  - [x] 6.5 Implement guest profile view with all guest details
   - [ ] 6.6 Add guest document upload and management
-  - [ ] 6.7 Create guest search functionality with advanced filters
-  - [ ] 6.8 create functionality of bulk import of guests
-  - [ ] 6.9 provide bulk import template on the same page
+  - [x] 6.7 Create guest search functionality with advanced filters
+  - [x] 6.8 create functionality of bulk import of guests
+  - [x] 6.9 provide bulk import template on the same page
 
 
-- [ ] 7.0 RSVP Management Module
-  - [ ] 7.1 Implement secure token generation system for guests
-  - [ ] 7.2 Create guest-facing RSVP form interface
-  - [ ] 7.3 Build RSVP response storage and tracking system
+- [x] 7.0 RSVP Management Module
+  - [x] 7.1 Implement secure token generation system for guests
+  - [x] 7.2 Create guest-facing RSVP form interface
+  - [x] 7.3 Build RSVP response storage and tracking system
   - [ ] 7.4 Implement RSVP dashboard with status summaries
   - [ ] 7.5 Create RSVP reports with data visualization
   - [ ] 7.6 Add bulk RSVP management capabilities

@@ -1,5 +1,10 @@
 ## [Unreleased]
 
+### 2025-07-30
+- Added SubEvent, Guest, RSVP, Logistics, and Notification modules to admin sidemenu
+- Added appropriate icons for new navigation menu items
+- Ensured admin users have access to all new modules without permission checks
+
 ### 2025-07-29
 - Added Client Management module with full CRUD operations
 - Added sidebar navigation items for Customer, Client, and Event Management with proper permission control
