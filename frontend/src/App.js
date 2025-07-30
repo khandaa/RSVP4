@@ -59,25 +59,25 @@ import PermissionEdit from './components/permissions/PermissionEdit';
 
 // Events and Related Components
 import EventList from './components/events/EventList';
-// import EventCreate from './components/events/EventCreate';
-// import EventDetail from './components/events/EventDetail';
-// import EventEdit from './components/events/EventEdit';
-// import EventCalendar from './components/events/EventCalendar';
+import EventCreate from './components/events/EventCreate';
+import EventDetail from './components/events/EventDetail';
+import EventEdit from './components/events/EventEdit';
+import EventCalendar from './components/events/EventCalendar';
 
 import SubeventList from './components/subevents/SubeventList';
-// import SubeventCreate from './components/subevents/SubeventCreate';
-// import SubeventDetail from './components/subevents/SubeventDetail';
-// import SubeventAllocation from './components/events/SubeventAllocation';
-// import SubeventTimeline from './components/events/SubeventTimeline';
+import SubeventCreate from './components/subevents/SubeventCreate';
+import SubeventDetail from './components/subevents/SubeventDetail';
+import SubeventAllocation from './components/events/SubeventAllocation';
+import SubeventTimeline from './components/events/SubeventTimeline';
 
 import GuestList from './components/guests/GuestList';
-// import GuestGroupManagement from './components/guests/GuestGroupManagement';
+import GuestGroupManagement from './components/guests/GuestGroupManagement';
 import GuestCreate from './components/guests/GuestCreate';
 import GuestDetail from './components/guests/GuestDetail';
 import GuestImport from './components/guests/GuestImport';
 
 import RSVPList from './components/rsvp/RSVPForm';
-// import RSVPCalendar from './components/rsvp/RSVPCalendar';
+import RSVPCalendar from './components/rsvp/RSVPBulkManagement';
 
 
 // Logging Components
@@ -87,9 +87,9 @@ import ActivityLogs from './components/logging/ActivityLogs';
 import PaymentAdmin from './pages/admin/PaymentAdmin';
 import FileUploadConfig from './components/fileupload/FileUploadConfig';
 import RSVPForm from './components/rsvp/RSVPForm';
+import RSVPBulkManagement from './components/rsvp/RSVPBulkManagement';
 
 // Placeholder components for routes that don't have implementations yet
-// const RSVPList = () => <div className="container mt-4"><h2>RSVP List</h2><p>This feature is coming soon.</p></div>;
 const TravelList = () => <div className="container mt-4"><h2>Travel List</h2><p>This feature is coming soon.</p></div>;
 const AccommodationList = () => <div className="container mt-4"><h2>Accommodation List</h2><p>This feature is coming soon.</p></div>;
 const TeamList = () => <div className="container mt-4"><h2>Team Management</h2><p>This feature is coming soon.</p></div>;
@@ -199,14 +199,22 @@ function App() {
 
           {/* Events Routes */}
           <Route path="events">
-            {/* <Route index element={<Navigate to="/dashboard" />} /> */}
+            <Route index element={<Navigate to="/events/list" />} />
             <Route path="list" element={<EventList />} />
+            <Route path="create" element={<EventCreate />} />
+            <Route path=":id" element={<EventDetail />} />
+            <Route path=":id/edit" element={<EventEdit />} />
+            <Route path="calendar" element={<EventCalendar />} />
           </Route>
 
           {/* SubEvents Routes */}
           <Route path="subevents">
-            {/* <Route index element={<Navigate to="/dashboard" />} /> */}
+            <Route index element={<Navigate to="/subevents/list" />} />
             <Route path="list" element={<SubeventList />} />
+            <Route path="create" element={<SubeventCreate />} />
+            <Route path=":id" element={<SubeventDetail />} />
+            <Route path="allocation" element={<SubeventAllocation />} />
+            <Route path="timeline" element={<SubeventTimeline />} />
           </Route>
 
           {/* Guests Routes */}
@@ -223,6 +231,7 @@ function App() {
           <Route path="rsvps">
             <Route index element={<Navigate to="/dashboard" />} />
             <Route path="list" element={<RSVPForm />} />
+            <Route path="list" element={<RSVPBulkManagement />} />
           </Route>
 
           {/* Travel Routes */}

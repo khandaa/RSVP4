@@ -1,6 +1,10 @@
 ## [Unreleased]
 
 ### 2025-07-30
+- Fixed Events page blank screen issue by properly configuring all event routes in App.js
+- Fixed SubEvents page by adding correct route configuration
+- Added missing routes for EventCreate, EventDetail, EventEdit and EventCalendar components
+- Added missing routes for SubeventCreate, SubeventDetail, SubeventAllocation and SubeventTimeline
 - Fixed guest management buttons functionality by adding proper routes in App.js
 - Enabled GuestCreate, GuestDetail and GuestImport components by uncommenting imports
 - Added missing routes for guest creation, import, viewing and editing
