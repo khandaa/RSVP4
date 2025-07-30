@@ -6,6 +6,8 @@
 - Assigned all permissions to Admin and Full Access roles in role_permissions_tx table
 - Created feature toggle entries for all major system capabilities
 - Created SQL migration script for permissions, role permissions, and feature toggles
+- Created sample data insertion script with 10 customers, 5 clients per customer, 3 events per client, 30 guests per event
+- Added sample RSVP, travel, accommodation, and communication records for each guest
 - Updated task list (rsvp_tasks.md) to reflect implemented code for sections 7, 8, 9, and 10
 - Marked as complete the RSVP dashboard, reports, logistics interfaces, notification system, and main dashboard features
 - Added SubEvent, Guest, RSVP, Logistics, and Notification modules to admin sidemenu
