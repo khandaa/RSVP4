@@ -31,6 +31,7 @@
 - Standardized navigation paths between dashboard cards and sidebar links for consistent user experience
 - Updated all sidebar navigation links to point to list pages (events/list, guests/list, subevents/list, rsvps/list, travel/list, accommodation/list)
 - Ensured client dashboard card buttons match sidebar navigation paths for seamless user experience
+- Added missing routes in App.js for events/list, guests/list, subevents/list, rsvps/list, travel/list, and accommodation/list to fix navigation issues
 - Updated task list (rsvp_tasks.md) to reflect implemented code for sections 7, 8, 9, and 10
 - Marked as complete the RSVP dashboard, reports, logistics interfaces, notification system, and main dashboard features
 - Added SubEvent, Guest, RSVP, Logistics, and Notification modules to admin sidemenu

@@ -17,6 +17,15 @@ import ResetPassword from './components/authentication/ResetPassword';
 import Dashboard from './components/dashboard/Dashboard';
 import DashboardSelector from './components/dashboard/DashboardSelector';
 
+// Events and Related Components
+import EventList from './components/events/EventList';
+import SubeventList from './components/subevents/SubeventList';
+import GuestList from './components/guests/GuestList';
+// Placeholder components for routes that don't have implementations yet
+const RSVPList = () => <div className="container mt-4"><h2>RSVP List</h2><p>This feature is coming soon.</p></div>;
+const TravelList = () => <div className="container mt-4"><h2>Travel List</h2><p>This feature is coming soon.</p></div>;
+const AccommodationList = () => <div className="container mt-4"><h2>Accommodation List</h2><p>This feature is coming soon.</p></div>;
+
 // Customer Management Components
 import CustomerList from './components/customers/CustomerList';
 import CustomerDetails from './components/customers/CustomerDetail';
@@ -161,6 +170,42 @@ function App() {
 
           {/* File Upload Widget Routes */}
           <Route path="admin/file-upload-settings" element={<FileUploadConfig />} />
+
+          {/* Events Routes */}
+          <Route path="events">
+            <Route index element={<Navigate to="/dashboard" />} />
+            <Route path="list" element={<EventList />} />
+          </Route>
+
+          {/* SubEvents Routes */}
+          <Route path="subevents">
+            <Route index element={<Navigate to="/dashboard" />} />
+            <Route path="list" element={<SubeventList />} />
+          </Route>
+
+          {/* Guests Routes */}
+          <Route path="guests">
+            <Route index element={<Navigate to="/dashboard" />} />
+            <Route path="list" element={<GuestList />} />
+          </Route>
+
+          {/* RSVPs Routes */}
+          <Route path="rsvps">
+            <Route index element={<Navigate to="/dashboard" />} />
+            <Route path="list" element={<RSVPList />} />
+          </Route>
+
+          {/* Travel Routes */}
+          <Route path="travel">
+            <Route index element={<Navigate to="/dashboard" />} />
+            <Route path="list" element={<TravelList />} />
+          </Route>
+
+          {/* Accommodation Routes */}
+          <Route path="accommodation">
+            <Route index element={<Navigate to="/dashboard" />} />
+            <Route path="list" element={<AccommodationList />} />
+          </Route>
         </Route>
         
         {/* Catch All Route */}
