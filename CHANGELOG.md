@@ -1,6 +1,11 @@
 ## [Unreleased]
 
 ### 2025-07-30
+- Created comprehensive permission and feature toggle setup for all backend routes
+- Added database entries for all API routes in permissions_master table with appropriate descriptions and module categorization
+- Assigned all permissions to Admin and Full Access roles in role_permissions_tx table
+- Created feature toggle entries for all major system capabilities
+- Created SQL migration script for permissions, role permissions, and feature toggles
 - Updated task list (rsvp_tasks.md) to reflect implemented code for sections 7, 8, 9, and 10
 - Marked as complete the RSVP dashboard, reports, logistics interfaces, notification system, and main dashboard features
 - Added SubEvent, Guest, RSVP, Logistics, and Notification modules to admin sidemenu
