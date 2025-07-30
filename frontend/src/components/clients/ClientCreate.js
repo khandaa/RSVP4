@@ -16,7 +16,7 @@ import { useAuth } from '../../contexts/AuthContext';
 
 const ClientCreate = () => {
   const navigate = useNavigate();
-  const { hasPermission } = useAuth();
+  const { hasPermission, hasRole } = useAuth();
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -126,7 +126,7 @@ const ClientCreate = () => {
     }
   };
   
-  if (!hasPermission(['client_create'])) {
+  if (!hasPermission(['client_create']) && !hasRole(['admin', 'full_access'])) {
     return (
       <Container className="mt-4">
         <div className="alert alert-danger">
