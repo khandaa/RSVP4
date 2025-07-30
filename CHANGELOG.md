@@ -1,6 +1,10 @@
 ## [Unreleased]
 
 ### 2025-07-30
+- Implemented improved subevent-to-event linking functionality with better parent event visualization
+- Added dedicated subeventAPI for consistent API calls related to subevents
+- Enhanced parent event selection UI with detailed event information display
+- Added explicit parent-child relationship indicators in the subevent creation form
 - Fixed event schedule API endpoint by reverting back to the correct `/comprehensive-crud/event-schedule` path
 - Added better error handling with toast notifications for failed API calls
 - Fixed syntax and formatting issues in the API service file

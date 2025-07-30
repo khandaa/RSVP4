@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
+import { useNavigate, useLocation, useSearchParams, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { 
   FaSave, 
@@ -11,15 +11,19 @@ import {
   FaTags,
   FaUsers,
   FaClipboardList,
-  FaArrowLeft
+  FaArrowLeft,
+  FaLink
 } from 'react-icons/fa';
-import { eventAPI } from '../../services/api';
+import { eventAPI, subeventAPI } from '../../services/api';
 
 const SubeventCreate = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const eventId = searchParams.get('eventId');
+  const params = useParams();
+  
+  // Get eventId from URL params or search params
+  const eventId = params.eventId || searchParams.get('eventId');
   
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(true);
@@ -28,6 +32,7 @@ const SubeventCreate = () => {
   const [rooms, setRooms] = useState([]);
   const [filteredRooms, setFilteredRooms] = useState([]);
   const [parentEvent, setParentEvent] = useState(null);
+  const [showParentDetails, setShowParentDetails] = useState(false);
   
   const [formData, setFormData] = useState({
     event_id: eventId || '',
@@ -165,33 +170,26 @@ const SubeventCreate = () => {
         event_id: parseInt(formData.event_id),
         venue_id: formData.venue_id ? parseInt(formData.venue_id) : null,
         room_id: formData.room_id ? parseInt(formData.room_id) : null,
-        capacity: formData.capacity ? parseInt(formData.capacity) : null
+        capacity: formData.capacity ? parseInt(formData.capacity) : null,
+        // Add parent event info for better linking
+        parent_event_name: parentEvent?.event_name || null,
+        parent_event_date: parentEvent?.event_start_date || null
       };
 
-      const response = await fetch('/api/crud/event-schedule', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify(submitData)
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to create subevent');
-      }
-
-      const result = await response.json();
+      // Use the subeventAPI to create the subevent
+      const result = await subeventAPI.createSubevent(submitData);
+      
       toast.success('Sub event created successfully');
       
+      // If we have a parent event ID, navigate back to that event's details
       if (eventId) {
-        navigate(`/subevents?eventId=${eventId}`);
+        navigate(`/events/${eventId}?tab=subevents`);
       } else {
         navigate('/subevents');
       }
     } catch (error) {
       console.error('Error creating subevent:', error);
-      toast.error('Failed to create sub event');
+      toast.error('Failed to create sub event: ' + (error.response?.data?.error || error.message));
     } finally {
       setIsLoading(false);
     }
@@ -318,25 +316,66 @@ const SubeventCreate = () => {
                       <div className="col-12">
                         <label className="form-label fw-semibold">
                           <FaCalendarAlt className="me-2 text-primary" />
-                          Parent Event *
+                          <FaLink className="me-1" /> Parent Event *
                         </label>
                         <select
                           name="event_id"
                           className={`form-select glass-input ${errors.event_id ? 'is-invalid' : ''}`}
                           value={formData.event_id}
-                          onChange={handleInputChange}
+                          onChange={(e) => {
+                            handleInputChange(e);
+                            if (e.target.value) {
+                              // Fetch parent event details when selected
+                              const selectedEventId = e.target.value;
+                              eventAPI.getEvent(selectedEventId)
+                                .then(response => {
+                                  setParentEvent(response.data);
+                                  setShowParentDetails(true);
+                                })
+                                .catch(error => {
+                                  console.error('Error fetching event details:', error);
+                                });
+                            } else {
+                              setShowParentDetails(false);
+                              setParentEvent(null);
+                            }
+                          }}
                           disabled={isLoading}
                         >
                           <option value="">Select a parent event</option>
                           {events.map(event => (
                             <option key={event.event_id} value={event.event_id}>
-                              {event.event_name} ({event.client_name})
+                              {event.event_name} ({event.client_name || 'No client'})
                             </option>
                           ))}
                         </select>
                         {errors.event_id && (
                           <div className="invalid-feedback">{errors.event_id}</div>
                         )}
+                      </div>
+                    )}
+                    
+                    {/* Display parent event details */}
+                    {((eventId && parentEvent) || showParentDetails) && (
+                      <div className="col-12">
+                        <div className="alert alert-info d-flex align-items-start mb-3">
+                          <div>
+                            <h6 className="mb-1"><strong><FaLink className="me-2" />Parent Event:</strong> {parentEvent?.event_name}</h6>
+                            <div className="row g-2 mt-1">
+                              <div className="col-md-6">
+                                <small className="d-block"><strong>Status:</strong> {parentEvent?.event_status}</small>
+                                <small className="d-block"><strong>Type:</strong> {parentEvent?.event_type}</small>
+                              </div>
+                              <div className="col-md-6">
+                                <small className="d-block"><strong>Starts:</strong> {parentEvent?.event_start_date ? new Date(parentEvent.event_start_date).toLocaleDateString() : 'N/A'}</small>
+                                <small className="d-block"><strong>Ends:</strong> {parentEvent?.event_end_date ? new Date(parentEvent.event_end_date).toLocaleDateString() : 'N/A'}</small>
+                              </div>
+                            </div>
+                            <small className="text-muted mt-2 d-block">
+                              <em>This sub-event will be linked to this parent event.</em>
+                            </small>
+                          </div>
+                        </div>
                       </div>
                     )}
 
@@ -455,36 +494,6 @@ const SubeventCreate = () => {
                         <div className="invalid-feedback">{errors.subevent_end_datetime}</div>
                       )}
                     </div>
-
-                    {/* Venue Selection */}
-                    <div className="col-md-6">
-                      <label className="form-label fw-semibold">
-                        <FaMapMarkerAlt className="me-2 text-primary" />
-                        Venue
-                      </label>
-                      <select
-                        name="venue_id"
-                        className={`form-select glass-input ${errors.venue_id ? 'is-invalid' : ''}`}
-                        value={formData.venue_id}
-                        onChange={handleInputChange}
-                        disabled={isLoading}
-                      >
-                        <option value="">Select a venue</option>
-                        {venues.map(venue => (
-                          <option key={venue.venue_id} value={venue.venue_id}>
-                            {venue.venue_name}
-                          </option>
-                        ))}
-                      </select>
-                      {errors.venue_id && (
-                        <div className="invalid-feedback">{errors.venue_id}</div>
-                      )}
-                    </div>
-
-                    {/* Room Selection */}
-                    <div className="col-md-6">
-                      <label className="form-label fw-semibold">
-                        Room
                       </label>
                       <select
                         name="room_id"

@@ -281,4 +281,14 @@ export const paymentAPI = {
   getPaymentStatus: () => api.get('/payment/status')
 };
 
+// Subevent API
+export const subeventAPI = {
+  getSubevents: (params) => api.get('/comprehensive-crud/subevents', { params }),
+  getSubevent: (id) => api.get(`/comprehensive-crud/subevents/${id}`),
+  getSubeventsByEvent: (eventId) => api.get(`/comprehensive-crud/subevents?event_id=${eventId}`),
+  createSubevent: (subeventData) => api.post('/comprehensive-crud/subevents', subeventData),
+  updateSubevent: (id, subeventData) => api.put(`/comprehensive-crud/subevents/${id}`, subeventData),
+  deleteSubevent: (id) => api.delete(`/comprehensive-crud/subevents/${id}`)
+};
+
 export default api;
