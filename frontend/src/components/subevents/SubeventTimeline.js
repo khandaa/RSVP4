@@ -50,7 +50,7 @@ const SubeventTimeline = () => {
       const [subeventResponse, eventResponse, venuesResponse] = await Promise.all([
         eventAPI.getEventSchedule(eventId),
         eventAPI.getEvent(eventId),
-        fetch('/api/master-data/venues').then(res => res.json())
+        fetch('/api/venues').then(res => res.json())
       ]);
       
       setSubevents(subeventResponse.data || []);

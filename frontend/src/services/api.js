@@ -245,7 +245,7 @@ export const eventAPI = {
   updateEvent: (id, eventData) => api.put(`/events/${id}`, eventData),
   deleteEvent: (id) => api.delete(`/events/${id}`),
   getEventsByClient: (clientId) => api.get(`/clients/${clientId}/events`),
-  getEventSchedule: (eventId) => api.get(`/crud/event-schedule/${eventId}`),
+  getEventSchedule: (eventId) => api.get(`/comprehensive-crud/event-schedule/${eventId}`),
   getEventStats: (eventId) => api.get(`/events/${eventId}/stats`)
 };
 

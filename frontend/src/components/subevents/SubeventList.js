@@ -59,7 +59,7 @@ const SubeventList = () => {
       setIsLoading(true);
       const [subeventResponse, venuesResponse, eventResponse] = await Promise.all([
         eventAPI.getEventSchedule(eventId),
-        fetch('/api/master-data/venues').then(res => res.json()),
+        fetch('/api/venues').then(res => res.json()),
         eventAPI.getEvent(eventId)
       ]);
       
@@ -78,8 +78,8 @@ const SubeventList = () => {
     try {
       setIsLoading(true);
       const [subeventResponse, venuesResponse] = await Promise.all([
-        fetch('/api/crud/event-schedule').then(res => res.json()),
-        fetch('/api/master-data/venues').then(res => res.json())
+        fetch('/api/comprehensive-crud/event-schedule').then(res => res.json()),
+        fetch('/api/venues').then(res => res.json())
       ]);
       
       setSubevents(subeventResponse || []);

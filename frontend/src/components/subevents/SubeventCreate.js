@@ -69,7 +69,7 @@ const SubeventCreate = () => {
     try {
       setIsLoadingData(true);
       const requests = [
-        fetch('/api/master-data/venues').then(res => res.json()),
+        fetch('/api/venues').then(res => res.json()),
         fetch('/api/master-data/rooms').then(res => res.json())
       ];
 

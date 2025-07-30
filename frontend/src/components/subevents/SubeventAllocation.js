@@ -47,7 +47,7 @@ const SubeventAllocation = () => {
       const [subeventResponse, eventResponse, venuesResponse, roomsResponse] = await Promise.all([
         eventAPI.getEventSchedule(eventId),
         eventAPI.getEvent(eventId),
-        fetch('/api/master-data/venues').then(res => res.json()),
+        fetch('/api/venues').then(res => res.json()),
         fetch('/api/master-data/rooms').then(res => res.json())
       ]);
       
