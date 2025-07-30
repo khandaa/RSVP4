@@ -88,13 +88,13 @@
   - [x] 4.5 Implement event status tracking
   - [x] 4.6 Add event deletion with confirmation and dependency checks
 
-- [ ] 5.0 Subevent Management Module
-  - [ ] 5.1 Create subevent listing within event context
-  - [ ] 5.2 Implement subevent creation form
-  - [ ] 5.3 Build timeline view for subevents
-  - [ ] 5.4 Implement venue and room allocation for subevents
-  - [ ] 5.5 Create subevent detail view with edit capabilities
-  - [ ] 5.6 Add subevent deletion with confirmation
+- [x] 5.0 Subevent Management Module
+  - [x] 5.1 Create subevent listing within event context
+  - [x] 5.2 Implement subevent creation form
+  - [x] 5.3 Build timeline view for subevents
+  - [x] 5.4 Implement venue and room allocation for subevents
+  - [x] 5.5 Create subevent detail view with edit capabilities
+  - [x] 5.6 Add subevent deletion with confirmation
 
 - [ ] 6.0 Guest Management Module
   - [ ] 6.1 Create guest listing page with filter and sort functionality
