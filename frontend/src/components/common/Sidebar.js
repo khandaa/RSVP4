@@ -11,7 +11,8 @@ import {
   FaCreditCard,
   FaBuilding,
   FaAddressCard,
-  FaUserFriends
+  FaUserFriends,
+  FaCalendarAlt
 } from 'react-icons/fa';
 import { useAuth } from '../../contexts/AuthContext';
 import { featureToggleAPI } from '../../services/api';
@@ -78,6 +79,13 @@ const Sidebar = ({ collapsed }) => {
       featureToggle: 'client_management'
     },
     {
+      name: 'Events',
+      path: '/events',
+      icon: <FaCalendarAlt />,
+      permission: 'event_view',
+      featureToggle: 'event_management'
+    },
+    {
       name: 'Users',
       path: '/users',
       icon: <FaUsers />,
@@ -118,10 +126,16 @@ const Sidebar = ({ collapsed }) => {
   // Start with base menu items
   const menuItems = [...baseMenuItems];
   
-  // Always show customer and client modules to admin users
+  // Always show customer, client, and event modules to admin users
   if (hasRole && hasRole(['Admin', 'admin', 'full_access'])) {
-    // These will be shown by the base menu items since we've included them there
-    console.log('Admin/full_access user detected - customer and client management should be visible');
+    // Override feature toggle checks for admin/full_access users
+    menuItems.forEach(item => {
+      if (item.name === 'Customers' || item.name === 'Clients' || item.name === 'Events') {
+        // Remove feature toggle dependency for these items
+        delete item.featureToggle;
+      }
+    });
+    console.log('Admin/full_access user detected - customer, client, and event management should be visible regardless of feature toggles');
   }
   
   // For admin users, always add the payment module regardless of feature toggles
@@ -182,23 +196,20 @@ const Sidebar = ({ collapsed }) => {
         {collapsed && <h4 className="m-0">E</h4>}
       </div>
       <ul className="nav flex-column">
-        {menuItems.map((item) => {
-          // Skip rendering menu item if user doesn't have permission
-          if (item.permission && !hasPermission([item.permission])) {
-            return null;
+        {menuItems.filter(item => {
+          // Admin/full_access always see all menu items
+          if (hasRole(['Admin', 'admin', 'full_access'])) {
+            return true;
           }
           
-          // Skip rendering menu item if its feature toggle is disabled
-          // But always show payment module to admin users regardless of feature toggle
-          if (item.featureToggle && !featureToggles[item.featureToggle]) {
-            // Special case for payment module - always show to admin users
-            if (item.name === 'Payment' && hasRole(['Admin'])) {
-              console.log('Showing Payment module to Admin user regardless of feature toggle');
-            } else {
-              console.log(`Hiding ${item.name} module due to disabled feature toggle ${item.featureToggle}`);
-              return null;
-            }
-          }
+          // If no permission required OR user has permission
+          const hasRequiredPermission = !item.permission || hasPermission([item.permission]);
+          
+          // If no feature toggle required OR toggle is enabled
+          const isFeatureEnabled = !item.featureToggle || featureToggles[item.featureToggle];
+          
+          return hasRequiredPermission && isFeatureEnabled;
+        }).map(item => {
           
           const isActive = location.pathname.startsWith(item.path);
           

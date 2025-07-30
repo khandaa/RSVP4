@@ -2,11 +2,13 @@
 
 ### 2025-07-29
 - Added Client Management module with full CRUD operations
-- Added sidebar navigation items for Customer and Client Management with proper permission control
+- Added sidebar navigation items for Customer, Client, and Event Management with proper permission control
 - Created Client List, Detail, Create, Edit, and Import components
 - Updated API service with client management endpoints
-- Added feature toggles for customer and client management modules
-- Created database migration script for feature toggles
+- Added feature toggles for customer, client, and event management modules
+- Created database migration scripts for feature toggles
+- Fixed sidebar navigation to ensure admin and full_access roles always see Customer, Client, and Event modules
+- Implemented proper feature toggle overrides for admin users
 
 
 ### 2025-07-28

@@ -55,6 +55,8 @@
   - [x] 1.3 Build base layout with responsive sidemenu and feature toggles
   - [x] 1.3.1 Integrate Customer Management into sidebar with permissions
   - [x] 1.3.2 Integrate Client Management into sidebar with permissions
+  - [x] 1.3.3 Add feature toggles for customer and client management modules
+  - [x] 1.3.4 Create database migration script for feature toggles
   - [x] 1.4 Set up role-based permission system (admin, full_access, user roles)
   - [x] 1.5 Implement user session management
   - [x] 1.6 Create main application dashboard with key metrics
@@ -68,13 +70,13 @@
   - [x] 2.6 Create data export options (CSV/Excel)
   - [x] 2.7 create functionality of bulk import of customers 
 
-- [ ] 3.0 Client Management Module
+- [x] 3.0 Client Management Module
   - [x] 3.1 Create client listing page with filter and sort functionality
   - [x] 3.2 Implement client creation form with customer association
   - [x] 3.3 Build client detail view with edit capabilities
-  - [ ] 3.4 Add client deletion with confirmation
+  - [x] 3.4 Add client deletion with confirmation
   - [x] 3.5 Implement client search functionality
-  - [ ] 3.6 Create client dashboard showing event summaries
+  - [x] 3.6 Create client dashboard showing event summaries
   - [x] 3.7 Create functionality of bulk import of clients
   - [x] 3.8 Provide bulk import template on the same page
 

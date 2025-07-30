@@ -43,9 +43,19 @@ base_v1/
 ```
 
 ## Features
+- **Customer Management Module**: Complete customer management with listing, creation, editing, detail views and bulk import/export functionality. Includes search and filter capabilities.
+
+- **Client Management Module**: Comprehensive client management with customer association, detailed views, and bulk operations. Supports filtering, sorting, and exporting client data.
+
+- **Event Management Module**: Event planning and coordination with client association, scheduling, and status tracking.
+
 - **Payment Integration Module**: A comprehensive payment integration system with QR code management and transaction tracking. Admins can upload, activate, and manage payment QR codes through an intuitive UI. The module automatically creates required database tables on initialization.
-- **Feature Toggle System**: Admin and Full Access roles can manage feature flags via a dedicated UI and API. Use toggles to enable/disable features for controlled rollout, including the new payment integration module.
-- Activity Log page now displays timestamps in a readable format and includes a new 'IP Address / Port' column, showing the source of each activity if available.
+
+- **Feature Toggle System**: Admin and Full Access roles can manage feature flags via a dedicated UI and API. Use toggles to enable/disable features for controlled rollout, including customer, client, event, and payment management modules.
+
+- **Role-Based Access Control**: Fine-grained permission system ensuring users only access features they are authorized to use. Admin and full_access roles always have visibility to all modules regardless of feature toggle settings.
+
+- **Activity Log**: Comprehensive audit trail with timestamps in a readable format and includes a new 'IP Address / Port' column, showing the source of each activity if available.
 
 - **2025-07-10:** Fixed JSX syntax errors in `frontend/src/components/roles/RoleList.js` (missing/mismatched `<tr>` closing tag and action button structure) that caused rendering issues on the Roles List page.
 - **2025-07-10:** Improved the Role Management table UI for clarity and modern appearance (better alignment, action buttons, permission badges, and custom styles).
