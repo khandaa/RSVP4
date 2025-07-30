@@ -6,6 +6,7 @@ import { Nav } from 'react-bootstrap';
 // Layout Components
 import MainLayout from './components/common/MainLayout';
 import ProtectedRoute from './components/common/ProtectedRoute';
+import Unauthorized from './components/common/Unauthorized';
 
 // Authentication Components
 import Login from './components/authentication/Login';
@@ -16,24 +17,6 @@ import ResetPassword from './components/authentication/ResetPassword';
 // Dashboard Components
 import Dashboard from './components/dashboard/Dashboard';
 import DashboardSelector from './components/dashboard/DashboardSelector';
-
-// Events and Related Components
-import EventList from './components/events/EventList';
-import SubeventList from './components/subevents/SubeventList';
-import GuestList from './components/guests/GuestList';
-
-// RSVP, Logistics and Communication Components
-import ActivityLogs from './components/logging/ActivityLogs';
-
-// Placeholder components for routes that don't have implementations yet
-const RSVPList = () => <div className="container mt-4"><h2>RSVP List</h2><p>This feature is coming soon.</p></div>;
-const TravelList = () => <div className="container mt-4"><h2>Travel List</h2><p>This feature is coming soon.</p></div>;
-const AccommodationList = () => <div className="container mt-4"><h2>Accommodation List</h2><p>This feature is coming soon.</p></div>;
-const TeamList = () => <div className="container mt-4"><h2>Team Management</h2><p>This feature is coming soon.</p></div>;
-const EmployeeList = () => <div className="container mt-4"><h2>Employee Management</h2><p>This feature is coming soon.</p></div>;
-const CommunicationsList = () => <div className="container mt-4"><h2>Communications</h2><p>This feature is coming soon.</p></div>;
-const NotificationsList = () => <div className="container mt-4"><h2>Notifications</h2><p>This feature is coming soon.</p></div>;
-const AnalyticsDashboard = () => <div className="container mt-4"><h2>Analytics Dashboard</h2><p>This feature is coming soon.</p></div>;
 
 // Customer Management Components
 import CustomerList from './components/customers/CustomerList';
@@ -70,6 +53,11 @@ import PermissionDetails from './components/permissions/PermissionDetails';
 import PermissionCreate from './components/permissions/PermissionCreate';
 import PermissionEdit from './components/permissions/PermissionEdit';
 
+// Events and Related Components
+import EventList from './components/events/EventList';
+import SubeventList from './components/subevents/SubeventList';
+import GuestList from './components/guests/GuestList';
+
 // Logging Components
 import ActivityLogs from './components/logging/ActivityLogs';
 
@@ -77,9 +65,15 @@ import ActivityLogs from './components/logging/ActivityLogs';
 import PaymentAdmin from './pages/admin/PaymentAdmin';
 import FileUploadConfig from './components/fileupload/FileUploadConfig';
 
-
-// Common Components
-import Unauthorized from './components/common/Unauthorized';
+// Placeholder components for routes that don't have implementations yet
+const RSVPList = () => <div className="container mt-4"><h2>RSVP List</h2><p>This feature is coming soon.</p></div>;
+const TravelList = () => <div className="container mt-4"><h2>Travel List</h2><p>This feature is coming soon.</p></div>;
+const AccommodationList = () => <div className="container mt-4"><h2>Accommodation List</h2><p>This feature is coming soon.</p></div>;
+const TeamList = () => <div className="container mt-4"><h2>Team Management</h2><p>This feature is coming soon.</p></div>;
+const EmployeeList = () => <div className="container mt-4"><h2>Employee Management</h2><p>This feature is coming soon.</p></div>;
+const CommunicationsList = () => <div className="container mt-4"><h2>Communications</h2><p>This feature is coming soon.</p></div>;
+const NotificationsList = () => <div className="container mt-4"><h2>Notifications</h2><p>This feature is coming soon.</p></div>;
+const AnalyticsDashboard = () => <div className="container mt-4"><h2>Analytics Dashboard</h2><p>This feature is coming soon.</p></div>;
 
 function App() {
   const { isAuthenticated, isLoading, currentUser, hasRole } = useAuth();
