@@ -1,5 +1,14 @@
 ## [Unreleased]
 
+### 2025-07-31
+- Implemented RSVP Dashboard for monitoring guest response statistics
+- Added visualization for attendance, declines, and pending responses
+- Added RSVP API service with endpoints for statistics and management
+- Updated Sidebar navigation to link directly to the new RSVP Dashboard
+- Made RSVP Dashboard the default landing page for the RSVP section
+- Added export functionality for RSVP data
+- Implemented reminder system for pending RSVPs
+
 ### 2025-07-30
 - Implemented improved subevent-to-event linking functionality with better parent event visualization
 - Added dedicated subeventAPI for consistent API calls related to subevents

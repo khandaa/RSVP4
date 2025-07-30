@@ -291,4 +291,35 @@ export const subeventAPI = {
   deleteSubevent: (id) => api.delete(`/comprehensive-crud/subevents/${id}`)
 };
 
+// RSVP API
+export const rsvpAPI = {
+  // RSVP operations
+  getRsvps: (params) => api.get('/comprehensive-crud/guest-rsvp', { params }),
+  getRsvp: (id) => api.get(`/comprehensive-crud/guest-rsvp/${id}`),
+  createRsvp: (rsvpData) => api.post('/comprehensive-crud/guest-rsvp', rsvpData),
+  updateRsvp: (id, rsvpData) => api.put(`/comprehensive-crud/guest-rsvp/${id}`, rsvpData),
+  deleteRsvp: (id) => api.delete(`/comprehensive-crud/guest-rsvp/${id}`),
+  
+  // RSVP statistics
+  getRsvpStats: (eventId) => api.get(`/rsvp/stats/${eventId}`),
+  getRsvpStatsByEvent: () => api.get('/rsvp/stats'),
+  getGuestsByRsvpStatus: (eventId, status) => api.get(`/rsvp/guests/${eventId}?status=${status}`),
+  
+  // Bulk operations
+  bulkUpdateRsvp: (rsvpData) => api.post('/rsvp/bulk-update', rsvpData),
+  sendRsvpReminders: (guestIds) => api.post('/rsvp/send-reminders', { guest_ids: guestIds }),
+  exportRsvpData: (eventId) => api.get(`/rsvp/export/${eventId}`, {
+    responseType: 'blob'
+  }),
+  importRsvpData: (eventId, formData) => {
+    const token = localStorage.getItem('token');
+    return api.post(`/rsvp/import/${eventId}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'Authorization': `Bearer ${token}`
+      }
+    });
+  }
+};
+
 export default api;

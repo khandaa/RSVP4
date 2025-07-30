@@ -79,6 +79,7 @@ import GuestImport from './components/guests/GuestImport';
 import RSVPList from './components/rsvp/RSVPForm';
 // import RSVPCalendar from './components/rsvp/RSVPCalendar';
 import RSVPBulkManagement from './components/rsvp/RSVPBulkManagement';
+import RSVPDashboard from './components/rsvp/RSVPDashboard';
 
 
 // Logging Components
@@ -229,9 +230,10 @@ function App() {
 
           {/* RSVPs Routes */}
           <Route path="rsvps">
-            <Route index element={<Navigate to="/rsvps/form" />} />
+            <Route index element={<Navigate to="/rsvps/dashboard" />} />
             <Route path="form" element={<RSVPForm />} />
             <Route path="bulk" element={<RSVPBulkManagement />} />
+            <Route path="dashboard" element={<RSVPDashboard />} />
           </Route>
 
           {/* Travel Routes */}

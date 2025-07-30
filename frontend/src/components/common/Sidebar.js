@@ -191,7 +191,7 @@ const Sidebar = ({ collapsed }) => {
           },
           {
             name: 'RSVPs',
-            path: '/rsvps/list',
+            path: '/rsvps/dashboard',
             icon: <FaReply />,
             permission: null
           },
@@ -274,7 +274,7 @@ const Sidebar = ({ collapsed }) => {
           },
           {
             name: 'RSVPs',
-            path: '/rsvps/list',
+            path: '/rsvps/dashboard',
             icon: <FaReply />,
             permission: null
           },
@@ -357,7 +357,7 @@ const Sidebar = ({ collapsed }) => {
           },
           {
             name: 'RSVPs',
-            path: '/rsvps/list',
+            path: '/rsvps/dashboard',
             icon: <FaReply />,
             permission: null
           },
