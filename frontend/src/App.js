@@ -86,6 +86,7 @@ import ActivityLogs from './components/logging/ActivityLogs';
 // Payment Components
 import PaymentAdmin from './pages/admin/PaymentAdmin';
 import FileUploadConfig from './components/fileupload/FileUploadConfig';
+import RSVPForm from './components/rsvp/RSVPForm';
 
 // Placeholder components for routes that don't have implementations yet
 // const RSVPList = () => <div className="container mt-4"><h2>RSVP List</h2><p>This feature is coming soon.</p></div>;
@@ -198,13 +199,13 @@ function App() {
 
           {/* Events Routes */}
           <Route path="events">
-            <Route index element={<Navigate to="/dashboard" />} />
+            {/* <Route index element={<Navigate to="/dashboard" />} /> */}
             <Route path="list" element={<EventList />} />
           </Route>
 
           {/* SubEvents Routes */}
           <Route path="subevents">
-            <Route index element={<Navigate to="/dashboard" />} />
+            {/* <Route index element={<Navigate to="/dashboard" />} /> */}
             <Route path="list" element={<SubeventList />} />
           </Route>
 
@@ -217,7 +218,7 @@ function App() {
           {/* RSVPs Routes */}
           <Route path="rsvps">
             <Route index element={<Navigate to="/dashboard" />} />
-            <Route path="list" element={<RSVPList />} />
+            <Route path="list" element={<RSVPForm />} />
           </Route>
 
           {/* Travel Routes */}

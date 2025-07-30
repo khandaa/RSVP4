@@ -10,7 +10,8 @@ import {
   FaEye,
   FaFilter,
   FaUsers,
-  FaClock
+  FaClock,
+  FaUser
 } from 'react-icons/fa';
 import { eventAPI, clientAPI } from '../../services/api';
 

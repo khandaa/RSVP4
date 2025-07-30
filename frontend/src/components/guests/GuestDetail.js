@@ -19,7 +19,8 @@ import {
   FaTimesCircle,
   FaClock,
   FaChartBar,
-  FaPlus
+  FaPlus,
+  FaEye
 } from 'react-icons/fa';
 
 const GuestDetail = () => {

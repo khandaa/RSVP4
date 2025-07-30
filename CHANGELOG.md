@@ -5,6 +5,8 @@
 - Created dedicated Sidebar.css stylesheet for improved sidebar styling
 - Implemented expandable submenu functionality for grouped navigation items
 - Enhanced sidebar UI with dropdown indicators for submenu sections
+- Fixed ESLint errors in EventCalendar.js by adding missing FaUser icon import
+- Fixed ESLint error in GuestDetail.js by adding missing FaEye icon import
 - Created comprehensive permission and feature toggle setup for all backend routes
 - Added database entries for all API routes in permissions_master table with appropriate descriptions and module categorization
 - Assigned all permissions to Admin and Full Access roles in role_permissions_tx table
