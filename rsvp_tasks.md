@@ -80,13 +80,13 @@
   - [x] 3.7 Create functionality of bulk import of clients
   - [x] 3.8 Provide bulk import template on the same page
 
-- [ ] 4.0 Event Management Module
-  - [ ] 4.1 Create event listing page with filter and sort functionality
-  - [ ] 4.2 Implement event creation form with client association
-  - [ ] 4.3 Build event detail view with dashboard
-  - [ ] 4.4 Create event calendar/timeline view
-  - [ ] 4.5 Implement event status tracking
-  - [ ] 4.6 Add event deletion with confirmation and dependency checks
+- [x] 4.0 Event Management Module
+  - [x] 4.1 Create event listing page with filter and sort functionality
+  - [x] 4.2 Implement event creation form with client association
+  - [x] 4.3 Build event detail view with dashboard
+  - [x] 4.4 Create event calendar/timeline view
+  - [x] 4.5 Implement event status tracking
+  - [x] 4.6 Add event deletion with confirmation and dependency checks
 
 - [ ] 5.0 Subevent Management Module
   - [ ] 5.1 Create subevent listing within event context
