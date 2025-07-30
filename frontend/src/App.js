@@ -15,6 +15,7 @@ import ResetPassword from './components/authentication/ResetPassword';
 
 // Dashboard Components
 import Dashboard from './components/dashboard/Dashboard';
+import DashboardSelector from './components/dashboard/DashboardSelector';
 
 // Customer Management Components
 import CustomerList from './components/customers/CustomerList';
@@ -103,7 +104,7 @@ function App() {
           </ProtectedRoute>
         }>
           <Route index element={<Navigate to="/dashboard" />} />
-          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="dashboard" element={<DashboardSelector />} />
           
           {/* Customer Management Routes */}
           <Route path="customers">
