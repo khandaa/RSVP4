@@ -24,6 +24,7 @@ import {
   FaCaretDown,
   FaCaretUp
 } from 'react-icons/fa';
+import {FaCar} from 'react-icons/fa';
 import { useAuth } from '../../contexts/AuthContext';
 import { featureToggleAPI } from '../../services/api';
 
@@ -197,13 +198,13 @@ const Sidebar = ({ collapsed }) => {
           },
           {
             name: 'Travel',
-            path: '/travel/list',
+            path: '/logistics/travel',
             icon: <FaPlane />,
             permission: null
           },
           {
             name: 'Accommodation',
-            path: '/accommodation/list',
+            path: '/logistics/accommodation',
             icon: <FaBed />,
             permission: null
           },
@@ -211,6 +212,46 @@ const Sidebar = ({ collapsed }) => {
             name: 'Communications',
             path: '/communications',
             icon: <FaBell />,
+            permission: null
+          }
+        ]
+      });
+      
+      // Add Logistics menu with submenu items
+      menuItems.push({
+        name: 'Logistics',
+        icon: <FaTruckMoving />,
+        permission: null,
+        submenu: true,
+        items: [
+          {
+            name: 'Dashboard',
+            path: '/logistics/dashboard',
+            icon: <FaChartLine />,
+            permission: null
+          },
+          {
+            name: 'Travel Management',
+            path: '/logistics/travel',
+            icon: <FaPlane />,
+            permission: null
+          },
+          {
+            name: 'Accommodation',
+            path: '/logistics/accommodation',
+            icon: <FaBed />,
+            permission: null
+          },
+          {
+            name: 'Vehicle Allocation',
+            path: '/logistics/vehicles',
+            icon: <FaCar />,
+            permission: null
+          },
+          {
+            name: 'Reports',
+            path: '/logistics/reports',
+            icon: <FaList />,
             permission: null
           }
         ]
@@ -280,13 +321,13 @@ const Sidebar = ({ collapsed }) => {
           },
           {
             name: 'Travel',
-            path: '/travel/list',
+            path: '/logistics/travel',
             icon: <FaPlane />,
             permission: null
           },
           {
             name: 'Accommodation',
-            path: '/accommodation/list',
+            path: '/logistics/accommodation',
             icon: <FaBed />,
             permission: null
           },
@@ -363,13 +404,13 @@ const Sidebar = ({ collapsed }) => {
           },
           {
             name: 'Travel',
-            path: '/travel/list',
+            path: '/logistics/travel',
             icon: <FaPlane />,
             permission: null
           },
           {
             name: 'Accommodation',
-            path: '/accommodation/list',
+            path: '/logistics/accommodation',
             icon: <FaBed />,
             permission: null
           }

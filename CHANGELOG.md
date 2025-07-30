@@ -1,5 +1,10 @@
 ## [Unreleased]
 
+### 2025-07-30
+- Fixed sidebar navigation paths for Travel and Accommodation menu items to correctly link to their respective components
+- Updated all Travel menu items to point to '/logistics/travel' instead of '/travel/list'
+- Updated all Accommodation menu items to point to '/logistics/accommodation' instead of '/accommodation/list'
+
 ### 2025-07-31
 - Enhanced application to support room allocation for all guests
 - Added support for local travel arrangements for all guests
