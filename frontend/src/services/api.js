@@ -26,6 +26,22 @@ if (token) {
   setAuthToken(token);
 }
 
+// Add a request interceptor to ensure token is included in every request
+api.interceptors.request.use(
+  config => {
+    // Ensure token is added to each request
+    const token = localStorage.getItem('token');
+    if (token && !config.headers.Authorization) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  error => {
+    console.error('Request error:', error);
+    return Promise.reject(error);
+  }
+);
+
 // Add a response interceptor for error handling
 api.interceptors.response.use(
   (response) => response,

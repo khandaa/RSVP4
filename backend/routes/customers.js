@@ -20,6 +20,12 @@ const upload = multer({ dest: 'uploads/temp/' });
 router.get('/', authenticateToken, async (req, res) => {
   try {
     const db = req.app.locals.db;
+    // Enhanced error handling
+    if (!db) {
+      console.error('Database connection not available');
+      return res.status(500).json({ error: 'Database connection not available' });
+    }
+    
     const customers = await dbMethods.all(db, 'SELECT * FROM master_customers ORDER BY created_at DESC', []);
     res.json(customers);
   } catch (error) {
@@ -76,38 +82,63 @@ router.post('/', [
       
       // 2. Create a user account for the customer admin if email is provided
       if (customer_email) {
-        // Generate a default password (Admin@123)
-        const bcrypt = require('bcryptjs');
-        const salt = await bcrypt.genSalt(10);
-        const defaultPassword = 'Admin@123';
-        const hashedPassword = await bcrypt.hash(defaultPassword, salt);
-        
-        // Generate username from customer name
-        const username = customer_email;
-        const firstName = customer_name.split(' ')[0] || customer_name;
-        const lastName = customer_name.split(' ').slice(1).join(' ') || 'Admin';
-        
-        // Insert into users_master
-        const userResult = await dbMethods.run(db, 
-          'INSERT INTO users_master (mobile_number, email, password_hash, first_name, last_name) VALUES (?, ?, ?, ?, ?)',
-          [customer_phone || '', customer_email, hashedPassword, firstName, lastName]
-        );
-        
-        const userId = userResult.lastID;
-        
-        // Get Customer Admin role ID
-        const customerAdminRole = await dbMethods.get(db, 'SELECT role_id FROM roles_master WHERE name = ?', ['Customer Admin']);
-        if (customerAdminRole) {
-          // Insert into user_roles_tx
-          await dbMethods.run(db, 
-            'INSERT INTO user_roles_tx (user_id, role_id) VALUES (?, ?)',
-            [userId, customerAdminRole.role_id]
-          );
+        try {
+          // Generate a default password (Admin@123)
+          const bcrypt = require('bcryptjs');
+          const salt = await bcrypt.genSalt(10);
+          const defaultPassword = 'Admin@123';
+          const hashedPassword = await bcrypt.hash(defaultPassword, salt);
           
-          // Log user creation
-          console.log(`Created customer admin user for customer ${customer_name}, user ID: ${userId}`);
-        } else {
-          console.warn('Customer Admin role not found - user created without role assignment');
+          // Generate username from customer name
+          const firstName = customer_name.split(' ')[0] || customer_name;
+          const lastName = customer_name.split(' ').slice(1).join(' ') || 'Admin';
+          
+          // Check if user with this email already exists
+          const existingUser = await dbMethods.get(db, 'SELECT user_id FROM users_master WHERE email = ?', [customer_email]);
+          
+          let userId;
+          
+          if (existingUser) {
+            // Use existing user
+            userId = existingUser.user_id;
+            console.log(`Using existing user account for customer ${customer_name}, user ID: ${userId}`);
+          } else {
+            // Insert into users_master
+            const userResult = await dbMethods.run(db, 
+              'INSERT INTO users_master (mobile_number, email, password_hash, first_name, last_name) VALUES (?, ?, ?, ?, ?)',
+              [customer_phone || '', customer_email, hashedPassword, firstName, lastName]
+            );
+            
+            userId = userResult.lastID;
+            console.log(`Created new user account for customer ${customer_name}, user ID: ${userId}`);
+          }
+          
+          // Get Customer Admin role ID
+          const customerAdminRole = await dbMethods.get(db, 'SELECT role_id FROM roles_master WHERE name = ?', ['Customer Admin']);
+          if (customerAdminRole) {
+            // Check if the user already has this role
+            const existingRole = await dbMethods.get(db, 
+              'SELECT user_role_id FROM user_roles_tx WHERE user_id = ? AND role_id = ?', 
+              [userId, customerAdminRole.role_id]
+            );
+            
+            if (!existingRole) {
+              // Insert into user_roles_tx
+              await dbMethods.run(db, 
+                'INSERT INTO user_roles_tx (user_id, role_id) VALUES (?, ?)',
+                [userId, customerAdminRole.role_id]
+              );
+              
+              console.log(`Assigned Customer Admin role to user ${userId} for customer ${customer_name}`);
+            } else {
+              console.log(`User ${userId} already has Customer Admin role`);
+            }
+          } else {
+            console.warn('Customer Admin role not found - user created without role assignment');
+          }
+        } catch (userError) {
+          console.error('Error creating customer admin user:', userError);
+          // Continue with customer creation even if user creation fails
         }
       }
       
@@ -261,22 +292,48 @@ router.post('/bulk-import', [authenticateToken, upload.single('file')], async (r
                   const firstName = customerData.customer_name.split(' ')[0] || customerData.customer_name;
                   const lastName = customerData.customer_name.split(' ').slice(1).join(' ') || 'Admin';
                   
-                  // Insert into users_master
-                  const userResult = await dbMethods.run(db, 
-                    'INSERT INTO users_master (mobile_number, email, password_hash, first_name, last_name) VALUES (?, ?, ?, ?, ?)',
-                    [customerData.customer_phone || '', customerData.customer_email, hashedPassword, firstName, lastName]
-                  );
+                  // Check if user with this email already exists
+                  const existingUser = await dbMethods.get(db, 'SELECT user_id FROM users_master WHERE email = ?', [customerData.customer_email]);
                   
-                  const userId = userResult.lastID;
+                  let userId;
+                  
+                  if (existingUser) {
+                    // Use existing user
+                    userId = existingUser.user_id;
+                    console.log(`Using existing user account for customer ${customerData.customer_name}, user ID: ${userId}`);
+                  } else {
+                    // Insert into users_master
+                    const userResult = await dbMethods.run(db, 
+                      'INSERT INTO users_master (mobile_number, email, password_hash, first_name, last_name) VALUES (?, ?, ?, ?, ?)',
+                      [customerData.customer_phone || '', customerData.customer_email, hashedPassword, firstName, lastName]
+                    );
+                    
+                    userId = userResult.lastID;
+                    console.log(`Created new user account for customer ${customerData.customer_name}, user ID: ${userId}`);
+                  }
                   
                   // Get Customer Admin role ID
                   const customerAdminRole = await dbMethods.get(db, 'SELECT role_id FROM roles_master WHERE name = ?', ['Customer Admin']);
                   if (customerAdminRole) {
-                    // Insert into user_roles_tx
-                    await dbMethods.run(db, 
-                      'INSERT INTO user_roles_tx (user_id, role_id) VALUES (?, ?)',
+                    // Check if the user already has this role
+                    const existingRole = await dbMethods.get(db, 
+                      'SELECT user_role_id FROM user_roles_tx WHERE user_id = ? AND role_id = ?', 
                       [userId, customerAdminRole.role_id]
                     );
+                    
+                    if (!existingRole) {
+                      // Insert into user_roles_tx
+                      await dbMethods.run(db, 
+                        'INSERT INTO user_roles_tx (user_id, role_id) VALUES (?, ?)',
+                        [userId, customerAdminRole.role_id]
+                      );
+                      
+                      console.log(`Assigned Customer Admin role to user ${userId} for customer ${customerData.customer_name}`);
+                    } else {
+                      console.log(`User ${userId} already has Customer Admin role`);
+                    }
+                  } else {
+                    console.warn('Customer Admin role not found - user created without role assignment');
                   }
                 } catch (userError) {
                   console.error('Error creating user for customer in row', rowNumber, ':', userError);

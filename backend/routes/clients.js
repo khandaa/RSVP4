@@ -88,37 +88,63 @@ router.post('/', [
       
       // 2. Create a user account for the client admin if email is provided
       if (client_email) {
-        // Generate a default password (Admin@123)
-        const bcrypt = require('bcryptjs');
-        const salt = await bcrypt.genSalt(10);
-        const defaultPassword = 'Admin@123';
-        const hashedPassword = await bcrypt.hash(defaultPassword, salt);
-        
-        // Generate user details from client data
-        const firstName = client_name.split(' ')[0] || client_name;
-        const lastName = client_name.split(' ').slice(1).join(' ') || 'Admin';
-        
-        // Insert into users_master
-        const userResult = await dbMethods.run(db, 
-          'INSERT INTO users_master (mobile_number, email, password_hash, first_name, last_name) VALUES (?, ?, ?, ?, ?)',
-          [client_phone || '', client_email, hashedPassword, firstName, lastName]
-        );
-        
-        const userId = userResult.lastID;
-        
-        // Get Client Admin role ID
-        const clientAdminRole = await dbMethods.get(db, 'SELECT role_id FROM roles_master WHERE name = ?', ['Client Admin']);
-        if (clientAdminRole) {
-          // Insert into user_roles_tx
-          await dbMethods.run(db, 
-            'INSERT INTO user_roles_tx (user_id, role_id) VALUES (?, ?)',
-            [userId, clientAdminRole.role_id]
-          );
+        try {
+          // Generate a default password (Admin@123)
+          const bcrypt = require('bcryptjs');
+          const salt = await bcrypt.genSalt(10);
+          const defaultPassword = 'Admin@123';
+          const hashedPassword = await bcrypt.hash(defaultPassword, salt);
           
-          // Log user creation
-          console.log(`Created client admin user for client ${client_name}, user ID: ${userId}`);
-        } else {
-          console.warn('Client Admin role not found - user created without role assignment');
+          // Generate user details from client data
+          const firstName = client_name.split(' ')[0] || client_name;
+          const lastName = client_name.split(' ').slice(1).join(' ') || 'Admin';
+          
+          // Check if user with this email already exists
+          const existingUser = await dbMethods.get(db, 'SELECT user_id FROM users_master WHERE email = ?', [client_email]);
+          
+          let userId;
+          
+          if (existingUser) {
+            // Use existing user
+            userId = existingUser.user_id;
+            console.log(`Using existing user account for client ${client_name}, user ID: ${userId}`);
+          } else {
+            // Insert into users_master
+            const userResult = await dbMethods.run(db, 
+              'INSERT INTO users_master (mobile_number, email, password_hash, first_name, last_name) VALUES (?, ?, ?, ?, ?)',
+              [client_phone || '', client_email, hashedPassword, firstName, lastName]
+            );
+            
+            userId = userResult.lastID;
+            console.log(`Created new user account for client ${client_name}, user ID: ${userId}`);
+          }
+          
+          // Get Client Admin role ID
+          const clientAdminRole = await dbMethods.get(db, 'SELECT role_id FROM roles_master WHERE name = ?', ['Client Admin']);
+          if (clientAdminRole) {
+            // Check if the user already has this role
+            const existingRole = await dbMethods.get(db, 
+              'SELECT user_role_id FROM user_roles_tx WHERE user_id = ? AND role_id = ?', 
+              [userId, clientAdminRole.role_id]
+            );
+            
+            if (!existingRole) {
+              // Insert into user_roles_tx
+              await dbMethods.run(db, 
+                'INSERT INTO user_roles_tx (user_id, role_id) VALUES (?, ?)',
+                [userId, clientAdminRole.role_id]
+              );
+              
+              console.log(`Assigned Client Admin role to user ${userId} for client ${client_name}`);
+            } else {
+              console.log(`User ${userId} already has Client Admin role`);
+            }
+          } else {
+            console.warn('Client Admin role not found - user created without role assignment');
+          }
+        } catch (userError) {
+          console.error('Error creating client admin user:', userError);
+          // Continue with client creation even if user creation fails
         }
       }
       
