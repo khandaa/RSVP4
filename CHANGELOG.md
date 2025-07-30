@@ -1,6 +1,9 @@
 ## [Unreleased]
 
 ### 2025-07-30
+- Fixed guest management buttons functionality by adding proper routes in App.js
+- Enabled GuestCreate, GuestDetail and GuestImport components by uncommenting imports
+- Added missing routes for guest creation, import, viewing and editing
 - Reorganized sidebar navigation to group Events, Sub-events, Guests, RSVP, Travel, Accommodation, and Communications under a single "Manage Events" menu
 - Created dedicated Sidebar.css stylesheet for improved sidebar styling
 - Implemented expandable submenu functionality for grouped navigation items

@@ -72,9 +72,9 @@ import SubeventList from './components/subevents/SubeventList';
 
 import GuestList from './components/guests/GuestList';
 // import GuestGroupManagement from './components/guests/GuestGroupManagement';
-// import GuestCreate from './components/guests/GuestCreate';
-// import GuestDetail from './components/guests/GuestDetail';
-// import GuestImport from './components/guests/GuestImport';
+import GuestCreate from './components/guests/GuestCreate';
+import GuestDetail from './components/guests/GuestDetail';
+import GuestImport from './components/guests/GuestImport';
 
 import RSVPList from './components/rsvp/RSVPForm';
 // import RSVPCalendar from './components/rsvp/RSVPCalendar';
@@ -213,6 +213,10 @@ function App() {
           <Route path="guests">
             <Route index element={<Navigate to="/dashboard" />} />
             <Route path="list" element={<GuestList />} />
+            <Route path="create" element={<GuestCreate />} />
+            <Route path="import" element={<GuestImport />} />
+            <Route path=":id" element={<GuestDetail />} />
+            <Route path=":id/edit" element={<GuestCreate />} />
           </Route>
 
           {/* RSVPs Routes */}
