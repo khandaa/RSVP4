@@ -477,7 +477,7 @@ const ClientDashboard = () => {
               <Button 
                 variant="warning" 
                 size="sm"
-                onClick={() => navigateTo('/logistics')}
+                onClick={() => navigateTo('/travel')}
                 className="w-100 text-white"
               >
                 Manage Travel
@@ -545,7 +545,7 @@ const ClientDashboard = () => {
               <Button 
                 variant="danger" 
                 size="sm"
-                onClick={() => navigateTo('/logistics')}
+                onClick={() => navigateTo('/accommodation')}
                 className="w-100"
               >
                 Manage Accommodation

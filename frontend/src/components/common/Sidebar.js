@@ -17,7 +17,9 @@ import {
   FaUserCheck,
   FaReply,
   FaTruckMoving,
-  FaBell
+  FaBell,
+  FaPlane,
+  FaBed
 } from 'react-icons/fa';
 import { useAuth } from '../../contexts/AuthContext';
 import { featureToggleAPI } from '../../services/api';
@@ -143,137 +145,243 @@ const Sidebar = ({ collapsed }) => {
     console.log('Admin/full_access user detected - customer, client, and event management should be visible regardless of feature toggles');
   }
   
-  // For admin users, always add the payment module regardless of feature toggles
-  if (hasRole && hasRole(['Admin', 'admin'])) {
-    console.log('Admin user detected - adding Payment module');
-    menuItems.push({
-      name: 'Payment',
-      path: '/payment',
-      icon: <FaCreditCard />,
-      permission: null // No permission check for admins
-    });
+  // Clear base menu items and define role-specific menu items
+  if (hasRole) {
+    // For Admin and full_access users - all capabilities should be visible
+    if (hasRole(['Admin', 'admin', 'full_access'])) {
+      console.log('Admin or full_access user detected - showing all capabilities');
+      // Base items are already included - just add all additional items
+      
+      // Add Payment module
+      menuItems.push({
+        name: 'Payment',
+        path: '/payment',
+        icon: <FaCreditCard />,
+        permission: null
+      });
 
-    // Add SubEvent module for admin
-    menuItems.push({
-      name: 'Sub Events',
-      path: '/subevents',
-      icon: <FaCalendarPlus />,
-      permission: null // No permission check for admins
-    });
+      // Add Sub Events module
+      menuItems.push({
+        name: 'Sub Events',
+        path: '/subevents',
+        icon: <FaCalendarPlus />,
+        permission: null
+      });
+      
+      // Add Guests module
+      menuItems.push({
+        name: 'Guests',
+        path: '/guests',
+        icon: <FaUserCheck />,
+        permission: null
+      });
+      
+      // Add RSVPs module
+      menuItems.push({
+        name: 'RSVPs',
+        path: '/rsvps',
+        icon: <FaReply />,
+        permission: null
+      });
+      
+      // Add Travel module
+      menuItems.push({
+        name: 'Travel',
+        path: '/travel',
+        icon: <FaPlane />,
+        permission: null
+      });
+      
+      // Add Accommodation module
+      menuItems.push({
+        name: 'Accommodation',
+        path: '/accommodation',
+        icon: <FaBed />,
+        permission: null
+      });
+      
+      // Add Communications module
+      menuItems.push({
+        name: 'Communications',
+        path: '/communications',
+        icon: <FaBell />,
+        permission: null
+      });
+      
+      // Add Notifications module
+      menuItems.push({
+        name: 'Notifications',
+        path: '/notifications',
+        icon: <FaBell />,
+        permission: null
+      });
+    }
     
-    // Add Guest module for admin
-    menuItems.push({
-      name: 'Guests',
-      path: '/guests',
-      icon: <FaUserCheck />,
-      permission: null // No permission check for admins
-    });
+    // For Customer Admin users
+    else if (hasRole(['Customer Admin'])) {
+      console.log('Customer Admin user detected - showing customer admin specific menu');
+      // Start with an empty menu and add only what's needed
+      menuItems.length = 0;
+      
+      // Add Dashboard
+      menuItems.push({
+        name: 'Dashboard',
+        path: '/dashboard',
+        icon: <FaHome />,
+        permission: null
+      });
+      
+      // Add Clients module
+      menuItems.push({
+        name: 'Clients',
+        path: '/clients',
+        icon: <FaAddressCard />,
+        permission: null
+      });
+      
+      // Add Events module
+      menuItems.push({
+        name: 'Events',
+        path: '/events',
+        icon: <FaCalendarAlt />,
+        permission: null
+      });
+      
+      // Add Sub Events module
+      menuItems.push({
+        name: 'Sub Events',
+        path: '/subevents',
+        icon: <FaCalendarPlus />,
+        permission: null
+      });
+      
+      // Add Team module
+      menuItems.push({
+        name: 'Team',
+        path: '/team',
+        icon: <FaUsers />,
+        permission: null
+      });
+      
+      // Add Employees module
+      menuItems.push({
+        name: 'Employees',
+        path: '/employees',
+        icon: <FaUserFriends />,
+        permission: null
+      });
+      
+      // Add Guests module
+      menuItems.push({
+        name: 'Guests',
+        path: '/guests',
+        icon: <FaUserCheck />,
+        permission: null
+      });
+      
+      // Add RSVPs module
+      menuItems.push({
+        name: 'RSVPs',
+        path: '/rsvps',
+        icon: <FaReply />,
+        permission: null
+      });
+      
+      // Add Travel module
+      menuItems.push({
+        name: 'Travel',
+        path: '/travel',
+        icon: <FaPlane />,
+        permission: null
+      });
+      
+      // Add Accommodation module
+      menuItems.push({
+        name: 'Accommodation',
+        path: '/accommodation',
+        icon: <FaBed />,
+        permission: null
+      });
+      
+      // Add Communications module
+      menuItems.push({
+        name: 'Communications',
+        path: '/communications',
+        icon: <FaBell />,
+        permission: null
+      });
+      
+      // Add Notifications module
+      menuItems.push({
+        name: 'Notifications',
+        path: '/notifications',
+        icon: <FaBell />,
+        permission: null
+      });
+    }
     
-    // Add RSVP module for admin
-    menuItems.push({
-      name: 'RSVPs',
-      path: '/rsvps',
-      icon: <FaReply />,
-      permission: null // No permission check for admins
-    });
-    
-    // Add Logistics module for admin
-    menuItems.push({
-      name: 'Logistics',
-      path: '/logistics',
-      icon: <FaTruckMoving />,
-      permission: null // No permission check for admins
-    });
-    
-    // Add Notification module for admin
-    menuItems.push({
-      name: 'Notifications',
-      path: '/notifications',
-      icon: <FaBell />,
-      permission: null // No permission check for admins
-    });
-    
-    // Also add Feature Toggles menu item for admin
-  } 
-  // Add event-related sidebar items for Client Admin users
-  else if (hasRole && hasRole(['Client Admin'])) {
-    console.log('Client Admin user detected - adding event management modules');
-    
-    // Add Events module for client admin
-    menuItems.push({
-      name: 'Events',
-      path: '/events',
-      icon: <FaCalendarAlt />,
-      permission: null // No permission check needed
-    });
-    
-    // Add SubEvent module for client admin
-    menuItems.push({
-      name: 'Sub Events',
-      path: '/subevents',
-      icon: <FaCalendarPlus />,
-      permission: null
-    });
-    
-    // Add Guest module for client admin
-    menuItems.push({
-      name: 'Guests',
-      path: '/guests',
-      icon: <FaUserCheck />,
-      permission: null
-    });
-    
-    // Add RSVP module for client admin
-    menuItems.push({
-      name: 'RSVPs',
-      path: '/rsvps',
-      icon: <FaReply />,
-      permission: null
-    });
-    
-    // Add Logistics module for client admin
-    menuItems.push({
-      name: 'Logistics',
-      path: '/logistics',
-      icon: <FaTruckMoving />,
-      permission: null
-    });
-  }
-  // Add relevant sidebar items for Customer Admin users
-  else if (hasRole && hasRole(['Customer Admin'])) {
-    console.log('Customer Admin user detected - adding client and event management modules');
-    
-    // Add Clients module for customer admin
-    menuItems.push({
-      name: 'Clients',
-      path: '/clients',
-      icon: <FaAddressCard />,
-      permission: null
-    });
-    
-    // Add Events module for customer admin
-    menuItems.push({
-      name: 'Events',
-      path: '/events',
-      icon: <FaCalendarAlt />,
-      permission: null
-    });
-    
-    // Add Guest module for customer admin
-    menuItems.push({
-      name: 'Guests',
-      path: '/guests',
-      icon: <FaUserCheck />,
-      permission: null
-    });
-    
-    // Add Teams/Users module for customer admin
-    menuItems.push({
-      name: 'Team Members',
-      path: '/users',
-      icon: <FaUsers />,
-      permission: null
-    });
+    // For Client Admin users
+    else if (hasRole(['Client Admin'])) {
+      console.log('Client Admin user detected - showing client admin specific menu');
+      // Start with an empty menu and add only what's needed
+      menuItems.length = 0;
+      
+      // Add Dashboard
+      menuItems.push({
+        name: 'Dashboard',
+        path: '/dashboard',
+        icon: <FaHome />,
+        permission: null
+      });
+      
+      // Add Events module
+      menuItems.push({
+        name: 'Events',
+        path: '/events',
+        icon: <FaCalendarAlt />,
+        permission: null
+      });
+      
+      // Add Sub Events module
+      menuItems.push({
+        name: 'Sub Events',
+        path: '/subevents',
+        icon: <FaCalendarPlus />,
+        permission: null
+      });
+      
+      // Add Guests module
+      menuItems.push({
+        name: 'Guests',
+        path: '/guests',
+        icon: <FaUserCheck />,
+        permission: null
+      });
+      
+      // Add RSVPs module
+      menuItems.push({
+        name: 'RSVPs',
+        path: '/rsvps',
+        icon: <FaReply />,
+        permission: null
+      });
+      
+      // Add Travel module
+      menuItems.push({
+        name: 'Travel',
+        path: '/travel',
+        icon: <FaPlane />,
+        permission: null
+      });
+      
+      // Add Accommodation module
+      menuItems.push({
+        name: 'Accommodation',
+        path: '/accommodation',
+        icon: <FaBed />,
+        permission: null
+      });
+    }
   }
   
   // Always add Feature Toggles menu item for admin for admin users only
