@@ -8,6 +8,15 @@
 - Created SQL migration script for permissions, role permissions, and feature toggles
 - Created sample data insertion script with 10 customers, 5 clients per customer, 3 events per client, 30 guests per event
 - Added sample RSVP, travel, accommodation, and communication records for each guest
+- Created new Customer Admin role with permissions for user, event, guest, and team management
+- Created new Client Admin role with focused permissions for guest, event, and sub-event management
+- Enhanced customer creation functionality to automatically generate admin user accounts when new customers are added
+- Enhanced client creation functionality to automatically generate admin user accounts when new clients are added
+- Added automatic customer_admin role assignment to newly created customer user accounts
+- Added automatic client_admin role assignment to newly created client user accounts
+- Implemented secure default password handling using bcrypt for new customer and client admin accounts
+- Integrated user creation in both single customer creation and bulk import processes
+- Added database transaction support to ensure data integrity during user and role creation processes
 - Updated task list (rsvp_tasks.md) to reflect implemented code for sections 7, 8, 9, and 10
 - Marked as complete the RSVP dashboard, reports, logistics interfaces, notification system, and main dashboard features
 - Added SubEvent, Guest, RSVP, Logistics, and Notification modules to admin sidemenu

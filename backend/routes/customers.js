@@ -61,13 +61,69 @@ router.post('/', [
     const { customer_name, customer_email, customer_phone, customer_address, customer_city, customer_status } = req.body;
     const db = req.app.locals.db;
 
-    const result = await dbMethods.run(db, 
-      'INSERT INTO master_customers (customer_name, customer_email, customer_phone, customer_address, customer_city, customer_status) VALUES (?, ?, ?, ?, ?, ?)',
-      [customer_name, customer_email, customer_phone, customer_address, customer_city, customer_status || 'Active']
-    );
+    // Begin transaction
+    await dbMethods.run(db, 'BEGIN TRANSACTION');
 
-    const newCustomer = await dbMethods.get(db, 'SELECT * FROM master_customers WHERE customer_id = ?', [result.lastID]);
-    res.status(201).json(newCustomer);
+    try {
+      // 1. Insert customer record
+      const result = await dbMethods.run(db, 
+        'INSERT INTO master_customers (customer_name, customer_email, customer_phone, customer_address, customer_city, customer_status) VALUES (?, ?, ?, ?, ?, ?)',
+        [customer_name, customer_email, customer_phone, customer_address, customer_city, customer_status || 'Active']
+      );
+      
+      const customerId = result.lastID;
+      const newCustomer = await dbMethods.get(db, 'SELECT * FROM master_customers WHERE customer_id = ?', [customerId]);
+      
+      // 2. Create a user account for the customer admin if email is provided
+      if (customer_email) {
+        // Generate a default password (Admin@123)
+        const bcrypt = require('bcryptjs');
+        const salt = await bcrypt.genSalt(10);
+        const defaultPassword = 'Admin@123';
+        const hashedPassword = await bcrypt.hash(defaultPassword, salt);
+        
+        // Generate username from customer name
+        const username = customer_email;
+        const firstName = customer_name.split(' ')[0] || customer_name;
+        const lastName = customer_name.split(' ').slice(1).join(' ') || 'Admin';
+        
+        // Insert into users_master
+        const userResult = await dbMethods.run(db, 
+          'INSERT INTO users_master (mobile_number, email, password_hash, first_name, last_name) VALUES (?, ?, ?, ?, ?)',
+          [customer_phone || '', customer_email, hashedPassword, firstName, lastName]
+        );
+        
+        const userId = userResult.lastID;
+        
+        // Get Customer Admin role ID
+        const customerAdminRole = await dbMethods.get(db, 'SELECT role_id FROM roles_master WHERE name = ?', ['Customer Admin']);
+        if (customerAdminRole) {
+          // Insert into user_roles_tx
+          await dbMethods.run(db, 
+            'INSERT INTO user_roles_tx (user_id, role_id) VALUES (?, ?)',
+            [userId, customerAdminRole.role_id]
+          );
+          
+          // Log user creation
+          console.log(`Created customer admin user for customer ${customer_name}, user ID: ${userId}`);
+        } else {
+          console.warn('Customer Admin role not found - user created without role assignment');
+        }
+      }
+      
+      // Commit the transaction
+      await dbMethods.run(db, 'COMMIT');
+      
+      res.status(201).json({
+        ...newCustomer,
+        message: customer_email ? 'Customer created with admin user account' : 'Customer created without admin user (no email provided)'
+      });
+      
+    } catch (error) {
+      // Rollback on error
+      await dbMethods.run(db, 'ROLLBACK');
+      throw error;
+    }
   } catch (error) {
     console.error('Error creating customer:', error);
     res.status(500).json({ error: 'Failed to create customer' });
@@ -189,11 +245,50 @@ router.post('/bulk-import', [authenticateToken, upload.single('file')], async (r
                 'INSERT INTO master_customers (customer_name, customer_email, customer_phone, customer_address, customer_city, customer_status) VALUES (?, ?, ?, ?, ?, ?)',
                 [customerData.customer_name, customerData.customer_email, customerData.customer_phone, customerData.customer_address, customerData.customer_city, customerData.customer_status]
               );
+              
+              const customerId = result.lastID;
+              
+              // Create customer_admin user if email is provided
+              if (customerData.customer_email) {
+                try {
+                  // Generate a default password (Admin@123)
+                  const bcrypt = require('bcryptjs');
+                  const salt = await bcrypt.genSalt(10);
+                  const defaultPassword = 'Admin@123';
+                  const hashedPassword = await bcrypt.hash(defaultPassword, salt);
+                  
+                  // Generate user details from customer data
+                  const firstName = customerData.customer_name.split(' ')[0] || customerData.customer_name;
+                  const lastName = customerData.customer_name.split(' ').slice(1).join(' ') || 'Admin';
+                  
+                  // Insert into users_master
+                  const userResult = await dbMethods.run(db, 
+                    'INSERT INTO users_master (mobile_number, email, password_hash, first_name, last_name) VALUES (?, ?, ?, ?, ?)',
+                    [customerData.customer_phone || '', customerData.customer_email, hashedPassword, firstName, lastName]
+                  );
+                  
+                  const userId = userResult.lastID;
+                  
+                  // Get Customer Admin role ID
+                  const customerAdminRole = await dbMethods.get(db, 'SELECT role_id FROM roles_master WHERE name = ?', ['Customer Admin']);
+                  if (customerAdminRole) {
+                    // Insert into user_roles_tx
+                    await dbMethods.run(db, 
+                      'INSERT INTO user_roles_tx (user_id, role_id) VALUES (?, ?)',
+                      [userId, customerAdminRole.role_id]
+                    );
+                  }
+                } catch (userError) {
+                  console.error('Error creating user for customer in row', rowNumber, ':', userError);
+                  // Continue with customer creation even if user creation fails
+                }
+              }
 
               results.push({
                 row: rowNumber,
-                customer_id: result.lastID,
-                customer_name: customerData.customer_name
+                customer_id: customerId,
+                customer_name: customerData.customer_name,
+                user_created: customerData.customer_email ? true : false
               });
 
             } catch (dbError) {

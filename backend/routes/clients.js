@@ -74,19 +74,75 @@ router.post('/', [
       return res.status(400).json({ error: 'Customer not found' });
     }
 
-    const result = await dbMethods.run(db, 
-      'INSERT INTO rsvp_master_clients (customer_id, client_name, client_email, client_phone, client_address, client_city, client_status) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [customer_id, client_name, client_email, client_phone, client_address, client_city, client_status || 'Active']
-    );
+    // Begin transaction
+    await dbMethods.run(db, 'BEGIN TRANSACTION');
 
-    const newClient = await dbMethods.get(db, 
-      `SELECT c.*, cu.customer_name 
-       FROM rsvp_master_clients c 
-       LEFT JOIN master_customers cu ON c.customer_id = cu.customer_id 
-       WHERE c.client_id = ?`, 
-      [result.lastID]
-    );
-    res.status(201).json(newClient);
+    try {
+      // 1. Insert client record
+      const result = await dbMethods.run(db, 
+        'INSERT INTO rsvp_master_clients (customer_id, client_name, client_email, client_phone, client_address, client_city, client_status) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [customer_id, client_name, client_email, client_phone, client_address, client_city, client_status || 'Active']
+      );
+      
+      const clientId = result.lastID;
+      
+      // 2. Create a user account for the client admin if email is provided
+      if (client_email) {
+        // Generate a default password (Admin@123)
+        const bcrypt = require('bcryptjs');
+        const salt = await bcrypt.genSalt(10);
+        const defaultPassword = 'Admin@123';
+        const hashedPassword = await bcrypt.hash(defaultPassword, salt);
+        
+        // Generate user details from client data
+        const firstName = client_name.split(' ')[0] || client_name;
+        const lastName = client_name.split(' ').slice(1).join(' ') || 'Admin';
+        
+        // Insert into users_master
+        const userResult = await dbMethods.run(db, 
+          'INSERT INTO users_master (mobile_number, email, password_hash, first_name, last_name) VALUES (?, ?, ?, ?, ?)',
+          [client_phone || '', client_email, hashedPassword, firstName, lastName]
+        );
+        
+        const userId = userResult.lastID;
+        
+        // Get Client Admin role ID
+        const clientAdminRole = await dbMethods.get(db, 'SELECT role_id FROM roles_master WHERE name = ?', ['Client Admin']);
+        if (clientAdminRole) {
+          // Insert into user_roles_tx
+          await dbMethods.run(db, 
+            'INSERT INTO user_roles_tx (user_id, role_id) VALUES (?, ?)',
+            [userId, clientAdminRole.role_id]
+          );
+          
+          // Log user creation
+          console.log(`Created client admin user for client ${client_name}, user ID: ${userId}`);
+        } else {
+          console.warn('Client Admin role not found - user created without role assignment');
+        }
+      }
+      
+      const newClient = await dbMethods.get(db, 
+        `SELECT c.*, cu.customer_name 
+         FROM rsvp_master_clients c 
+         LEFT JOIN master_customers cu ON c.customer_id = cu.customer_id 
+         WHERE c.client_id = ?`, 
+        [clientId]
+      );
+      
+      // Commit the transaction
+      await dbMethods.run(db, 'COMMIT');
+      
+      res.status(201).json({
+        ...newClient,
+        message: client_email ? 'Client created with admin user account' : 'Client created without admin user (no email provided)'
+      });
+      
+    } catch (error) {
+      // Rollback on error
+      await dbMethods.run(db, 'ROLLBACK');
+      throw error;
+    }
   } catch (error) {
     console.error('Error creating client:', error);
     res.status(500).json({ error: 'Failed to create client' });
