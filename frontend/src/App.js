@@ -21,10 +21,19 @@ import DashboardSelector from './components/dashboard/DashboardSelector';
 import EventList from './components/events/EventList';
 import SubeventList from './components/subevents/SubeventList';
 import GuestList from './components/guests/GuestList';
+
+// RSVP, Logistics and Communication Components
+import ActivityLogs from './components/logging/ActivityLogs';
+
 // Placeholder components for routes that don't have implementations yet
 const RSVPList = () => <div className="container mt-4"><h2>RSVP List</h2><p>This feature is coming soon.</p></div>;
 const TravelList = () => <div className="container mt-4"><h2>Travel List</h2><p>This feature is coming soon.</p></div>;
 const AccommodationList = () => <div className="container mt-4"><h2>Accommodation List</h2><p>This feature is coming soon.</p></div>;
+const TeamList = () => <div className="container mt-4"><h2>Team Management</h2><p>This feature is coming soon.</p></div>;
+const EmployeeList = () => <div className="container mt-4"><h2>Employee Management</h2><p>This feature is coming soon.</p></div>;
+const CommunicationsList = () => <div className="container mt-4"><h2>Communications</h2><p>This feature is coming soon.</p></div>;
+const NotificationsList = () => <div className="container mt-4"><h2>Notifications</h2><p>This feature is coming soon.</p></div>;
+const AnalyticsDashboard = () => <div className="container mt-4"><h2>Analytics Dashboard</h2><p>This feature is coming soon.</p></div>;
 
 // Customer Management Components
 import CustomerList from './components/customers/CustomerList';
@@ -205,6 +214,31 @@ function App() {
           <Route path="accommodation">
             <Route index element={<Navigate to="/dashboard" />} />
             <Route path="list" element={<AccommodationList />} />
+          </Route>
+
+          {/* Team Routes */}
+          <Route path="team">
+            <Route index element={<TeamList />} />
+          </Route>
+
+          {/* Employees Routes */}
+          <Route path="employees">
+            <Route index element={<EmployeeList />} />
+          </Route>
+
+          {/* Communications Routes */}
+          <Route path="communications">
+            <Route index element={<CommunicationsList />} />
+          </Route>
+
+          {/* Notifications Routes */}
+          <Route path="notifications">
+            <Route index element={<NotificationsList />} />
+          </Route>
+
+          {/* Analytics Routes */}
+          <Route path="analytics">
+            <Route index element={<AnalyticsDashboard />} />
           </Route>
         </Route>
         
