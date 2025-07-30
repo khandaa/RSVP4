@@ -19,9 +19,9 @@ import {
   FaTimesCircle,
   FaClock,
   FaChartBar,
-  FaPlus,
-  FaEye
+  FaPlus
 } from 'react-icons/fa';
+import { FaEye } from 'react-icons/fa';
 
 const GuestDetail = () => {
   const { id } = useParams();

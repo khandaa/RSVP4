@@ -1,6 +1,7 @@
 ## [Unreleased]
 
 ### 2025-07-30
+- Fixed ESLint error in GuestDetail.js by properly importing FaEye icon
 - Fixed Events page blank screen issue by properly configuring all event routes in App.js
 - Fixed SubEvents page by adding correct route configuration
 - Added missing routes for EventCreate, EventDetail, EventEdit and EventCalendar components
