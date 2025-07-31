@@ -54,10 +54,20 @@ api.interceptors.response.use(
       switch (response.status) {
         case 401:
           // Unauthorized - token expired or invalid
-          toast.error('Authentication session expired. Please log in again.');
-          // Clear token and redirect to login
-          setAuthToken(null);
-          window.location.href = '/login';
+          console.log('Authentication error:', error);
+          
+          // Only redirect if not a background API check
+          const isBackgroundRequest = error.config.url.includes('/check-auth') || 
+                                      error.config.headers['X-Background-Request'] === 'true';
+          
+          if (!isBackgroundRequest) {
+            toast.error('Authentication session expired. Please log in again.');
+            // Clear token and redirect to login
+            setAuthToken(null);
+            window.location.href = '/login';
+          } else {
+            console.log('Background authentication request failed, not redirecting');
+          }
           break;
         case 403:
           // Forbidden - insufficient permissions
@@ -65,7 +75,11 @@ api.interceptors.response.use(
           break;
         case 404:
           // Not found
-          toast.error('The requested resource was not found.');
+          console.error(`API 404 Error: ${error.config.url} not found`);
+          toast.error(`Resource not found: ${error.config.url.split('/').pop()}`, {
+            autoClose: 5000,
+            position: toast.POSITION.BOTTOM_RIGHT
+          });
           break;
         case 422:
           // Validation errors

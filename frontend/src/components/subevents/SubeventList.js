@@ -77,16 +77,20 @@ const SubeventList = () => {
   const fetchAllSubevents = async () => {
     try {
       setIsLoading(true);
+      // Use the API service instead of direct fetch calls
       const [subeventResponse, venuesResponse] = await Promise.all([
-        fetch('/api/comprehensive-crud/event-schedule').then(res => res.json()),
+        eventAPI.getEventSchedule('all'),
         fetch('/api/venues').then(res => res.json())
       ]);
       
-      setSubevents(subeventResponse || []);
+      // Ensure we have an array even if the API returns null or undefined
+      setSubevents(subeventResponse?.data || []);
       setVenues(venuesResponse || []);
     } catch (error) {
       console.error('Error fetching all subevents:', error);
-      toast.error('Failed to fetch subevents data');
+      toast.error('Failed to fetch subevents data. Using fallback data.');
+      // Provide fallback data in case of API failure
+      setSubevents([]);
     } finally {
       setIsLoading(false);
     }

@@ -228,7 +228,7 @@ function App() {
 
           {/* Guests Routes */}
           <Route path="guests">
-            <Route index element={<Navigate to="/dashboard" />} />
+            <Route index element={<Navigate to="/guests/list" />} />
             <Route path="list" element={<GuestList />} />
             <Route path="create" element={<GuestCreate />} />
             <Route path="import" element={<GuestImport />} />
