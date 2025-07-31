@@ -2,6 +2,7 @@
 
 ### 2025-07-31
 - Fixed navigation issues in App.js for Guests route to properly redirect to guests/list instead of dashboard
+- Added RSVP list route to properly redirect to RSVP dashboard for better navigation
 - Fixed authentication issues in API service to prevent redirect loops on background API calls
 - Enhanced 404 error handling with better logging and more specific user feedback
 - Fixed SubeventList component to properly use API service and add fallback data for API failures
@@ -9,6 +10,14 @@
 - Fixed controlled/uncontrolled input warning in FileUploadConfig component
 - Added proper loading state management in FileUploadConfig component
 - Added comprehensive error handling with detailed console logs for API errors
+- Enhanced UI components with better visibility and test IDs for automated testing:
+  - Enhanced Add Event button with better styling and test ID
+  - Enhanced Edit Event buttons with better visibility and test ID
+  - Enhanced View Event buttons with better visibility and test ID
+  - Enhanced Add SubEvent button with better styling and test ID
+  - Enhanced Add Guest button with better styling and test ID
+  - Enhanced Save button in FileUploadConfig component
+  - Added Manage RSVPs button to RSVP Dashboard for better navigation
 
 ### 2025-07-30
 - Fixed sidebar navigation paths for Travel and Accommodation menu items to correctly link to their respective components
