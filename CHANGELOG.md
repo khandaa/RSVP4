@@ -1,5 +1,19 @@
 ## [Unreleased]
 
+### 2025-08-01
+- Enhanced automated UI testing framework with comprehensive Puppeteer tests:
+  - Created dedicated test file for Events module (`ui-test-events.js`) with tests for list, create, details, edit, and calendar views
+  - Created dedicated test file for Subevents module (`ui-test-subevents.js`) with tests for list, create, details, allocation, and timeline views
+  - Created dedicated test file for Guests module (`ui-test-guests.js`) with tests for list, create, import, and details views
+  - Created dedicated test file for RSVP module (`ui-test-rsvp.js`) with tests for dashboard, form submission, and bulk management
+  - Created dedicated test file for Users module (`ui-test-users.js`) with tests for user list, creation, details, edit, and bulk upload
+  - Created dedicated test file for Roles module (`ui-test-roles.js`) with tests for role list, creation, details, edit, and feature toggles
+  - Added CSV-driven data input support for all "create" functionality tests
+  - Updated master UI test runner (`ui_test_allTests.js`) to include all new test files
+  - Added automatic screenshot capture for key test steps
+  - Implemented detailed test reporting with markdown output for each test module
+  - Added error handling and result tracking for all UI tests
+
 ### 2025-07-31
 - Fixed navigation issues in App.js for Guests route to properly redirect to guests/list instead of dashboard
 - Added RSVP list route to properly redirect to RSVP dashboard for better navigation
@@ -18,6 +32,18 @@
   - Enhanced Add Guest button with better styling and test ID
   - Enhanced Save button in FileUploadConfig component
   - Added Manage RSVPs button to RSVP Dashboard for better navigation
+- Added new UI test capabilities:
+  - Created dedicated login test script (ui-test-login.js) that reads user credentials from CSV file
+  - Added ability to test multiple users with different roles
+  - Added automatic screenshot capture for login attempts
+  - Generated detailed test reports in markdown format
+  - Improved logout functionality to properly interact with the navbar dropdown menu
+  - Created signup page test script (ui-test-signup.js) with multiple validation scenarios
+  - Added validation for all registration form fields and error cases
+  - Implemented screenshot capture for before and after registration attempts
+  - Created combined UI test runner (ui_test_allTests.js) to execute all tests sequentially
+  - Added comprehensive reporting with test status, duration, and error details
+  - Integrated test results into a single consolidated markdown report
 
 ### 2025-07-30
 - Fixed sidebar navigation paths for Travel and Accommodation menu items to correctly link to their respective components

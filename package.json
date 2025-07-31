@@ -9,7 +9,10 @@
     "start:frontend": "cd frontend && npm start",
     "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "test:ui": "node tests/ui-test.js"
+    "test:ui": "node tests/ui-test.js",
+    "test:login": "node tests/ui-test-login.js",
+    "test:signup": "node tests/ui-test-signup.js",
+    "test:all": "node tests/ui_test_allTests.js"
   },
   "keywords": [
     "employdex",

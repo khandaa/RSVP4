@@ -1,6 +1,6 @@
 # RSVP4 Application UI Testing Issues
 
-*Test executed on: 2025-07-31T05:36:28.490Z*
+*Test executed on: 2025-07-31T07:01:42.404Z*
 
 **24 issues found during testing.**
 
@@ -16,7 +16,9 @@
 
 ### 5. Console: JavaScript error: Failed to load resource: the server responded with a status of 401 (Unauthorized)
 
-### 6. Console: JavaScript error: The above error occurred in the <EventEdit> component:
+### 6. Console: JavaScript error: Failed to load resource: the server responded with a status of 401 (Unauthorized)
+
+### 7. Console: JavaScript error: The above error occurred in the <EventEdit> component:
 
     at EventEdit (http://localhost:3000/static/js/bundle.js:214636:66)
     at RenderedRoute (http://localhost:3000/static/js/bundle.js:179288:5)
@@ -36,8 +38,6 @@
 
 Consider adding an error boundary to your tree to customize error handling behavior.
 Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
-
-### 7. Console: JavaScript error: Failed to load resource: the server responded with a status of 401 (Unauthorized)
 
 ### 8. Console: JavaScript error: Failed to load resource: the server responded with a status of 401 (Unauthorized)
 

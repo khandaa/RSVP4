@@ -126,6 +126,44 @@ This allows you to use `/api/*` endpoints in your frontend code without specifyi
    ```
    This will start the backend API on port 5000 and the frontend on port 3000.
 
+### Automated UI Testing
+
+The application includes comprehensive Puppeteer-based UI testing for all major modules:
+
+1. **Individual Module Tests**
+   - `ui-test-login.js` - Tests user authentication
+   - `ui-test-signup.js` - Tests user registration
+   - `ui-test-events.js` - Tests event listing, creation, details, editing, and calendar views
+   - `ui-test-subevents.js` - Tests subevent listing, creation, details, allocation, and timeline
+   - `ui-test-guests.js` - Tests guest listing, creation, import, and details
+   - `ui-test-rsvp.js` - Tests RSVP dashboard, form submission, and bulk management
+   - `ui-test-users.js` - Tests user listing, creation, details, editing, and bulk upload
+   - `ui-test-roles.js` - Tests role listing, creation, details, editing, and feature toggles
+
+2. **Data-Driven Testing**
+   - Each test file supports CSV-driven input for all "create" functionality tests
+   - Sample CSV files are automatically created if missing
+   - Customize test data by editing the CSV files in the `tests` directory
+
+3. **Running UI Tests**
+
+   Run all tests sequentially:
+   ```
+   cd tests
+   node ui_test_allTests.js
+   ```
+
+   Run an individual test module:
+   ```
+   cd tests
+   node ui-test-events.js
+   ```
+
+4. **Test Reports**
+   - Individual test reports are generated as markdown files in the `tests` directory
+   - A consolidated test report is generated at `tests/combined-results/all-tests-summary.md`
+   - Test screenshots are captured in the `tests/screenshots` directory
+
 ### Using the Virtual Environment (for Python modules)
 
 The project uses a Python virtual environment for certain backend modules:
