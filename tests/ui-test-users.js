@@ -4,7 +4,8 @@ const path = require('path');
 const csv = require('csv-parser');
 
 // Configuration
-const BASE_URL = 'http://localhost:3000';
+// Support both standard React port and alternative ports
+const BASE_URL = process.env.REACT_APP_BASE_URL || 'http://localhost:3000';
 const TIMEOUT = 10000;
 const USERS_FILE = path.join(__dirname, 'users-data.csv');
 const RESULTS_FILE = path.join(__dirname, 'users-test-results.md');
@@ -153,7 +154,21 @@ async function testUsersList(page) {
     }
     
     // Check for create button
-    const createButton = await page.$('a[href="/users/create"], button:has-text("Create User")');
+    // Find create button using proper selectors that match the actual component
+    const createButton = await page.$('a[href="/users/create"], a:has(svg[class*="FaPlus"])');
+    
+    // Alternative approach if the above selector doesn't work
+    if (!createButton) {
+      // Find by button/link text content
+      const allElements = await page.$$('a, button');
+      for (const element of allElements) {
+        const textContent = await page.evaluate(el => el.textContent, element);
+        if (textContent && textContent.trim().includes('Add New User')) {
+          createButton = element;
+          break;
+        }
+      }
+    }
     if (!createButton) {
       console.log('Warning: Create User button not found');
     }
@@ -204,24 +219,28 @@ async function testUserCreation(page, browser) {
     // Use first user from CSV
     const testUser = users[0];
     
-    // Navigate to user create page
+    // Navigate to user create page using the correct URL path
     await page.goto(`${BASE_URL}/users/create`, { waitUntil: 'networkidle0', timeout: TIMEOUT });
     
     // Take screenshot before filling form
     const beforeScreenshot = path.join(__dirname, 'screenshots', 'user-create-before.png');
     await page.screenshot({ path: beforeScreenshot });
     
-    // Fill in user details
-    await page.type('input[name="username"]', testUser.username);
+    // Fill in user details with the correct field names from the React form
+    await page.type('input[name="firstName"]', testUser.firstName);
+    await page.type('input[name="lastName"]', testUser.lastName);
+    await page.type('input[name="email"]', testUser.email);
     await page.type('input[name="password"]', testUser.password);
+    await page.type('input[name="confirmPassword"]', testUser.password);
+    await page.type('input[name="mobileNumber"]', testUser.mobileNumber || '9876543210');
     
-    if (await page.$('input[name="email"]')) {
-      await page.type('input[name="email"]', testUser.email);
-    }
-    
-    if (await page.$('input[name="firstName"], input[name="first_name"]')) {
-      await page.type('input[name="firstName"], input[name="first_name"]', testUser.firstName);
-      await page.type('input[name="lastName"], input[name="last_name"]', testUser.lastName);
+    // Select at least one role (required by validation)
+    await page.waitForSelector('input[type="checkbox"][name="roleIds"], input[name="roleIds"]');
+    const roleCheckboxes = await page.$$('input[type="checkbox"][name="roleIds"], input[name="roleIds"]');
+    if (roleCheckboxes.length > 0) {
+      await roleCheckboxes[0].click();
+    } else {
+      console.log('Warning: No role checkboxes found');
     }
     
     // Select role if dropdown exists
@@ -298,7 +317,7 @@ async function testUserDetails(page) {
   
   try {
     // Navigate to users list first
-    await page.goto(`${BASE_URL}/users`, { waitUntil: 'networkidle0', timeout: TIMEOUT });
+    await page.goto(`${BASE_URL}/user_management`, { waitUntil: 'networkidle0', timeout: TIMEOUT });
     
     // Check if there are any users
     const userLinks = await page.$$('a[href*="/users/"], tr td a');
@@ -362,7 +381,7 @@ async function testUserEdit(page) {
   
   try {
     // Navigate to users list first
-    await page.goto(`${BASE_URL}/users`, { waitUntil: 'networkidle0', timeout: TIMEOUT });
+    await page.goto(`${BASE_URL}/user_management`, { waitUntil: 'networkidle0', timeout: TIMEOUT });
     
     // Check if there are any users
     const userRows = await page.$$('tr');
@@ -380,7 +399,21 @@ async function testUserEdit(page) {
     }
     
     // Find edit button/link for the first non-admin user if possible
-    const editButtons = await page.$$('a[href*="/edit"], button.edit-btn, [data-action="edit"]');
+    const editButtons = await page.$$('a[href*="/edit"], button.edit-btn, [data-action="edit"], a:has(svg[class*="FaEdit"])');
+    
+    // Alternative approach if the above selector doesn't work
+    if (editButtons.length === 0) {
+      // Look for elements containing edit icons or text
+      const allElements = await page.$$('a, button');
+      for (const element of allElements) {
+        const textContent = await page.evaluate(el => el.textContent, element);
+        const href = await page.evaluate(el => el.getAttribute('href'), element);
+        if ((textContent && textContent.includes('Edit')) || 
+            (href && href.includes('/edit'))) {
+          editButtons.push(element);
+        }
+      }
+    }
     
     if (editButtons.length === 0) {
       throw new Error('Edit button not found');
@@ -478,18 +511,26 @@ async function testUserBulkUpload(page) {
   console.log('Testing User Bulk Upload...');
   
   try {
-    // Navigate to user bulk upload page
+    // Navigate to bulk upload page with the correct URL path
     await page.goto(`${BASE_URL}/users/bulk-upload`, { waitUntil: 'networkidle0', timeout: TIMEOUT });
     
     // Take screenshot
     const screenshotPath = path.join(__dirname, 'screenshots', 'user-bulk-upload.png');
     await page.screenshot({ path: screenshotPath });
     
-    // Check if upload form is displayed
-    const uploadForm = await page.$('form, .upload-form, [data-testid="bulk-upload"]');
+    // Check if the form is present with more flexible selectors
+    const uploadForm = await page.$('form.bulk-upload-form, form, div:has(input[type="file"])');
     
+    // Alternative approach if the above selector doesn't work
     if (!uploadForm) {
-      throw new Error('User bulk upload form not found');
+      // Look for any form or file input element
+      const fileInput = await page.$('input[type="file"]');
+      if (!fileInput) {
+        // Create a more detailed error message
+        const pageContent = await page.content();
+        console.error('Page content:', pageContent.substring(0, 500) + '...');
+        throw new Error('User bulk upload form not found - no file input element detected');
+      }
     }
     
     // Check for file input
