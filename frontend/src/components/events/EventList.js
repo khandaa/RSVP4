@@ -86,11 +86,21 @@ const EventList = () => {
       } else if (eventTypesResponse && Array.isArray(eventTypesResponse.data)) {
         setEventTypes(eventTypesResponse.data);
       } else {
-        // If there's no event type data, create some dummy data for testing
+        // If there's no event type data, create fallback data
         console.error('Event types response is not an array:', eventTypesResponse);
-        setEventTypes([{ event_type_id: 1, event_type_name: 'Conference' },
-                       { event_type_id: 2, event_type_name: 'Wedding' },
-                       { event_type_id: 3, event_type_name: 'Corporate' }]);
+        const fallbackEventTypes = [
+          { event_type_id: 1, event_type_name: 'Conference' },
+          { event_type_id: 2, event_type_name: 'Wedding' },
+          { event_type_id: 3, event_type_name: 'Corporate' },
+          { event_type_id: 4, event_type_name: 'Social Gathering' },
+          { event_type_id: 5, event_type_name: 'Workshop' },
+          { event_type_id: 6, event_type_name: 'Seminar' }
+        ];
+        setEventTypes(fallbackEventTypes);
+        toast.info('Using default event types due to data retrieval issues', {
+          position: toast.POSITION.BOTTOM_RIGHT,
+          autoClose: 3000
+        });
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -98,9 +108,15 @@ const EventList = () => {
       // Set default values in case of error
       setEvents([]);
       setClients([]);
-      setEventTypes([{ event_type_id: 1, event_type_name: 'Conference' },
-                     { event_type_id: 2, event_type_name: 'Wedding' },
-                     { event_type_id: 3, event_type_name: 'Corporate' }]);
+      // Ensure eventTypes is always an array even when API calls fail
+      setEventTypes([
+        { event_type_id: 1, event_type_name: 'Conference' },
+        { event_type_id: 2, event_type_name: 'Wedding' },
+        { event_type_id: 3, event_type_name: 'Corporate' },
+        { event_type_id: 4, event_type_name: 'Social Gathering' },
+        { event_type_id: 5, event_type_name: 'Workshop' },
+        { event_type_id: 6, event_type_name: 'Seminar' }
+      ]);
     } finally {
       setIsLoading(false);
     }
