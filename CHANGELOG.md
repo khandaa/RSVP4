@@ -1,5 +1,15 @@
 ## [Unreleased]
 
+### 2025-07-31
+- Fixed navigation issues in App.js for Guests route to properly redirect to guests/list instead of dashboard
+- Fixed authentication issues in API service to prevent redirect loops on background API calls
+- Enhanced 404 error handling with better logging and more specific user feedback
+- Fixed SubeventList component to properly use API service and add fallback data for API failures
+- Fixed EventList component's eventTypes.map error by ensuring proper array handling with fallback data
+- Fixed controlled/uncontrolled input warning in FileUploadConfig component
+- Added proper loading state management in FileUploadConfig component
+- Added comprehensive error handling with detailed console logs for API errors
+
 ### 2025-07-30
 - Fixed sidebar navigation paths for Travel and Accommodation menu items to correctly link to their respective components
 - Updated all Travel menu items to point to '/logistics/travel' instead of '/travel/list'

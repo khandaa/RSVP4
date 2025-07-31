@@ -239,6 +239,7 @@ function App() {
           {/* RSVPs Routes */}
           <Route path="rsvps">
             <Route index element={<Navigate to="/rsvps/dashboard" />} />
+            <Route path="list" element={<Navigate to="/rsvps/dashboard" />} />
             <Route path="form" element={<RSVPForm />} />
             <Route path="bulk" element={<RSVPBulkManagement />} />
             <Route path="dashboard" element={<RSVPDashboard />} />

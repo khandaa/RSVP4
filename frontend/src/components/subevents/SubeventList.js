@@ -311,6 +311,8 @@ const SubeventList = () => {
             <button 
               className="btn btn-primary glass-btn-primary"
               onClick={() => navigate(`/subevents/create${eventId ? `?eventId=${eventId}` : ''}`)}
+              data-testid="add-subevent-button"
+              style={{ fontWeight: 'bold', padding: '0.6rem 1.2rem' }}
             >
               <FaPlus className="me-2" />
               Add Sub Event

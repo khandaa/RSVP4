@@ -208,8 +208,17 @@ const RSVPDashboard = () => {
             className="btn btn-outline-primary"
             onClick={exportRsvpData}
             title="Export RSVP data"
+            data-testid="export-rsvp-button"
           >
             <FaDownload /> Export
+          </button>
+          <button 
+            className="btn btn-primary"
+            onClick={() => navigate('/rsvps/form')}
+            title="Manage RSVP"
+            data-testid="manage-rsvp-button"
+          >
+            <FaUserCheck className="me-2" /> Manage RSVPs
           </button>
         </div>
       </div>

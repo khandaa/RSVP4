@@ -306,6 +306,8 @@ const GuestList = () => {
             <button 
               className="btn btn-primary glass-btn-primary"
               onClick={() => navigate(`/guests/create${eventId ? `?eventId=${eventId}` : ''}`)}
+              data-testid="add-guest-button"
+              style={{ fontWeight: 'bold', padding: '0.6rem 1.2rem' }}
             >
               <FaPlus className="me-2" />
               Add Guest
