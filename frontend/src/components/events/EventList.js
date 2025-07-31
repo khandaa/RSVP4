@@ -335,6 +335,8 @@ const EventList = () => {
             <button 
               className="btn btn-primary glass-btn-primary"
               onClick={() => navigate('/events/create')}
+              data-testid="add-event-button"
+              style={{ fontWeight: 'bold', padding: '0.6rem 1.2rem' }}
             >
               <FaPlus className="me-2" />
               Add Event
@@ -547,15 +549,17 @@ const EventList = () => {
                           className="btn btn-sm btn-outline-info glass-btn"
                           onClick={() => navigate(`/events/${event.event_id}`)}
                           title="View Details"
+                          data-testid="view-event-button"
                         >
-                          <FaEye />
+                          <FaEye /> View
                         </button>
                         <button
                           className="btn btn-sm btn-outline-primary glass-btn"
                           onClick={() => navigate(`/events/${event.event_id}/edit`)}
                           title="Edit Event"
+                          data-testid="edit-event-button"
                         >
-                          <FaEdit />
+                          <FaEdit /> Edit
                         </button>
                         <button
                           className="btn btn-sm btn-outline-danger glass-btn"
