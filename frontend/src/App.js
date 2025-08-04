@@ -89,7 +89,19 @@ import RSVPList from './components/rsvp/RSVPForm';
 import RSVPBulkManagement from './components/rsvp/RSVPBulkManagement';
 import RSVPDashboard from './components/rsvp/RSVPDashboard';
 
-// import TeamList from './components/teams/'
+// Team Management Components
+import TeamList from './components/teams/TeamList';
+import TeamCreate from './components/teams/TeamCreate';
+import TeamDetail from './components/teams/TeamDetail';
+
+// Employee Management Components
+import EmployeeList from './components/employees/EmployeeList';
+import EmployeeCreate from './components/employees/EmployeeCreate';
+import EmployeeDetail from './components/employees/EmployeeDetail';
+
+// Department Management Components
+import DepartmentList from './components/departments/DepartmentList';
+import DepartmentCreate from './components/departments/DepartmentCreate';
 // Logging Components
 import ActivityLogs from './components/logging/ActivityLogs';
 
@@ -101,8 +113,8 @@ import RSVPForm from './components/rsvp/RSVPForm';
 // Placeholder components for routes that don't have implementations yet
 // const TravelList = () => <div className="container mt-4"><h2>Travel List</h2><p>This feature is coming soon.</p></div>;
 // const AccommodationList = () => <div className="container mt-4"><h2>Accommodation List</h2><p>This feature is coming soon.</p></div>;
-const TeamList = () => <div className="container mt-4"><h2>Team Management</h2><p>This feature is coming soon.</p></div>;
-const EmployeeList = () => <div className="container mt-4"><h2>Employee Management</h2><p>This feature is coming soon.</p></div>;
+// Placeholder components for communications and notifications
+const DepartmentDetail = () => <div className="container mt-4"><h2>Department Details</h2><p>This feature is coming soon.</p></div>;
 const CommunicationsList = () => <div className="container mt-4"><h2>Communications</h2><p>This feature is coming soon.</p></div>;
 const NotificationsList = () => <div className="container mt-4"><h2>Notifications</h2><p>This feature is coming soon.</p></div>;
 const AnalyticsDashboard = () => <div className="container mt-4"><h2>Analytics Dashboard</h2><p>This feature is coming soon.</p></div>;
@@ -257,13 +269,30 @@ function App() {
           </Route>
 
           {/* Team Routes */}
-          <Route path="team">
-            <Route index element={<TeamList />} />
+          <Route path="teams">
+            <Route index element={<Navigate to="/teams/list" />} />
+            <Route path="list" element={<TeamList />} />
+            <Route path="create" element={<TeamCreate />} />
+            <Route path=":id" element={<TeamDetail />} />
+            <Route path=":id/edit" element={<TeamCreate />} />
           </Route>
 
           {/* Employees Routes */}
           <Route path="employees">
-            <Route index element={<EmployeeList />} />
+            <Route index element={<Navigate to="/employees/list" />} />
+            <Route path="list" element={<EmployeeList />} />
+            <Route path="create" element={<EmployeeCreate />} />
+            <Route path=":id" element={<EmployeeDetail />} />
+            <Route path=":id/edit" element={<EmployeeCreate />} />
+          </Route>
+          
+          {/* Departments Routes */}
+          <Route path="departments">
+            <Route index element={<Navigate to="/departments/list" />} />
+            <Route path="list" element={<DepartmentList />} />
+            <Route path="create" element={<DepartmentCreate />} />
+            <Route path=":id" element={<DepartmentDetail />} />
+            <Route path=":id/edit" element={<DepartmentCreate />} />
           </Route>
 
           {/* Communications Routes */}

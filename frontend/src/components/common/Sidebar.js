@@ -182,7 +182,7 @@ const Sidebar = ({ collapsed }) => {
                   {
                     name: 'Add Employee',
                     path: '/employees/create',
-                    icon: <FaUserFriends />,
+                    icon: <FaUserPlus />,
                     permission: 'employee_create'
                   },
                   {
@@ -194,7 +194,7 @@ const Sidebar = ({ collapsed }) => {
                   {
                     name: 'Create Team',
                     path: '/teams/create',
-                    icon: <FaUsers />,
+                    icon: <FaUsersCog />,
                     permission: 'team_create'
                   },
                   {
@@ -202,6 +202,12 @@ const Sidebar = ({ collapsed }) => {
                     path: '/departments/list',
                     icon: <FaBuilding />,
                     permission: 'department_view'
+                  },
+                  {
+                    name: 'Add Department',
+                    path: '/departments/create',
+                    icon: <FaPlusSquare />,
+                    permission: 'department_create'
                   }
                 ]
               });
