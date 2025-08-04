@@ -1,5 +1,11 @@
 ## [Unreleased]
 
+### 2025-08-04
+- Enhanced admin sidebar navigation with dedicated management sections:
+  - Added "Manage Customers" submenu with Customer List, Add Customer, and Customer Reports options
+  - Added "Manage Clients" submenu with Client List, Add Client, and Client Reports options
+  - Improved admin user experience with better organized navigation structure
+
 ### 2025-08-01
 - Enhanced automated UI testing framework with comprehensive Puppeteer tests:
   - Created dedicated test file for Events module (`ui-test-events.js`) with tests for list, create, details, edit, and calendar views

@@ -164,6 +164,61 @@ const Sidebar = ({ collapsed }) => {
     if (hasRole(['Admin', 'admin', 'full_access'])) {
       console.log('Admin or full_access user detected - showing all capabilities');
       // Base items are already included - just add all additional items
+            // Add Manage Customers menu with submenu items
+            menuItems.push({
+              name: 'Manage Customers',
+              icon: <FaBuilding />,
+              permission: null,
+              submenu: true,
+              items: [
+                {
+                  name: 'Customer List',
+                  path: '/customers',
+                  icon: <FaBuilding />,
+                  permission: null
+                },
+                {
+                  name: 'Add Customer',
+                  path: '/customers/create',
+                  icon: <FaBuilding />,
+                  permission: null
+                },
+                {
+                  name: 'Customer Reports',
+                  path: '/customers/reports',
+                  icon: <FaChartLine />,
+                  permission: null
+                }
+              ]
+            });
+            
+            // Add Manage Clients menu with submenu items
+            menuItems.push({
+              name: 'Manage Clients',
+              icon: <FaAddressCard />,
+              permission: null,
+              submenu: true,
+              items: [
+                {
+                  name: 'Client List',
+                  path: '/clients',
+                  icon: <FaAddressCard />,
+                  permission: null
+                },
+                {
+                  name: 'Add Client',
+                  path: '/clients/create',
+                  icon: <FaAddressCard />,
+                  permission: null
+                },
+                {
+                  name: 'Client Reports',
+                  path: '/clients/reports',
+                  icon: <FaChartLine />,
+                  permission: null
+                }
+              ]
+            });
       
       // Add Manage Events menu with submenu items
       menuItems.push({
@@ -216,6 +271,7 @@ const Sidebar = ({ collapsed }) => {
           }
         ]
       });
+      
       
       // Add Logistics menu with submenu items
       menuItems.push({
