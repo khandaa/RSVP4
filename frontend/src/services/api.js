@@ -412,4 +412,14 @@ export const employeeAPI = {
   deleteDepartment: (id) => api.delete(`/employee-management/departments/${id}`)
 };
 
+// Vendor Management API
+export const vendorAPI = {
+  getVendors: (params) => api.get('/vendor-management/vendors', { params }),
+  getVendor: (id) => api.get(`/vendor-management/vendors/${id}`),
+  createVendor: (vendorData) => api.post('/vendor-management/vendors', vendorData),
+  updateVendor: (id, vendorData) => api.put(`/vendor-management/vendors/${id}`, vendorData),
+  deleteVendor: (id) => api.delete(`/vendor-management/vendors/${id}`),
+  getVendorTypes: () => api.get('/vendor-management/vendor-types')
+};
+
 export default api;

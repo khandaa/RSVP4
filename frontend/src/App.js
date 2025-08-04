@@ -102,6 +102,11 @@ import EmployeeDetail from './components/employees/EmployeeDetail';
 // Department Management Components
 import DepartmentList from './components/departments/DepartmentList';
 import DepartmentCreate from './components/departments/DepartmentCreate';
+
+// Vendor Management Components
+import VendorList from './components/vendors/VendorList';
+import VendorCreate from './components/vendors/VendorCreate';
+import VendorDetail from './components/vendors/VendorDetail';
 // Logging Components
 import ActivityLogs from './components/logging/ActivityLogs';
 
@@ -293,6 +298,15 @@ function App() {
             <Route path="create" element={<DepartmentCreate />} />
             <Route path=":id" element={<DepartmentDetail />} />
             <Route path=":id/edit" element={<DepartmentCreate />} />
+          </Route>
+          
+          {/* Vendors Routes */}
+          <Route path="vendors">
+            <Route index element={<Navigate to="/vendors/list" />} />
+            <Route path="list" element={<VendorList />} />
+            <Route path="create" element={<VendorCreate />} />
+            <Route path=":id" element={<VendorDetail />} />
+            <Route path=":id/edit" element={<VendorCreate />} />
           </Route>
 
           {/* Communications Routes */}
