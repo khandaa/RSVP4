@@ -99,10 +99,10 @@ import FileUploadConfig from './components/fileupload/FileUploadConfig';
 import RSVPForm from './components/rsvp/RSVPForm';
 
 // Placeholder components for routes that don't have implementations yet
-const TravelList = () => <div className="container mt-4"><h2>Travel List</h2><p>This feature is coming soon.</p></div>;
-const AccommodationList = () => <div className="container mt-4"><h2>Accommodation List</h2><p>This feature is coming soon.</p></div>;
-const TeamList = () => <div className="container mt-4"><h2>Team Management</h2><p>This feature is coming soon.</p></div>;
-const EmployeeList = () => <div className="container mt-4"><h2>Employee Management</h2><p>This feature is coming soon.</p></div>;
+// const TravelList = () => <div className="container mt-4"><h2>Travel List</h2><p>This feature is coming soon.</p></div>;
+// const AccommodationList = () => <div className="container mt-4"><h2>Accommodation List</h2><p>This feature is coming soon.</p></div>;
+// const TeamList = () => <div className="container mt-4"><h2>Team Management</h2><p>This feature is coming soon.</p></div>;
+// const EmployeeList = () => <div className="container mt-4"><h2>Employee Management</h2><p>This feature is coming soon.</p></div>;
 const CommunicationsList = () => <div className="container mt-4"><h2>Communications</h2><p>This feature is coming soon.</p></div>;
 const NotificationsList = () => <div className="container mt-4"><h2>Notifications</h2><p>This feature is coming soon.</p></div>;
 const AnalyticsDashboard = () => <div className="container mt-4"><h2>Analytics Dashboard</h2><p>This feature is coming soon.</p></div>;

@@ -175,17 +175,34 @@ const Sidebar = ({ collapsed }) => {
                 items:[
                   {
                     name: 'Employees',
-                    path: '/employees',
+                    path: '/employees/list',
                     icon: <FaUserFriends />,
-                    permission: null
+                    permission: 'employee_view'
                   },
                   {
-                    name: 'Team',
-                    path: '/team',
+                    name: 'Add Employee',
+                    path: '/employees/create',
+                    icon: <FaUserFriends />,
+                    permission: 'employee_create'
+                  },
+                  {
+                    name: 'Teams',
+                    path: '/teams/list',
                     icon: <FaUsers />,
-                    permission: null
+                    permission: 'team_view'
+                  },
+                  {
+                    name: 'Create Team',
+                    path: '/teams/create',
+                    icon: <FaUsers />,
+                    permission: 'team_create'
+                  },
+                  {
+                    name: 'Departments',
+                    path: '/departments/list',
+                    icon: <FaBuilding />,
+                    permission: 'department_view'
                   }
-        
                 ]
               });
             

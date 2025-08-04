@@ -388,4 +388,28 @@ export const logisticsAPI = {
   })
 };
 
+// Team and Employee Management API
+export const teamAPI = {
+  getTeams: (params) => api.get('/employee-management/teams', { params }),
+  getTeam: (id) => api.get(`/employee-management/teams/${id}`),
+  createTeam: (teamData) => api.post('/employee-management/teams', teamData),
+  updateTeam: (id, teamData) => api.put(`/employee-management/teams/${id}`, teamData),
+  deleteTeam: (id) => api.delete(`/employee-management/teams/${id}`),
+  getTeamMembers: (teamId) => api.get(`/employee-management/teams/${teamId}/members`),
+  addTeamMember: (teamId, employeeId) => api.post(`/employee-management/teams/${teamId}/members`, { employee_id: employeeId }),
+  removeTeamMember: (teamId, employeeId) => api.delete(`/employee-management/teams/${teamId}/members/${employeeId}`)
+};
+
+export const employeeAPI = {
+  getEmployees: (params) => api.get('/employee-management/employees', { params }),
+  getEmployee: (id) => api.get(`/employee-management/employees/${id}`),
+  createEmployee: (employeeData) => api.post('/employee-management/employees', employeeData),
+  updateEmployee: (id, employeeData) => api.put(`/employee-management/employees/${id}`, employeeData),
+  deleteEmployee: (id) => api.delete(`/employee-management/employees/${id}`),
+  getDepartments: () => api.get('/employee-management/departments'),
+  createDepartment: (departmentData) => api.post('/employee-management/departments', departmentData),
+  updateDepartment: (id, departmentData) => api.put(`/employee-management/departments/${id}`, departmentData),
+  deleteDepartment: (id) => api.delete(`/employee-management/departments/${id}`)
+};
+
 export default api;
