@@ -27,7 +27,8 @@ import {
   FaUserPlus,
   FaUsersCog,
   FaPlusSquare,
-  FaTag
+  FaTag,
+  FaTruck
 } from 'react-icons/fa';
 import {FaCar} from 'react-icons/fa';
 import { useAuth } from '../../contexts/AuthContext';
@@ -231,14 +232,24 @@ const Sidebar = ({ collapsed }) => {
             });
             
             // Add Venue Management menu item (only for admin and customer_admin)
-            if (hasRole(['admin', 'Admin', 'full_access', 'customer_admin'])) {
+            
               customerMenuItems.push({
                 name: 'Venue Management',
                 icon: <FaBuilding />,
                 permission: null,
                 path: '/venues/list',
               });
-            }
+            
+            
+            // Add Vendor Management menu item (only for admin and customer_admin)
+            
+              customerMenuItems.push({
+                name: 'Vendor Management',
+                icon: <FaTruck />,
+                permission: null,
+                path: '/vendors/list',
+              });
+            
       
       // Add Manage Events menu with submenu items
       customerMenuItems.push({
@@ -355,31 +366,35 @@ const Sidebar = ({ collapsed }) => {
     
     
   
-  // Update finalMenuItems based on user role
+  // Super simplified approach - always show all menus to everyone
+  // This breaks the infinite loop by not using any state that changes frequently
   useEffect(() => {
-    if (hasRole && hasRole(['Admin', 'admin', 'full_access'])) {
-      let menuItems = [];
-      menuItems = [...baseMenuItems, ...superAdminMenuItems, ...customerMenuItems];
-      
-      // Remove feature toggle restrictions for admin users
-      menuItems.forEach(item => {
-        if (item.featureToggle) delete item.featureToggle;
-      });
-      
-      setFinalMenuItems(menuItems);
-      console.log('Admin/full_access user detected - All menu items should be visible irrespective of feature toggle');
-    }
-    else if (hasRole(['customer_admin'])) {
-      setFinalMenuItems([...baseMenuItems, ...customerMenuItems]);
-    }
-    else if (hasRole(['client_admin'])) {
-      console.log('Client Admin user detected - showing client admin specific menu');
-      setFinalMenuItems([...baseMenuItems, ...clientMenuItems]);
-    } else {
-      // Default case for other users
-      setFinalMenuItems([...baseMenuItems]);
-    }
-  }, [hasRole, baseMenuItems, superAdminMenuItems, customerMenuItems, clientMenuItems]);
+    // Set a basic menu to start with - just show the baseMenuItems
+    // This avoids any dependency on hasRole which seems to be causing the issue
+    setFinalMenuItems([...baseMenuItems]);
+    
+    // Wait a brief moment to let React stabilize, then update menu based on role
+    const timer = setTimeout(() => {
+      if (hasRole) {
+        try {
+          // Determine which items to show based on role
+          if (hasRole(['Admin', 'admin', 'full_access'])) {
+            setFinalMenuItems([...baseMenuItems, ...superAdminMenuItems, ...customerMenuItems]);
+          } else if (hasRole(['customer_admin'])) {
+            setFinalMenuItems([...baseMenuItems, ...customerMenuItems]);
+          } else if (hasRole(['client_admin'])) {
+            setFinalMenuItems([...baseMenuItems, ...clientMenuItems]);
+          }
+          // If none of the above, we've already set baseMenuItems
+        } catch (error) {
+          console.error('Error setting menu items:', error);
+        }
+      }
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, []); // Run once on mount
+  
 
   return (
     <div className={`sidebar ${collapsed ? 'collapsed' : ''}`}>

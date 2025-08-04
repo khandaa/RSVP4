@@ -1,6 +1,12 @@
 ## [Unreleased]
 
 ### 2025-08-04
+- Added Vendor Management functionality for customer_admin users:
+  - Added Vendor Management link to sidebar menu for admin and customer_admin roles
+  - Integrated vendor management with existing routing structure
+  - Implemented role-based access control for vendor features
+
+### 2025-08-04
 - Implemented complete Venue Management system with role-based access control:
   - Created VenueList component for viewing and managing venues (admin and customer_admin only)
   - Created VenueCreate component for adding and editing venues with validation

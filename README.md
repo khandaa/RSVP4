@@ -54,6 +54,10 @@ base_v1/
   - **Customer Admin Dashboard**: Tailored dashboard for customer administrators showing clients, active events, teams, and employees specific to their customer account.
   - **Client Admin Dashboard**: Specialized dashboard for client administrators displaying events, sub-events, guests, RSVPs, travel arrangements, and accommodation bookings related to their client account.
 
+- **Venue Management Module**: Complete venue management system with role-based access, allowing admin and customer_admin users to create, view, edit, and delete venues, including customer-specific venue listings and venue event associations.
+
+- **Vendor Management Module**: Comprehensive vendor management system restricted to admin and customer_admin roles, enabling creation, viewing, editing, and deletion of vendors with proper role-based access control. Includes vendor type classification and API integration.
+
 - **Payment Integration Module**: A comprehensive payment integration system with QR code management and transaction tracking. Admins can upload, activate, and manage payment QR codes through an intuitive UI. The module automatically creates required database tables on initialization.
 
 - **Feature Toggle System**: Admin and Full Access roles can manage feature flags via a dedicated UI and API. Use toggles to enable/disable features for controlled rollout, including customer, client, event, and payment management modules.

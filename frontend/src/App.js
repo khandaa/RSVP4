@@ -306,13 +306,48 @@ function App() {
             <Route path=":id/edit" element={<DepartmentCreate />} />
           </Route>
           
-          {/* Vendors Routes */}
+          {/* Vendors Routes - Restricted to admin and customer_admin */}
           <Route path="vendors">
-            <Route index element={<Navigate to="/vendors/list" />} />
-            <Route path="list" element={<VendorList />} />
-            <Route path="create" element={<VendorCreate />} />
-            <Route path=":id" element={<VendorDetail />} />
-            <Route path=":id/edit" element={<VendorCreate />} />
+            <Route 
+              index 
+              element={
+                hasRole(['admin', 'Admin', 'full_access', 'customer_admin']) ? 
+                <Navigate to="/vendors/list" /> : 
+                <Navigate to="/dashboard" />
+              } 
+            />
+            <Route 
+              path="list" 
+              element={
+                hasRole(['admin', 'Admin', 'full_access', 'customer_admin']) ? 
+                <VendorList /> : 
+                <Navigate to="/dashboard" />
+              } 
+            />
+            <Route 
+              path="create" 
+              element={
+                hasRole(['admin', 'Admin', 'full_access', 'customer_admin']) ? 
+                <VendorCreate /> : 
+                <Navigate to="/dashboard" />
+              } 
+            />
+            <Route 
+              path=":id" 
+              element={
+                hasRole(['admin', 'Admin', 'full_access', 'customer_admin']) ? 
+                <VendorDetail /> : 
+                <Navigate to="/dashboard" />
+              } 
+            />
+            <Route 
+              path=":id/edit" 
+              element={
+                hasRole(['admin', 'Admin', 'full_access', 'customer_admin']) ? 
+                <VendorCreate /> : 
+                <Navigate to="/dashboard" />
+              } 
+            />
           </Route>
           
           {/* Venues Routes - Restricted to admin and customer_admin */}
