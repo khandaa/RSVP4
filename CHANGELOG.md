@@ -5,6 +5,9 @@
   - Added "Manage Customers" submenu with Customer List, Add Customer, and Customer Reports options
   - Added "Manage Clients" submenu with Client List, Add Client, and Client Reports options
   - Improved admin user experience with better organized navigation structure
+- Fixed sidebar scrolling issue when menu content exceeds viewport height
+- Fixed permission check in client creation page to properly allow admin users to create clients
+- Enhanced client creation page to properly fetch customer list from database
 
 ### 2025-08-01
 - Enhanced automated UI testing framework with comprehensive Puppeteer tests:

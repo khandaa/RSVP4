@@ -22,7 +22,8 @@ import {
   FaPlane,
   FaBed,
   FaCaretDown,
-  FaCaretUp
+  FaCaretUp,
+  FaHandMiddleFinger
 } from 'react-icons/fa';
 import {FaCar} from 'react-icons/fa';
 import { useAuth } from '../../contexts/AuthContext';
@@ -76,6 +77,9 @@ const Sidebar = ({ collapsed }) => {
     }
   }, [token]);
   
+  // Initialize final menu items array
+  const [finalMenuItems, setFinalMenuItems] = useState([]);
+
   // Define base menu items that will be available to everyone with permissions
   const baseMenuItems = [
     {
@@ -84,29 +88,20 @@ const Sidebar = ({ collapsed }) => {
       icon: <FaHome />,
       permission: null // Everyone can access dashboard
     },
-    {
-      name: 'Customers',
-      path: '/customers',
-      icon: <FaBuilding />,
-      permission: 'customer_view',
-      featureToggle: 'customer_management'
-    },
-    {
-      name: 'Clients',
-      path: '/clients',
+    
+];
+    // Start with base menu items
+    const superAdminMenuItems = []; 
+    
+    // Override feature toggle checks for admin/full_access users
+    superAdminMenuItems.push({
+      name: 'SuperAdmin Menu',
       icon: <FaAddressCard />,
-      permission: 'client_view',
-      featureToggle: 'client_management'
-    },
+      permission: null,
+      submenu: true,
+      items: [
     {
-      name: 'Events',
-      path: '/events',
-      icon: <FaCalendarAlt />,
-      permission: 'event_view',
-      featureToggle: 'event_management'
-    },
-    {
-      name: 'Users',
+      name: 'Base Users',
       path: '/users',
       icon: <FaUsers />,
       permission: 'user_view'
@@ -117,18 +112,21 @@ const Sidebar = ({ collapsed }) => {
       icon: <FaUserTag />,
       permission: 'role_view'
     },
-    {
-      name: 'File Upload Settings',
-      path: '/admin/file-upload-settings',
-      icon: <FaCreditCard />,
-      permission: 'role_view'
-    },
+    
     {
       name: 'Permissions',
       path: '/permissions',
       icon: <FaShieldAlt />,
       permission: 'permission_view'
     },
+    {
+      name: 'Payment',
+      path: '/payment',
+      icon: <FaCreditCard />,
+      permission: 'payment_view',
+      featureToggle: 'payment_integration'
+    },
+    
     {
       name: 'Activity Logs',
       path: '/logs',
@@ -140,89 +138,68 @@ const Sidebar = ({ collapsed }) => {
       path: '/analytics',
       icon: <FaChartLine />,
       permission: 'dashboard_view'
+    },
+    {
+      name: 'Feature Toggles',
+      path: '/roles/feature-toggles',
+      icon: <FaToggleOn />,
+      permission: null
+    },
+    {
+      name: 'File Upload Settings',
+      path: '/admin/file-upload-settings',
+      icon: <FaCreditCard />,
+      permission: 'role_view'
     }
-  ];
+    
+    ]
+  });
+    // Add Manage Customers menu with submenu items
+    superAdminMenuItems.push({
+  name: 'Manage Customers',
+  icon: <FaBuilding />,
+  path: '/customers',
+  permission: null,
+
+    })
+  ;
   
-  // Start with base menu items
-  const menuItems = [...baseMenuItems];
-  
-  // Always show customer, client, and event modules to admin users
-  if (hasRole && hasRole(['Admin', 'admin', 'full_access'])) {
-    // Override feature toggle checks for admin/full_access users
-    menuItems.forEach(item => {
-      if (item.name === 'Customers' || item.name === 'Clients' || item.name === 'Events') {
-        // Remove feature toggle dependency for these items
-        delete item.featureToggle;
-      }
-    });
-    console.log('Admin/full_access user detected - customer, client, and event management should be visible regardless of feature toggles');
-  }
-  
-  // Clear base menu items and define role-specific menu items
-  if (hasRole) {
-    // For Admin and full_access users - all capabilities should be visible
-    if (hasRole(['Admin', 'admin', 'full_access'])) {
-      console.log('Admin or full_access user detected - showing all capabilities');
       // Base items are already included - just add all additional items
-            // Add Manage Customers menu with submenu items
-            menuItems.push({
-              name: 'Manage Customers',
-              icon: <FaBuilding />,
-              permission: null,
-              submenu: true,
-              items: [
-                {
-                  name: 'Customer List',
-                  path: '/customers',
-                  icon: <FaBuilding />,
-                  permission: null
-                },
-                {
-                  name: 'Add Customer',
-                  path: '/customers/create',
-                  icon: <FaBuilding />,
-                  permission: null
-                },
-                {
-                  name: 'Customer Reports',
-                  path: '/customers/reports',
-                  icon: <FaChartLine />,
-                  permission: null
-                }
-              ]
-            });
+            const customerMenuItems = [];
+              // Add Team module
+              customerMenuItems.push({
+                name: 'Manage Team',
+                submenu: true,
+                icon: <FaUsers />,
+                permission: null,
+                items:[
+                  {
+                    name: 'Employees',
+                    path: '/employees',
+                    icon: <FaUserFriends />,
+                    permission: null
+                  },
+                  {
+                    name: 'Team',
+                    path: '/team',
+                    icon: <FaUsers />,
+                    permission: null
+                  }
+        
+                ]
+              });
             
             // Add Manage Clients menu with submenu items
-            menuItems.push({
+            customerMenuItems.push({
               name: 'Manage Clients',
               icon: <FaAddressCard />,
               permission: null,
-              submenu: true,
-              items: [
-                {
-                  name: 'Client List',
-                  path: '/clients',
-                  icon: <FaAddressCard />,
-                  permission: null
-                },
-                {
-                  name: 'Add Client',
-                  path: '/clients/create',
-                  icon: <FaAddressCard />,
-                  permission: null
-                },
-                {
-                  name: 'Client Reports',
-                  path: '/clients/reports',
-                  icon: <FaChartLine />,
-                  permission: null
-                }
-              ]
+              path: '/clients',
             });
       
       // Add Manage Events menu with submenu items
-      menuItems.push({
-        name: 'Manage Events',
+      customerMenuItems.push({
+        name: 'Event Management',
         icon: <FaCalendarAlt />,
         permission: null,
         submenu: true,
@@ -251,184 +228,62 @@ const Sidebar = ({ collapsed }) => {
             icon: <FaReply />,
             permission: null
           },
-          {
-            name: 'Travel',
-            path: '/logistics/travel',
-            icon: <FaPlane />,
-            permission: null
-          },
-          {
-            name: 'Accommodation',
-            path: '/logistics/accommodation',
-            icon: <FaBed />,
-            permission: null
-          },
-          {
-            name: 'Communications',
-            path: '/communications',
-            icon: <FaBell />,
-            permission: null
-          }
+          // Add Notifications module
+        {
+        name: 'Notifications',
+        path: '/notifications',
+        icon: <FaBell />,
+        permission: null
+      }
         ]
       });
       
       
       // Add Logistics menu with submenu items
-      menuItems.push({
+      customerMenuItems.push({
         name: 'Logistics',
         icon: <FaTruckMoving />,
         permission: null,
         submenu: true,
         items: [
           {
-            name: 'Dashboard',
+            name: 'Logistics Dashboard',
             path: '/logistics/dashboard',
             icon: <FaChartLine />,
             permission: null
           },
           {
-            name: 'Travel Management',
+            name: 'Manage Travel',
             path: '/logistics/travel',
             icon: <FaPlane />,
             permission: null
           },
           {
-            name: 'Accommodation',
+            name: 'Manage Accommodation',
             path: '/logistics/accommodation',
             icon: <FaBed />,
             permission: null
           },
           {
-            name: 'Vehicle Allocation',
+            name: 'Manage Vehicle Allocations',
             path: '/logistics/vehicles',
             icon: <FaCar />,
             permission: null
           },
           {
-            name: 'Reports',
+            name: 'Logistics Reports',
             path: '/logistics/reports',
             icon: <FaList />,
             permission: null
           }
         ]
       });
-      
-      // Add Notifications module
-      menuItems.push({
-        name: 'Notifications',
-        path: '/notifications',
-        icon: <FaBell />,
-        permission: null
-      });
-    }
     
-    // For Customer Admin users
-    else if (hasRole(['Customer Admin'])) {
-      console.log('Customer Admin user detected - showing customer admin specific menu');
-      // Start with an empty menu and add only what's needed
-      menuItems.length = 0;
-      
-      // Add Dashboard
-      menuItems.push({
-        name: 'Dashboard',
-        path: '/dashboard',
-        icon: <FaHome />,
-        permission: null
-      });
-      
-      // Add Clients module
-      menuItems.push({
-        name: 'Clients',
-        path: '/clients',
-        icon: <FaAddressCard />,
-        permission: null
-      });
-      
-      // Add Manage Events menu with submenu items for Customer Admin
-      menuItems.push({
-        name: 'Manage Events',
-        icon: <FaCalendarAlt />,
-        permission: null,
-        submenu: true,
-        items: [
-          {
-            name: 'Events',
-            path: '/events/list',
-            icon: <FaCalendarAlt />,
-            permission: null
-          },
-          {
-            name: 'Sub Events',
-            path: '/subevents/list',
-            icon: <FaCalendarPlus />,
-            permission: null
-          },
-          {
-            name: 'Guests',
-            path: '/guests/list',
-            icon: <FaUserCheck />,
-            permission: null
-          },
-          {
-            name: 'RSVPs',
-            path: '/rsvps/dashboard',
-            icon: <FaReply />,
-            permission: null
-          },
-          {
-            name: 'Travel',
-            path: '/logistics/travel',
-            icon: <FaPlane />,
-            permission: null
-          },
-          {
-            name: 'Accommodation',
-            path: '/logistics/accommodation',
-            icon: <FaBed />,
-            permission: null
-          },
-          {
-            name: 'Communications',
-            path: '/communications',
-            icon: <FaBell />,
-            permission: null
-          }
-        ]
-      });
-      
-      // Add Team module
-      menuItems.push({
-        name: 'Team',
-        path: '/team',
-        icon: <FaUsers />,
-        permission: null
-      });
-      
-      // Add Employees module
-      menuItems.push({
-        name: 'Employees',
-        path: '/employees',
-        icon: <FaUserFriends />,
-        permission: null
-      });
-    }
-    
-    // For Client Admin users
-    else if (hasRole(['Client Admin'])) {
-      console.log('Client Admin user detected - showing client admin specific menu');
-      // Start with an empty menu and add only what's needed
-      menuItems.length = 0;
-      
-      // Add Dashboard
-      menuItems.push({
-        name: 'Dashboard',
-        path: '/dashboard',
-        icon: <FaHome />,
-        permission: null
-      });
+      // Base items are already included - just add all additional items
+      const clientMenuItems = [];
       
       // Add Manage Events menu with submenu items for Client Admin
-      menuItems.push({
+      clientMenuItems.push({
         name: 'Manage Events',
         icon: <FaCalendarAlt />,
         permission: null,
@@ -451,61 +306,37 @@ const Sidebar = ({ collapsed }) => {
             path: '/guests/list',
             icon: <FaUserCheck />,
             permission: null
-          },
-          {
-            name: 'RSVPs',
-            path: '/rsvps/dashboard',
-            icon: <FaReply />,
-            permission: null
-          },
-          {
-            name: 'Travel',
-            path: '/logistics/travel',
-            icon: <FaPlane />,
-            permission: null
-          },
-          {
-            name: 'Accommodation',
-            path: '/logistics/accommodation',
-            icon: <FaBed />,
-            permission: null
           }
         ]
       });
+    
+    
+  
+  // Update finalMenuItems based on user role
+  useEffect(() => {
+    if (hasRole && hasRole(['Admin', 'admin', 'full_access'])) {
+      let menuItems = [];
+      menuItems = [...baseMenuItems, ...superAdminMenuItems, ...customerMenuItems];
+      
+      // Remove feature toggle restrictions for admin users
+      menuItems.forEach(item => {
+        if (item.featureToggle) delete item.featureToggle;
+      });
+      
+      setFinalMenuItems(menuItems);
+      console.log('Admin/full_access user detected - All menu items should be visible irrespective of feature toggle');
     }
-  }
-  
-  // Always add Feature Toggles menu item for admin for admin users only
-  if (hasRole && hasRole(['Admin', 'admin'])) {
-    menuItems.push({
-      name: 'Feature Toggles',
-      path: '/roles/feature-toggles',
-      icon: <FaToggleOn />,
-      permission: null
-    });
-  }
-  
-  // For non-admin users who have payment_view permission, show payment module if feature toggle is enabled
-  if (hasPermission(['payment_view']) && featureToggles['payment_integration']) {
-    console.log('Non-admin user with payment_view permission - adding Payment module');
-    menuItems.push({
-      name: 'Payment',
-      path: '/payment',
-      icon: <FaCreditCard />,
-      permission: 'payment_view',
-      featureToggle: 'payment_integration'
-    });
-  }
-  
-  // Add Feature Toggles for full_access users who are not admins
-  if (hasRole && hasRole(['full_access']) && !hasRole(['Admin', 'admin'])) {
-    menuItems.push({
-      name: 'Feature Toggles',
-      path: '/roles/feature-toggles',
-      icon: <FaToggleOn />,
-      permission: null
-    });
-  }
+    else if (hasRole(['customer_admin'])) {
+      setFinalMenuItems([...baseMenuItems, ...customerMenuItems]);
+    }
+    else if (hasRole(['client_admin'])) {
+      console.log('Client Admin user detected - showing client admin specific menu');
+      setFinalMenuItems([...baseMenuItems, ...clientMenuItems]);
+    } else {
+      // Default case for other users
+      setFinalMenuItems([...baseMenuItems]);
+    }
+  }, [hasRole, baseMenuItems, superAdminMenuItems, customerMenuItems, clientMenuItems]);
 
   return (
     <div className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
@@ -514,7 +345,7 @@ const Sidebar = ({ collapsed }) => {
         {collapsed && <h4 className="m-0">E</h4>}
       </div>
       <div className="sidebar-menu">
-        {menuItems
+        {finalMenuItems
           .filter(item => !loading && (!item.featureToggle || featureToggles[item.featureToggle]))
           .filter(item => !item.permission || hasPermission([item.permission]))
           .map((item, index) => (
