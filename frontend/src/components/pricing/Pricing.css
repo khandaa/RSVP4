@@ -1,0 +1,124 @@
+.pricing-container {
+  padding-top: 2rem;
+  padding-bottom: 3rem;
+}
+
+.pricing-cards .card {
+  transition: all 0.3s;
+}
+
+.pricing-cards .card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.pricing-card.highlight {
+  transform: scale(1.03);
+  z-index: 1;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+}
+
+.pricing-card.highlight:hover {
+  transform: translateY(-5px) scale(1.03);
+}
+
+.pricing-card-title {
+  font-size: 2.5rem;
+  margin: 1rem 0;
+  line-height: 1;
+}
+
+.pricing-card-title .currency {
+  font-size: 1.5rem;
+  position: relative;
+  top: -15px;
+  vertical-align: baseline;
+}
+
+.pricing-card-title .amount {
+  font-weight: bold;
+}
+
+.billing-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.billing-option {
+  font-size: 1rem;
+  color: #6c757d;
+}
+
+.billing-option.active {
+  color: #0d6efd;
+  font-weight: bold;
+}
+
+.comparison-table th:first-child,
+.comparison-table td:first-child {
+  width: 30%;
+  min-width: 250px;
+}
+
+.toggle-comparison {
+  font-size: 1.1rem;
+  text-decoration: none;
+}
+
+.toggle-comparison:hover {
+  text-decoration: underline;
+}
+
+.faq-section {
+  padding: 1.5rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.faq-item h5 {
+  color: #495057;
+}
+
+@media (max-width: 992px) {
+  .pricing-card.highlight {
+    transform: none;
+  }
+  
+  .pricing-card.highlight:hover {
+    transform: translateY(-5px);
+  }
+}
+
+@media (max-width: 768px) {
+  .pricing-card-title {
+    font-size: 2rem;
+  }
+}
+
+/* Custom badge placement for "Popular" tag */
+.badge-popular {
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translateY(-50%);
+}
+
+/* Glassmorphism effect for cards */
+.pricing-card {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.limits {
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+  padding: 0.5rem 0;
+  margin: 0.5rem 0;
+}
+
+.pricing-container {
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4efe9 100%);
+  border-radius: 15px;
+}

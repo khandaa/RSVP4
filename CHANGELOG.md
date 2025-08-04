@@ -1,5 +1,13 @@
 ## [Unreleased]
 
+### 2025-08-04
+- Added new pricing page with multiple subscription tiers:
+  - Created responsive pricing component with monthly/annual billing toggle
+  - Implemented detailed feature comparison table
+  - Added FAQ section for common pricing questions
+  - Integrated pricing page into main navigation
+  - Applied modern UI with hover effects and visual hierarchy
+
 ### 2025-08-05
 - Implemented comprehensive Team and Employee Management functionality:
   - Created CRUD components for Employee management (EmployeeList, EmployeeCreate, EmployeeDetail)

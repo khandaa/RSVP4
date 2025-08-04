@@ -114,6 +114,7 @@ import ActivityLogs from './components/logging/ActivityLogs';
 import PaymentAdmin from './pages/admin/PaymentAdmin';
 import FileUploadConfig from './components/fileupload/FileUploadConfig';
 import RSVPForm from './components/rsvp/RSVPForm';
+import Pricing from './components/pricing/Pricing';
 
 // Placeholder components for routes that don't have implementations yet
 // const TravelList = () => <div className="container mt-4"><h2>Travel List</h2><p>This feature is coming soon.</p></div>;
@@ -323,6 +324,9 @@ function App() {
           <Route path="analytics">
             <Route index element={<AnalyticsDashboard />} />
           </Route>
+          
+          {/* Pricing Route */}
+          <Route path="pricing" element={<Pricing />} />
         </Route>
         
         {/* Catch All Route */}

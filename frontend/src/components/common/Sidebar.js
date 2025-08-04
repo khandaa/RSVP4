@@ -26,7 +26,8 @@ import {
   FaHandMiddleFinger,
   FaUserPlus,
   FaUsersCog,
-  FaPlusSquare
+  FaPlusSquare,
+  FaTag
 } from 'react-icons/fa';
 import {FaCar} from 'react-icons/fa';
 import { useAuth } from '../../contexts/AuthContext';
@@ -90,6 +91,12 @@ const Sidebar = ({ collapsed }) => {
       path: '/dashboard',
       icon: <FaHome />,
       permission: null // Everyone can access dashboard
+    },
+    {
+      name: 'Pricing',
+      path: '/pricing',
+      icon: <FaTag />,
+      permission: null // Everyone can access pricing
     },
     
 ];
