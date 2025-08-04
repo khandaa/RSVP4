@@ -154,6 +154,9 @@ app.use('/api/guests', guestRoutes);
 const venueRoutes = require('./routes/venues');
 app.use('/api/venues', venueRoutes);
 
+const vendorRoutes = require('./routes/vendors');
+app.use('/api/vendors', vendorRoutes);
+
 const masterDataRoutes = require('./routes/master-data');
 app.use('/api/master-data', masterDataRoutes);
 
