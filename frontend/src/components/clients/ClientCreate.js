@@ -10,7 +10,7 @@ import {
   Spinner
 } from 'react-bootstrap';
 import { FaSave, FaTimes } from 'react-icons/fa';
-import { clientAPI } from '../../services/api';
+import { clientAPI, customerAPI } from '../../services/api';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -42,15 +42,19 @@ const ClientCreate = () => {
     const fetchCustomers = async () => {
       try {
         setLoading(true);
-        // Assuming you have a customer API endpoint
-        const response = await fetch('/api/customers');
-        if (!response.ok) throw new Error('Failed to fetch customers');
+        // Use the customerAPI service to fetch customers
+        const response = await customerAPI.getCustomers();
         
-        const data = await response.json();
-        setCustomers(data);
+        if (response.data && Array.isArray(response.data)) {
+          console.log('Loaded customers:', response.data);
+          setCustomers(response.data);
+        } else {
+          console.warn('Unexpected customer data format:', response.data);
+          setCustomers([]);
+        }
       } catch (error) {
         console.error('Error fetching customers:', error);
-        toast.error('Failed to load customers');
+        toast.error('Failed to load customers: ' + (error.response?.data?.message || error.message));
       } finally {
         setLoading(false);
       }
@@ -160,23 +164,27 @@ const ClientCreate = () => {
           <Form onSubmit={handleSubmit}>
             <Row className="mb-3">
               <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Customer *</Form.Label>
+                <Form.Group controlId="customer_id">
+                  <Form.Label>Customer*</Form.Label>
                   <Form.Select
                     name="customer_id"
                     value={formData.customer_id}
                     onChange={handleChange}
                     isInvalid={!!errors.customer_id}
                     disabled={loading}
-                    required
                   >
-                    <option value="">Select Customer</option>
-                    {customers.map(customer => (
-                      <option key={customer.id} value={customer.id}>
-                        {customer.name}
-                      </option>
-                    ))}
+                    <option value="">Select a Customer</option>
+                    {customers && customers.length > 0 ? (
+                      customers.map(customer => (
+                        <option key={customer.id || customer.customer_id} value={customer.id || customer.customer_id}>
+                          {customer.name || customer.customer_name}
+                        </option>
+                      ))
+                    ) : (
+                      <option disabled>No customers available</option>
+                    )}
                   </Form.Select>
+                  {loading && <div className="text-muted mt-1"><Spinner size="sm" /> Loading customers...</div>}
                   <Form.Control.Feedback type="invalid">
                     {errors.customer_id}
                   </Form.Control.Feedback>
