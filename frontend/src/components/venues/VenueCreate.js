@@ -42,12 +42,28 @@ const VenueCreate = () => {
   useEffect(() => {
     const fetchCustomers = async () => {
       if (isAdmin) {
+        setLoading(true);
         try {
+          // Use the customerAPI directly from the api.js file for better reliability
           const response = await venueAPI.getCustomers();
-          setCustomers(response.data);
+          console.log('Fetched customers:', response.data);
+          
+          if (Array.isArray(response.data)) {
+            setCustomers(response.data);
+          } else if (response.data && Array.isArray(response.data.customers)) {
+            // Handle case where customers might be nested in the response
+            setCustomers(response.data.customers);
+          } else {
+            console.error('Unexpected customers data format:', response.data);
+            toast.error('Received invalid customer data format from server');
+            setCustomers([]);
+          }
         } catch (error) {
           console.error("Failed to fetch customers:", error);
           toast.error("Failed to load customers. Some features may be limited.");
+          setCustomers([]);
+        } finally {
+          setLoading(false);
         }
       }
     };
@@ -238,11 +254,15 @@ const VenueCreate = () => {
                       onChange={handleChange}
                       isInvalid={!!validationErrors.customer_id}
                       required
+                      disabled={customers.length === 0}
                     >
-                      <option value="">Select Customer</option>
+                      <option value="">{customers.length === 0 ? 'Loading customers...' : 'Select Customer'}</option>
                       {customers.map(customer => (
-                        <option key={customer.id} value={customer.id}>
-                          {customer.name}
+                        <option 
+                          key={customer.id || customer.customer_id} 
+                          value={customer.id || customer.customer_id}
+                        >
+                          {customer.name || customer.customer_name || customer.company_name}
                         </option>
                       ))}
                     </Form.Select>
