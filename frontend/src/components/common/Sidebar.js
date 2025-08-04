@@ -23,7 +23,10 @@ import {
   FaBed,
   FaCaretDown,
   FaCaretUp,
-  FaHandMiddleFinger
+  FaHandMiddleFinger,
+  FaUserPlus,
+  FaUsersCog,
+  FaPlusSquare
 } from 'react-icons/fa';
 import {FaCar} from 'react-icons/fa';
 import { useAuth } from '../../contexts/AuthContext';
