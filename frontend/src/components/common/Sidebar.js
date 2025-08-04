@@ -229,6 +229,16 @@ const Sidebar = ({ collapsed }) => {
               permission: null,
               path: '/clients',
             });
+            
+            // Add Venue Management menu item (only for admin and customer_admin)
+            if (hasRole(['admin', 'Admin', 'full_access', 'customer_admin'])) {
+              customerMenuItems.push({
+                name: 'Venue Management',
+                icon: <FaBuilding />,
+                permission: null,
+                path: '/venues/list',
+              });
+            }
       
       // Add Manage Events menu with submenu items
       customerMenuItems.push({

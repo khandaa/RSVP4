@@ -414,12 +414,28 @@ export const employeeAPI = {
 
 // Vendor Management API
 export const vendorAPI = {
-  getVendors: (params) => api.get('/vendor-management/vendors', { params }),
-  getVendor: (id) => api.get(`/vendor-management/vendors/${id}`),
-  createVendor: (vendorData) => api.post('/vendor-management/vendors', vendorData),
-  updateVendor: (id, vendorData) => api.put(`/vendor-management/vendors/${id}`, vendorData),
-  deleteVendor: (id) => api.delete(`/vendor-management/vendors/${id}`),
-  getVendorTypes: () => api.get('/vendor-management/vendor-types')
+  getVendors: (params) => api.get('/vendors', { params }),
+  getVendor: (id) => api.get(`/vendors/${id}`),
+  createVendor: (vendorData) => api.post('/vendors', vendorData),
+  updateVendor: (id, vendorData) => api.put(`/vendors/${id}`, vendorData),
+  deleteVendor: (id) => api.delete(`/vendors/${id}`),
+  getVendorTypes: () => api.get('/vendors/types')
+};
+
+// Venue Management API
+export const venueAPI = {
+  // Basic CRUD operations
+  getAllVenues: (params) => api.get('/venues', { params }),
+  getCustomerVenues: (customerId, params) => api.get(`/venues/customer/${customerId}`, { params }),
+  getVenue: (id) => api.get(`/venues/${id}`),
+  createVenue: (venueData) => api.post('/venues', venueData),
+  updateVenue: (id, venueData) => api.put(`/venues/${id}`, venueData),
+  deleteVenue: (id) => api.delete(`/venues/${id}`),
+  
+  // Additional operations
+  getVenueEvents: (venueId) => api.get(`/venues/${venueId}/events`),
+  checkVenueAvailability: (venueId, startDate, endDate) => api.get(`/venues/${venueId}/availability`, { params: { start_date: startDate, end_date: endDate } }),
+  getCustomers: () => api.get('/customers')
 };
 
 export default api;

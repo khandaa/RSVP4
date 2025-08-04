@@ -107,6 +107,11 @@ import DepartmentCreate from './components/departments/DepartmentCreate';
 import VendorList from './components/vendors/VendorList';
 import VendorCreate from './components/vendors/VendorCreate';
 import VendorDetail from './components/vendors/VendorDetail';
+
+// Venue Management Components
+import VenueList from './components/venues/VenueList';
+import VenueCreate from './components/venues/VenueCreate';
+import VenueDetail from './components/venues/VenueDetail';
 // Logging Components
 import ActivityLogs from './components/logging/ActivityLogs';
 
@@ -308,6 +313,15 @@ function App() {
             <Route path="create" element={<VendorCreate />} />
             <Route path=":id" element={<VendorDetail />} />
             <Route path=":id/edit" element={<VendorCreate />} />
+          </Route>
+          
+          {/* Venues Routes - Restricted to admin and customer_admin */}
+          <Route path="venues">
+            <Route index element={<Navigate to="/venues/list" />} />
+            <Route path="list" element={<VenueList />} />
+            <Route path="create" element={<VenueCreate />} />
+            <Route path=":id" element={<VenueDetail />} />
+            <Route path=":id/edit" element={<VenueCreate />} />
           </Route>
 
           {/* Communications Routes */}
