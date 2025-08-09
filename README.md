@@ -56,7 +56,14 @@ base_v1/
 
 - **Venue Management Module**: Complete venue management system with role-based access, allowing admin and customer_admin users to create, view, edit, and delete venues, including customer-specific venue listings and venue event associations.
 
-- **Vendor Management Module**: Comprehensive vendor management system restricted to admin and customer_admin roles, enabling creation, viewing, editing, and deletion of vendors with proper role-based access control. Includes vendor type classification and API integration.
+- **Vendor Management Module**: Comprehensive vendor management system restricted to admin and customer_admin roles. Features include:
+  - Complete CRUD operations for vendors with proper role-based access control
+  - Integration with customer data for vendor association
+  - Vendor event assignment and management
+  - Detailed vendor information tracking including contacts and agreements
+  - SQLite backend with transaction support for data integrity
+  - RESTful API endpoints with validation and error handling
+  - Vendor type classification and filtering
 
 - **Payment Integration Module**: A comprehensive payment integration system with QR code management and transaction tracking. Admins can upload, activate, and manage payment QR codes through an intuitive UI. The module automatically creates required database tables on initialization.
 
