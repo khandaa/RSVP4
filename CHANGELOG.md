@@ -4,6 +4,7 @@
 - Configured backend to run on port 5001 and frontend on port 3001.
 - Separated `dependencies` and `devDependencies` for the root, `backend`, and `frontend` packages to optimize production builds.
 - Configured webpack for the frontend production build using `react-app-rewired` and added `webpack-bundle-analyzer` to generate a bundle analysis report (`report.html`) during production builds.
+- Enhanced `ecosystem.config.js` to support multi-app deployments, allowing both `rsvp-app` and `wm-app` to be managed from a single configuration file.
 
 ### 2025-08-04
 - Added Vendor Management functionality for customer_admin users:

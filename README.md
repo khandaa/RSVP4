@@ -139,6 +139,29 @@ This allows you to use `/api/*` endpoints in your frontend code without specifyi
 
 ### Production Build
 
+### Multi-App Deployment with PM2
+
+The `ecosystem.config.js` file is configured to manage multiple applications (`rsvp-app` and `wm-app`). You can start, monitor, and deploy each application independently.
+
+-   **Start all applications**:
+    ```bash
+    pm2 start ecosystem.config.js
+    ```
+-   **Start a specific application**:
+    ```bash
+    pm2 start rsvp-app
+    # or
+    pm2 start wm-app
+    ```
+-   **Deploy the RSVP application**:
+    ```bash
+    pm2 deploy ecosystem.config.js production
+    ```
+-   **Deploy the WM application**:
+    ```bash
+    pm2 deploy ecosystem.config.js wm_production
+    ```
+
 To create a production-ready build of the frontend application, run the following command in the `frontend` directory:
 
 ```bash
