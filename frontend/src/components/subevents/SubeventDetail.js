@@ -27,10 +27,6 @@ const SubeventDetail = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
 
-  useEffect(() => {
-    fetchSubeventData();
-  }, [id, fetchSubeventData]);
-
   const fetchSubeventData = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -90,6 +86,10 @@ const SubeventDetail = () => {
       setIsLoading(false);
     }
   }, [id, navigate]);
+
+  useEffect(() => {
+    fetchSubeventData();
+  }, [id, fetchSubeventData]);
 
   const handleDelete = async () => {
     try {

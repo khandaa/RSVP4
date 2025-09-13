@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate, useLocation, useSearchParams, useParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { 
   FaSave, 
@@ -49,6 +49,38 @@ const SubeventCreate = () => {
   // Subevent status options
   const statusOptions = ['Planned', 'In Progress', 'Completed', 'Cancelled', 'Postponed'];
 
+  const fetchData = useCallback(async () => {
+    try {
+      setIsLoadingData(true);
+      const requests = [
+        fetch('/api/venues').then(res => res.json()),
+        fetch('/api/master-data/rooms').then(res => res.json())
+      ];
+
+      if (eventId) {
+        requests.push(eventAPI.getEvent(eventId));
+      } else {
+        requests.push(eventAPI.getEvents());
+      }
+
+      const responses = await Promise.all(requests);
+      
+      setVenues(responses[0] || []);
+      setRooms(responses[1] || []);
+      
+      if (eventId) {
+        setParentEvent(responses[2].data);
+      } else {
+        setEvents(responses[2].data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      toast.error('Failed to load form data');
+    } finally {
+      setIsLoadingData(false);
+    }
+  }, [eventId]);
+
   useEffect(() => {
     fetchData();
   }, [eventId, fetchData]);
@@ -68,38 +100,6 @@ const SubeventCreate = () => {
     }
   }, [formData.venue_id, rooms, formData.room_id]);
 
-  const fetchData = useCallback(async () => {
-    try {
-      setIsLoadingData(true);
-      const requests = [
-        fetch('/api/venues').then(res => res.json()),
-        fetch('/api/master-data/rooms').then(res => res.json())
-      ];
-
-      if (eventId) {
-        requests.push(eventAPI.getEvent(eventId));
-      } else {
-        requests.push(eventAPI.getEvents());
-      }
-
-      const responses = await Promise.all(requests);
-      
-      setVenues(responses[0] || []);
-      setRooms(responses[1] || []);
-      setRooms(responses[1] || []);
-      
-      if (eventId) {
-        setParentEvent(responses[2].data);
-      } else {
-        setEvents(responses[2].data || []);
-      }
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      toast.error('Failed to load form data');
-    } finally {
-      setIsLoadingData(false);
-    }
-  }, [eventId]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
