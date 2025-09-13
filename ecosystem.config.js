@@ -8,12 +8,12 @@ module.exports = {
       exec_mode: 'cluster',
       env: {
         NODE_ENV: 'production',
-        PORT: 3001,
+        PORT: 5001,
         DB_PATH: '/var/www/rsvp/db/RSVP4.db'
       },
       env_production: {
         NODE_ENV: 'production',
-        PORT: 3001,
+        PORT: 5001,
         DB_PATH: '/var/www/rsvp/db/RSVP4.db'
       },
 
@@ -35,7 +35,7 @@ module.exports = {
       
       // Health monitoring
       health_check_http: {
-        url: 'http://localhost:3001/api/health',
+        url: 'http://127.0.0.1:5001/api/health',
         interval: 30000,
         timeout: 5000
       },
@@ -63,12 +63,12 @@ module.exports = {
       exec_mode: 'cluster',
       env: {
         NODE_ENV: 'production',
-        PORT: 3000,
+        PORT: 5000,
         DB_PATH: '/var/www/wm/db/WorkManagement.db'
       },
       env_production: {
         NODE_ENV: 'production',
-        PORT: 3000,
+        PORT: 5000,
         DB_PATH: '/var/www/wm/db/WorkManagement.db'
       },
       log_file: '/var/log/wm/combined.log',
@@ -82,7 +82,7 @@ module.exports = {
       max_restarts: 10,
       min_uptime: '10s',
       health_check_http: {
-        url: 'http://localhost:3000/api/health',
+        url: 'http://127.0.0.1:5000/api/health',
         interval: 30000,
         timeout: 5000
       },

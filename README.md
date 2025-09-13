@@ -139,6 +139,38 @@ This allows you to use `/api/*` endpoints in your frontend code without specifyi
 
 ### Production Build
 
+### Testing the Deployment
+
+After deploying, you can run the `test_deployment.sh` script to verify that both the frontend and backend services are running correctly.
+
+```bash
+sudo bash backend/scripts/test_deployment.sh
+```
+
+This script checks:
+- The frontend is accessible and returns a 200 status.
+- The backend health check endpoints for both applications are responsive.
+
+### Server Deployment with Nginx
+
+The project includes scripts to configure a production environment with Nginx and Let's Encrypt SSL certificates.
+
+1.  **Generate SSL Certificates**: The `backend/scripts/create_certs.sh` script automates the process of obtaining SSL certificates using Certbot.
+    ```bash
+    sudo bash backend/scripts/create_certs.sh
+    ```
+2.  **Configure Nginx**: The `backend/scripts/nginx.conf` file is a template for serving the frontend and proxying the backend. Copy and enable it on your server:
+    ```bash
+    # Copy the configuration
+    sudo cp backend/scripts/nginx.conf /etc/nginx/sites-available/rsvp.hiringtests.in.conf
+
+    # Enable the site
+    sudo ln -s /etc/nginx/sites-available/rsvp.hiringtests.in.conf /etc/nginx/sites-enabled/
+
+    # Test and reload Nginx
+    sudo nginx -t && sudo systemctl reload nginx
+    ```
+
 ### Multi-App Deployment with PM2
 
 The `ecosystem.config.js` file is configured to manage multiple applications (`rsvp-app` and `wm-app`). You can start, monitor, and deploy each application independently.
