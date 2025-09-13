@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { 
@@ -32,19 +32,7 @@ const SubeventTimeline = () => {
 
   const statusOptions = ['Planned', 'In Progress', 'Completed', 'Cancelled', 'Postponed'];
 
-  useEffect(() => {
-    if (eventId) {
-      fetchData();
-    } else {
-      navigate('/subevents');
-    }
-  }, [eventId]);
-
-  useEffect(() => {
-    filterSubevents();
-  }, [subevents, statusFilter, venueFilter]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setIsLoading(true);
       const [subeventResponse, eventResponse, venuesResponse] = await Promise.all([
@@ -62,9 +50,9 @@ const SubeventTimeline = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [eventId]);
 
-  const filterSubevents = () => {
+  const filterSubevents = useCallback(() => {
     let filtered = [...subevents];
 
     if (statusFilter !== 'all') {
@@ -83,7 +71,19 @@ const SubeventTimeline = () => {
     });
 
     setFilteredSubevents(filtered);
-  };
+  }, [subevents, statusFilter, venueFilter]);
+
+  useEffect(() => {
+    if (eventId) {
+      fetchData();
+    } else {
+      navigate('/subevents');
+    }
+  }, [eventId, fetchData, navigate]);
+
+  useEffect(() => {
+    filterSubevents();
+  }, [filterSubevents]);
 
   const getStatusBadgeClass = (status) => {
     switch (status) {
@@ -322,7 +322,7 @@ const SubeventTimeline = () => {
                     {/* Sub Events for this date */}
                     <div className="timeline-events">
                       {dateSubevents.map((subevent, index) => {
-                        const { date, time } = formatDateTime(subevent.subevent_start_datetime);
+                        const { time } = formatDateTime(subevent.subevent_start_datetime);
                         const duration = getDuration(
                           subevent.subevent_start_datetime, 
                           subevent.subevent_end_datetime

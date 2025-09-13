@@ -22,6 +22,7 @@ const RSVPForm = () => {
   
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [tokenData, setTokenData] = useState(null);
   const [eventData, setEventData] = useState(null);
   const [subeventData, setSubeventData] = useState([]);
   const [guestData, setGuestData] = useState(null);
@@ -65,6 +66,7 @@ const RSVPForm = () => {
 
       const data = await response.json();
       setTokenData(data.token);
+      setEventData(data.event);
       setEventData(data.event);
       setGuestData(data.guest);
       setSubeventData(data.subevents || []);

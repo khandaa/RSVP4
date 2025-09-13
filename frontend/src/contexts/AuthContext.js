@@ -45,6 +45,24 @@ export const AuthProvider = ({ children }) => {
   
   const navigate = useNavigate();
 
+  const logout = useCallback(() => {
+    // Remove token from localStorage
+    localStorage.removeItem('token');
+    
+    // Reset state
+    setToken(null);
+    setCurrentUser(null);
+    setIsAuthenticated(false);
+    setPermissions([]);
+    setRoles([]);
+    
+    // Remove auth header
+    delete axios.defaults.headers.common['Authorization'];
+    
+    // Redirect to login
+    navigate('/login');
+  }, [navigate]);
+
   useEffect(() => {
     // Verify token and set authentication state
     const verifyToken = async () => {
@@ -93,7 +111,6 @@ export const AuthProvider = ({ children }) => {
 
     verifyToken();
   }, [token, logout]);
-
   const login = async (username, password) => {
     try {
       const response = await axios.post('/api/authentication/login', { username, password });
@@ -158,23 +175,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = useCallback(() => {
-    // Remove token from localStorage
-    localStorage.removeItem('token');
-    
-    // Reset state
-    setToken(null);
-    setCurrentUser(null);
-    setIsAuthenticated(false);
-    setPermissions([]);
-    setRoles([]);
-    
-    // Remove auth header
-    delete axios.defaults.headers.common['Authorization'];
-    
-    // Redirect to login
-    navigate('/login');
-  }, [navigate]);
 
   const forgotPassword = async (email) => {
     try {

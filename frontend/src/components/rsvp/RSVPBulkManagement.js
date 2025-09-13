@@ -82,6 +82,21 @@ const RSVPBulkManagement = () => {
     applyFilters();
   }, [applyFilters]);
 
+  const fetchEvents = async () => {
+    try {
+      setIsLoading(true);
+      const response = await axios.get('/api/events');
+      setEvents(response.data);
+      if (response.data.length > 0) {
+        setSelectedEvent(response.data[0].event_id);
+      }
+    } catch (error) {
+      toast.error('Failed to fetch events');
+      console.error('Error fetching events:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleSelectAll = () => {
     if (selectedRsvps.length === filteredRsvps.length) {

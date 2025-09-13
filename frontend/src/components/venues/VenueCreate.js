@@ -12,7 +12,6 @@ const VenueCreate = () => {
   const isEditMode = !!id;
   const { hasRole, currentUser } = useAuth();
   const isAdmin = hasRole(['Admin', 'admin', 'full_access']);
-  const isCustomerAdmin = hasRole(['customer_admin']);
 
   const [formData, setFormData] = useState({
     venue_name: '',

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { Card, Row, Col, Button, Badge, Spinner, Table, Modal, Form } from 'react-bootstrap';
-import { FaEdit, FaArrowLeft, FaPlus, FaTimes, FaUserPlus } from 'react-icons/fa';
+import { FaEdit, FaArrowLeft, FaTimes, FaUserPlus } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { teamAPI, employeeAPI } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
@@ -9,7 +9,7 @@ import { useAuth } from '../../contexts/AuthContext';
 const TeamDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { hasRole, currentUser } = useAuth();
+  const { hasRole } = useAuth();
   const isAdmin = hasRole(['Admin', 'admin', 'full_access']);
   const isCustomerAdmin = hasRole(['customer_admin']);
   const canEdit = isAdmin || isCustomerAdmin;

@@ -10,7 +10,6 @@ const TeamCreate = () => {
   const navigate = useNavigate();
   const { hasRole, currentUser } = useAuth();
   const isAdmin = hasRole(['Admin', 'admin', 'full_access']);
-  const isCustomerAdmin = hasRole(['customer_admin']);
   const isEditing = !!id;
   const title = isEditing ? 'Edit Team' : 'Create Team';
 

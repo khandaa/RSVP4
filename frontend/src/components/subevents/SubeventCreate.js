@@ -26,6 +26,7 @@ const SubeventCreate = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [events, setEvents] = useState([]);
+  const [venues, setVenues] = useState([]);
   const [rooms, setRooms] = useState([]);
   const [filteredRooms, setFilteredRooms] = useState([]);
   const [parentEvent, setParentEvent] = useState(null);
@@ -84,6 +85,7 @@ const SubeventCreate = () => {
       const responses = await Promise.all(requests);
       
       setVenues(responses[0] || []);
+      setRooms(responses[1] || []);
       setRooms(responses[1] || []);
       
       if (eventId) {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Table, Button, Spinner, Form, InputGroup, Dropdown, Badge } from 'react-bootstrap';
-import { FaEdit, FaTrash, FaSearch, FaFilter, FaSort, FaPlus, FaUsers } from 'react-icons/fa';
+import { Table, Button, Spinner, Form, InputGroup, Badge } from 'react-bootstrap';
+import { FaEdit, FaTrash, FaSearch, FaSort, FaPlus, FaUsers } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { teamAPI } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
