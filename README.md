@@ -109,7 +109,7 @@ base_v1/
 The React frontend is configured to proxy API requests to the Express backend:
 
 ```
-"proxy": "http://localhost:5000"
+"proxy": "http://localhost:5001"
 ```
 
 This allows you to use `/api/*` endpoints in your frontend code without specifying the backend port. If you encounter 404 errors for `/api` requests, ensure the proxy is set and restart the React dev server.
@@ -135,7 +135,7 @@ This allows you to use `/api/*` endpoints in your frontend code without specifyi
    ```
    npm run start
    ```
-   This will start the backend API on port 5000 and the frontend on port 3000.
+   This will start the backend API on port 5001 and the frontend on port 3001.
 
 ### Production Build
 
@@ -230,8 +230,8 @@ The FA user has been assigned the "full_access" role which grants all available 
 
 After starting the application:
 
-- Backend API: http://localhost:5000
-- Frontend application: http://localhost:3000
+- Backend API: http://localhost:5001
+- Frontend application: http://localhost:3001
 
 ### Demo Users
 

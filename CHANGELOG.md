@@ -1,6 +1,7 @@
 ## [Unreleased]
 
 ### 2025-09-13
+- Configured backend to run on port 5001 and frontend on port 3001.
 - Separated `dependencies` and `devDependencies` for the root, `backend`, and `frontend` packages to optimize production builds.
 - Configured webpack for the frontend production build using `react-app-rewired` and added `webpack-bundle-analyzer` to generate a bundle analysis report (`report.html`) during production builds.
 
