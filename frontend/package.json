@@ -1,5 +1,5 @@
 {
-  "name": "employdex-base-frontend",
+  "name": "rsvp-frontend",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -7,9 +7,6 @@
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^7.2.0",
     "@mui/material": "^7.2.0",
-    "@testing-library/jest-dom": "^5.16.5",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^13.5.0",
     "axios": "^1.4.0",
     "bcryptjs": "^3.0.2",
     "bootstrap": "^5.3.0",
@@ -53,8 +50,12 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://localhost:5000",
+  "proxy": "http://localhost:5001",
   "devDependencies": {
-    "react-app-rewired": "^2.2.1"
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "react-app-rewired": "^2.2.1",
+    "webpack-bundle-analyzer": "^4.10.2"
   }
 }

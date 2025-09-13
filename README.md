@@ -137,6 +137,26 @@ This allows you to use `/api/*` endpoints in your frontend code without specifyi
    ```
    This will start the backend API on port 5000 and the frontend on port 3000.
 
+### Production Build
+
+To create a production-ready build of the frontend application, run the following command in the `frontend` directory:
+
+```bash
+cd frontend
+npm run build
+```
+
+This will create an optimized build in the `frontend/build` directory. As part of the production build process, a bundle analysis report named `report.html` will be generated in the `frontend/build` directory. This report, created by `webpack-bundle-analyzer`, allows you to visualize the contents of your application bundles and identify large dependencies that could be optimized.
+
+### Dependency Management
+
+The project's dependencies are split into two categories:
+
+-   `dependencies`: These are required for the application to run in a production environment.
+-   `devDependencies`: These are only needed for local development and testing (e.g., `nodemon`, `jest`, `webpack-bundle-analyzer`).
+
+This separation ensures that production builds are as lightweight as possible.
+
 ### Automated UI Testing
 
 The application includes comprehensive Puppeteer-based UI testing for all major modules:

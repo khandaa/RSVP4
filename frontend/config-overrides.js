@@ -1,3 +1,5 @@
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
+
 module.exports = function override(config, env) {
   // Filter out source map warnings from react-datepicker
   config.ignoreWarnings = [
@@ -10,6 +12,16 @@ module.exports = function override(config, env) {
       );
     }
   ];
+
+  if (env === 'production') {
+    config.plugins.push(
+      new BundleAnalyzerPlugin({
+        analyzerMode: 'static',
+        reportFilename: 'report.html',
+        openAnalyzer: false,
+      })
+    );
+  }
 
   return config;
 };

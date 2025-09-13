@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+### 2025-09-13
+- Separated `dependencies` and `devDependencies` for the root, `backend`, and `frontend` packages to optimize production builds.
+- Configured webpack for the frontend production build using `react-app-rewired` and added `webpack-bundle-analyzer` to generate a bundle analysis report (`report.html`) during production builds.
+
 ### 2025-08-04
 - Added Vendor Management functionality for customer_admin users:
   - Added Vendor Management link to sidebar menu for admin and customer_admin roles

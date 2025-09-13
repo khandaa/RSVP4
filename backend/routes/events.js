@@ -91,8 +91,34 @@ router.post('/', [
     );
     res.status(201).json(newEvent);
   } catch (error) {
-    console.error('Error creating event:', error);
-    res.status(500).json({ error: 'Failed to create event' });
+    console.error('Error creating event:', {
+      message: error.message,
+      stack: error.stack,
+      body: req.body,
+      timestamp: new Date().toISOString()
+    });
+    
+    // Handle database constraint errors
+    if (error.code === 'SQLITE_CONSTRAINT') {
+      if (error.message.includes('FOREIGN KEY constraint failed')) {
+        return res.status(400).json({ 
+          error: 'Database constraint error',
+          details: 'The provided client_id or event_type_id does not exist',
+          code: 'INVALID_REFERENCE'
+        });
+      }
+      return res.status(400).json({ 
+        error: 'Database constraint error',
+        details: error.message,
+        code: 'DATABASE_CONSTRAINT'
+      });
+    }
+    
+    res.status(500).json({ 
+      error: 'Failed to create event',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined,
+      code: 'EVENT_CREATION_FAILED'
+    });
   }
 });
 
