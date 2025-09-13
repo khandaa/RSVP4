@@ -30,7 +30,6 @@ const QRCodeUpload = ({ onSuccess }) => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   
-  const { token } = useAuth();
   
   const paymentTypes = [
     { value: 'UPI', label: 'UPI Payment' },

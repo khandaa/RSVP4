@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation, useSearchParams, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { 
@@ -6,8 +6,7 @@ import {
   FaTimes, 
   FaCalendarAlt, 
   FaFileAlt, 
-  FaClock, 
-  FaMapMarkerAlt,
+  FaClock,
   FaTags,
   FaUsers,
   FaClipboardList,
@@ -18,7 +17,6 @@ import { eventAPI, subeventAPI } from '../../services/api';
 
 const SubeventCreate = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const [searchParams] = useSearchParams();
   const params = useParams();
   
@@ -28,7 +26,6 @@ const SubeventCreate = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [events, setEvents] = useState([]);
-  const [venues, setVenues] = useState([]);
   const [rooms, setRooms] = useState([]);
   const [filteredRooms, setFilteredRooms] = useState([]);
   const [parentEvent, setParentEvent] = useState(null);
@@ -53,7 +50,7 @@ const SubeventCreate = () => {
 
   useEffect(() => {
     fetchData();
-  }, [eventId]);
+  }, [eventId, fetchData]);
 
   useEffect(() => {
     // Filter rooms based on selected venue
@@ -68,9 +65,9 @@ const SubeventCreate = () => {
       setFilteredRooms([]);
       setFormData(prev => ({ ...prev, room_id: '' }));
     }
-  }, [formData.venue_id, rooms]);
+  }, [formData.venue_id, rooms, formData.room_id]);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setIsLoadingData(true);
       const requests = [
@@ -100,7 +97,7 @@ const SubeventCreate = () => {
     } finally {
       setIsLoadingData(false);
     }
-  };
+  }, [eventId]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -177,7 +174,7 @@ const SubeventCreate = () => {
       };
 
       // Use the subeventAPI to create the subevent
-      const result = await subeventAPI.createSubevent(submitData);
+      await subeventAPI.createSubevent(submitData);
       
       toast.success('Sub event created successfully');
       

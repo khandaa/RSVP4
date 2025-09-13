@@ -47,7 +47,6 @@ const PaymentAdmin = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [editingQrCode, setEditingQrCode] = useState(null);
-  const [featureEnabled, setFeatureEnabled] = useState(null);
   const [permissionError, setPermissionError] = useState(null);
   
   const { hasPermission } = useAuth();
@@ -77,10 +76,6 @@ const PaymentAdmin = () => {
     setActiveTab(0);
   };
   
-  // Handle feature toggle change
-  const handleFeatureToggle = (status) => {
-    setFeatureEnabled(status);
-  };
   
   // Check permissions and show error if lacking
   React.useEffect(() => {
@@ -193,7 +188,7 @@ const PaymentAdmin = () => {
           {hasPaymentEditPermission ? (
             <Grid container spacing={3}>
               <Grid item xs={12}>
-                <PaymentFeatureToggle onStatusChange={handleFeatureToggle} />
+                <PaymentFeatureToggle />
               </Grid>
             </Grid>
           ) : (

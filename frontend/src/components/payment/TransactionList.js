@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Paper,
@@ -37,7 +37,7 @@ const TransactionList = () => {
   const { token } = useAuth();
   
   // Fetch transactions from the API
-  const fetchTransactions = async (searchTerm = '', pageNumber = 0, pageSize = 10) => {
+  const fetchTransactions = useCallback(async (searchTerm = '', pageNumber = 0, pageSize = 10) => {
     setLoading(true);
     setError(null);
     
@@ -64,12 +64,12 @@ const TransactionList = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
   
-  // Initial load
+  // Initial load and on page/rowsPerPage change
   useEffect(() => {
     fetchTransactions(searchQuery, page, rowsPerPage);
-  }, [token, page, rowsPerPage]);
+  }, [fetchTransactions, searchQuery, page, rowsPerPage]);
   
   // Handle page change
   const handleChangePage = (event, newPage) => {

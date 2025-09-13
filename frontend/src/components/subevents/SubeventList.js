@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { 
@@ -35,26 +35,13 @@ const SubeventList = () => {
   const [subeventToDelete, setSubeventToDelete] = useState(null);
   
   const navigate = useNavigate();
-  const location = useLocation();
   const [searchParams] = useSearchParams();
   const eventId = searchParams.get('eventId');
 
   // Subevent status options
   const statusOptions = ['Planned', 'In Progress', 'Completed', 'Cancelled', 'Postponed'];
 
-  useEffect(() => {
-    if (eventId) {
-      fetchData();
-    } else {
-      fetchAllSubevents();
-    }
-  }, [eventId]);
-
-  useEffect(() => {
-    filterAndSortSubevents();
-  }, [subevents, searchTerm, sortConfig, statusFilter, venueFilter, dateFilter]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setIsLoading(true);
       const [subeventResponse, venuesResponse, eventResponse] = await Promise.all([
@@ -72,9 +59,9 @@ const SubeventList = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [eventId]);
 
-  const fetchAllSubevents = async () => {
+  const fetchAllSubevents = useCallback(async () => {
     try {
       setIsLoading(true);
       // Use the API service instead of direct fetch calls
@@ -94,9 +81,9 @@ const SubeventList = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  const filterAndSortSubevents = () => {
+  const filterAndSortSubevents = useCallback(() => {
     let filtered = [...subevents];
 
     // Apply search filter
@@ -177,7 +164,19 @@ const SubeventList = () => {
     }
 
     setFilteredSubevents(filtered);
-  };
+  }, [subevents, searchTerm, statusFilter, venueFilter, dateFilter, sortConfig]);
+
+  useEffect(() => {
+    if (eventId) {
+      fetchData();
+    } else {
+      fetchAllSubevents();
+    }
+  }, [eventId, fetchData, fetchAllSubevents]);
+
+  useEffect(() => {
+    filterAndSortSubevents();
+  }, [filterAndSortSubevents]);
 
   const handleSort = (key) => {
     let direction = 'asc';

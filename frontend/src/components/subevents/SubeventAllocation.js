@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { 
@@ -29,19 +29,7 @@ const SubeventAllocation = () => {
   const [allocations, setAllocations] = useState({});
   const [conflicts, setConflicts] = useState([]);
 
-  useEffect(() => {
-    if (eventId) {
-      fetchData();
-    } else {
-      navigate('/subevents');
-    }
-  }, [eventId]);
-
-  useEffect(() => {
-    checkConflicts();
-  }, [allocations, subevents]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setIsLoading(true);
       const [subeventResponse, eventResponse, venuesResponse, roomsResponse] = await Promise.all([
@@ -72,9 +60,9 @@ const SubeventAllocation = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [eventId]);
 
-  const checkConflicts = () => {
+  const checkConflicts = useCallback(() => {
     const newConflicts = [];
     const roomBookings = {};
 
@@ -120,7 +108,21 @@ const SubeventAllocation = () => {
     });
 
     setConflicts(newConflicts);
-  };
+  }, [allocations, subevents, rooms]);
+
+  useEffect(() => {
+    if (eventId) {
+      fetchData();
+    } else {
+      navigate('/subevents');
+    }
+  }, [eventId, fetchData, navigate]);
+
+  useEffect(() => {
+    checkConflicts();
+  }, [checkConflicts]);
+
+
 
   const handleAllocationChange = (subeventId, field, value) => {
     setAllocations(prev => ({

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Container, Row, Col, Card, Button, Table, Form, InputGroup, Badge, Spinner, Modal } from 'react-bootstrap';
 import { FaSearch, FaSort, FaSortUp, FaSortDown, FaEdit, FaTrash, FaEye, FaPlus, FaMapMarkerAlt } from 'react-icons/fa';
@@ -20,27 +20,19 @@ const VenueList = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [venueToDelete, setVenueToDelete] = useState(null);
 
-  useEffect(() => {
-    fetchVenues();
-  }, [sortField, sortDirection]);
-
-  const fetchVenues = async () => {
+  const fetchVenues = useCallback(async () => {
     setLoading(true);
     try {
       let response;
       if (isAdmin) {
-        // Admins can see all venues
         response = await venueAPI.getAllVenues(sortField, sortDirection);
       } else if (isCustomerAdmin) {
-        // Customer admins can only see venues associated with their customer
         response = await venueAPI.getCustomerVenues(currentUser.customer_id, sortField, sortDirection);
       } else {
-        // Regular users should not access this page, but just in case
         setVenues([]);
         setLoading(false);
         return;
       }
-      
       setVenues(response.data);
     } catch (error) {
       console.error("Failed to fetch venues:", error);
@@ -49,7 +41,11 @@ const VenueList = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [isAdmin, isCustomerAdmin, currentUser, sortField, sortDirection]);
+
+  useEffect(() => {
+    fetchVenues();
+  }, [fetchVenues]);
 
   const handleSort = (field) => {
     if (field === sortField) {

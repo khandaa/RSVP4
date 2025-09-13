@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Container, Row, Col, Card, Form, Button, Spinner } from 'react-bootstrap';
 import { toast } from 'react-toastify';
@@ -29,22 +29,7 @@ const VendorCreate = () => {
 
   const [validationErrors, setValidationErrors] = useState({});
 
-  // Load vendor data if in edit mode
-  useEffect(() => {
-    if (isEditMode) {
-      fetchVendor();
-    }
-    
-    // Load vendor types for dropdown
-    fetchVendorTypes();
-    
-    // Load customers for admin users
-    if (isAdmin) {
-      fetchCustomers();
-    }
-  }, [id]);
-
-  const fetchVendor = async () => {
+  const fetchVendor = useCallback(async () => {
     setLoading(true);
     try {
       const response = await vendorAPI.getVendor(id);
@@ -56,9 +41,9 @@ const VendorCreate = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, navigate]);
 
-  const fetchVendorTypes = async () => {
+  const fetchVendorTypes = useCallback(async () => {
     try {
       const response = await vendorAPI.getVendorTypes();
       setVendorTypes(response.data);
@@ -66,9 +51,9 @@ const VendorCreate = () => {
       console.error('Error fetching vendor types:', error);
       toast.error('Failed to load vendor types');
     }
-  };
+  }, []);
 
-  const fetchCustomers = async () => {
+  const fetchCustomers = useCallback(async () => {
     try {
       // Using the existing customer API
       const response = await fetch('/api/customers', {
@@ -86,7 +71,22 @@ const VendorCreate = () => {
       console.error('Error fetching customers:', error);
       toast.error('Failed to load customers');
     }
-  };
+  }, []);
+
+  // Load vendor data if in edit mode
+  useEffect(() => {
+    if (isEditMode) {
+      fetchVendor();
+    }
+    
+    // Load vendor types for dropdown
+    fetchVendorTypes();
+    
+    // Load customers for admin users
+    if (isAdmin) {
+      fetchCustomers();
+    }
+  }, [isEditMode, isAdmin, fetchVendor, fetchVendorTypes, fetchCustomers]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

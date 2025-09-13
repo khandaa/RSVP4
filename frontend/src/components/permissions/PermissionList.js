@@ -221,7 +221,6 @@ const PermissionList = () => {
                   {filteredPermissions.length > 0 ? (
                     filteredPermissions.map((permission, index) => {
                       const category = permission.name.split('_')[0];
-                      const action = permission.name.substring(category.length + 1);
                       
                       return (
                         <tr key={permission.permission_id}>

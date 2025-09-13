@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { toast } from 'react-toastify';
 import { 
   FaUpload, 
@@ -6,16 +6,10 @@ import {
   FaEnvelope, 
   FaSms, 
   FaWhatsapp, 
-  FaCheckCircle, 
-  FaTimesCircle, 
-  FaQuestionCircle, 
-  FaFilter, 
-  FaSort, 
   FaSearch,
   FaSync,
   FaFileExport,
   FaUsers,
-  FaUserCheck,
   FaEdit,
   FaTrash
 } from 'react-icons/fa';
@@ -42,33 +36,7 @@ const RSVPBulkManagement = () => {
     fetchEvents();
   }, []);
 
-  useEffect(() => {
-    if (selectedEvent) {
-      fetchRsvps();
-    }
-  }, [selectedEvent]);
-
-  useEffect(() => {
-    applyFilters();
-  }, [rsvps, searchTerm, filterStatus]);
-
-  const fetchEvents = async () => {
-    try {
-      setIsLoading(true);
-      const response = await axios.get('/api/events');
-      setEvents(response.data);
-      if (response.data.length > 0) {
-        setSelectedEvent(response.data[0].event_id);
-      }
-    } catch (error) {
-      toast.error('Failed to fetch events');
-      console.error('Error fetching events:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const fetchRsvps = async () => {
+  const fetchRsvps = useCallback(async () => {
     try {
       setIsLoading(true);
       const response = await axios.get(`/api/rsvp/event/${selectedEvent}`);
@@ -81,9 +49,9 @@ const RSVPBulkManagement = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [selectedEvent]);
 
-  const applyFilters = () => {
+  const applyFilters = useCallback(() => {
     let filtered = [...rsvps];
 
     // Apply search term
@@ -102,7 +70,18 @@ const RSVPBulkManagement = () => {
     }
 
     setFilteredRsvps(filtered);
-  };
+  }, [rsvps, searchTerm, filterStatus]);
+
+  useEffect(() => {
+    if (selectedEvent) {
+      fetchRsvps();
+    }
+  }, [selectedEvent, fetchRsvps]);
+
+  useEffect(() => {
+    applyFilters();
+  }, [applyFilters]);
+
 
   const handleSelectAll = () => {
     if (selectedRsvps.length === filteredRsvps.length) {

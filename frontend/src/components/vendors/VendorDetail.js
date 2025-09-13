@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Container, Row, Col, Card, Button, ListGroup, Badge, Spinner } from 'react-bootstrap';
 import { FaEdit, FaArrowLeft } from 'react-icons/fa';
@@ -17,30 +17,7 @@ const VendorDetail = () => {
   const [loading, setLoading] = useState(true);
   const [customerName, setCustomerName] = useState('');
 
-  useEffect(() => {
-    fetchVendor();
-  }, [id]);
-
-  const fetchVendor = async () => {
-    setLoading(true);
-    try {
-      const response = await vendorAPI.getVendor(id);
-      setVendor(response.data);
-      
-      // Get customer name if we have customer_id
-      if (response.data.customer_id) {
-        fetchCustomerName(response.data.customer_id);
-      }
-    } catch (error) {
-      console.error('Error fetching vendor:', error);
-      toast.error('Failed to load vendor details');
-      navigate('/vendors/list');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchCustomerName = async (customerId) => {
+  const fetchCustomerName = useCallback(async (customerId) => {
     try {
       // Using the existing customer API
       const response = await fetch(`/api/customers/${customerId}`, {
@@ -57,7 +34,30 @@ const VendorDetail = () => {
     } catch (error) {
       console.error('Error fetching customer:', error);
     }
-  };
+  }, []);
+
+  const fetchVendor = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await vendorAPI.getVendor(id);
+      setVendor(response.data);
+      
+      // Get customer name if we have customer_id
+      if (response.data.customer_id) {
+        fetchCustomerName(response.data.customer_id);
+      }
+    } catch (error) {
+      console.error('Error fetching vendor:', error);
+      toast.error('Failed to load vendor details');
+      navigate('/vendors/list');
+    } finally {
+      setLoading(false);
+    }
+  }, [id, navigate, fetchCustomerName]);
+
+  useEffect(() => {
+    fetchVendor();
+  }, [fetchVendor]);
 
   if (loading) {
     return (

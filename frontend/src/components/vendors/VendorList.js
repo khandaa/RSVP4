@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Card, Button, Table, Form, InputGroup, Badge, Spinner, Modal } from 'react-bootstrap';
 import { FaSearch, FaSort, FaSortUp, FaSortDown, FaEdit, FaTrash, FaEye, FaPlus } from 'react-icons/fa';
@@ -21,18 +21,13 @@ const VendorList = () => {
   const [selectedVendor, setSelectedVendor] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  // Fetch vendors on component mount
-  useEffect(() => {
-    fetchVendors();
-  }, []);
-
-  const fetchVendors = async () => {
+  const fetchVendors = useCallback(async () => {
     setLoading(true);
     try {
       const params = {};
       
       // Filter by customer_id for customer_admin users
-      if (isCustomerAdmin && user.customer_id) {
+      if (isCustomerAdmin && user && user.customer_id) {
         params.customer_id = user.customer_id;
       }
 
@@ -44,7 +39,11 @@ const VendorList = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [isCustomerAdmin, user]);
+
+  useEffect(() => {
+    fetchVendors();
+  }, [fetchVendors, isCustomerAdmin, user]);
 
   // Handle sort change
   const handleSort = (field) => {

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import jwt_decode from 'jwt-decode';
 import axios from 'axios';
 import { setAuthToken } from '../services/api';
@@ -92,7 +92,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     verifyToken();
-  }, [token]);
+  }, [token, logout]);
 
   const login = async (username, password) => {
     try {
@@ -158,7 +158,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
+  const logout = useCallback(() => {
     // Remove token from localStorage
     localStorage.removeItem('token');
     
@@ -174,7 +174,7 @@ export const AuthProvider = ({ children }) => {
     
     // Redirect to login
     navigate('/login');
-  };
+  }, [navigate]);
 
   const forgotPassword = async (email) => {
     try {

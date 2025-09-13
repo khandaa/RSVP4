@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Table, Button, Form, InputGroup, Badge, Pagination, Dropdown, Modal } from 'react-bootstrap';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Container, Row, Col, Card, Table, Button, Form, InputGroup, Badge, Pagination, Modal } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaPlus, FaSearch, FaEdit, FaTrash, FaUser, FaToggleOn, FaToggleOff, FaUserTag } from 'react-icons/fa';
 import { toast } from 'react-toastify';
@@ -27,13 +27,7 @@ const UserList = () => {
   const canDeleteUser = hasPermission(['user_delete']);
   const canBulkUpload = hasPermission(['user_create']);
 
-  useEffect(() => {
-    fetchUsers();
-    fetchRoles();
-  }, [currentPage, searchTerm]);
-  
-  // Fetch all available roles
-  const fetchRoles = async () => {
+  const fetchRoles = useCallback(async () => {
     try {
       const response = await roleAPI.getRoles();
       if (response.data && Array.isArray(response.data)) {
@@ -44,9 +38,9 @@ const UserList = () => {
     } catch (error) {
       console.error('Error fetching roles:', error);
     }
-  };
+  }, []);
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
       const params = {
@@ -66,7 +60,12 @@ const UserList = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, searchTerm, pageSize]);
+
+  useEffect(() => {
+    fetchUsers();
+    fetchRoles();
+  }, [fetchUsers, fetchRoles]);
 
   const handleToggleStatus = async (userId, currentStatus) => {
     try {

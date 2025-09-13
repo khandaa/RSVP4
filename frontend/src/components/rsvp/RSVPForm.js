@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { 
   FaCalendarAlt,
   FaUser,
   FaEnvelope,
-  FaPhone,
   FaClock,
   FaMapMarkerAlt,
   FaCheckCircle,
@@ -20,11 +19,9 @@ import {
 
 const RSVPForm = () => {
   const { token } = useParams();
-  const navigate = useNavigate();
   
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [tokenData, setTokenData] = useState(null);
   const [eventData, setEventData] = useState(null);
   const [subeventData, setSubeventData] = useState([]);
   const [guestData, setGuestData] = useState(null);
@@ -51,9 +48,9 @@ const RSVPForm = () => {
     if (token) {
       validateTokenAndLoadData();
     }
-  }, [token]);
+  }, [token, validateTokenAndLoadData]);
 
-  const validateTokenAndLoadData = async () => {
+  const validateTokenAndLoadData = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
@@ -104,7 +101,7 @@ const RSVPForm = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [token, rsvpData]);
 
   const handleInputChange = (field, value) => {
     setRsvpData(prev => ({

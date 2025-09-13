@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Row, Col, Card, Button, Alert, Badge, ListGroup } from 'react-bootstrap';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { FaArrowLeft, FaEdit, FaTrash, FaShieldAlt, FaUsers } from 'react-icons/fa';
@@ -22,15 +22,7 @@ const PermissionDetails = () => {
   const canEditPermission = hasPermission(['permission_edit']);
   const canDeletePermission = hasPermission(['permission_delete']);
 
-  useEffect(() => {
-    if (canViewPermission) {
-      fetchPermissionDetails();
-    } else {
-      setLoading(false);
-    }
-  }, [id, canViewPermission]);
-
-  const fetchPermissionDetails = async () => {
+  const fetchPermissionDetails = useCallback(async () => {
     try {
       setLoading(true);
       const permResponse = await permissionAPI.getPermission(id);
@@ -51,7 +43,15 @@ const PermissionDetails = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    if (canViewPermission) {
+      fetchPermissionDetails();
+    } else {
+      setLoading(false);
+    }
+  }, [canViewPermission, fetchPermissionDetails]);
 
   const handleDelete = async () => {
     try {

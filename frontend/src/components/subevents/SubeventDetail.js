@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { 
@@ -15,7 +15,6 @@ import {
   FaChartBar,
   FaPlus,
   FaEye,
-  FaEnvelope
 } from 'react-icons/fa';
 
 const SubeventDetail = () => {
@@ -30,9 +29,9 @@ const SubeventDetail = () => {
 
   useEffect(() => {
     fetchSubeventData();
-  }, [id]);
+  }, [id, fetchSubeventData]);
 
-  const fetchSubeventData = async () => {
+  const fetchSubeventData = useCallback(async () => {
     try {
       setIsLoading(true);
       
@@ -90,7 +89,7 @@ const SubeventDetail = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [id, navigate]);
 
   const handleDelete = async () => {
     try {

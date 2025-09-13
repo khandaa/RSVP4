@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -21,16 +21,7 @@ const PermissionEdit = () => {
   const canEditPermission = hasPermission(['permission_edit']);
   const canViewPermission = hasPermission(['permission_view']);
 
-  useEffect(() => {
-    if (canViewPermission || canEditPermission) {
-      fetchPermissionDetails();
-      fetchPermissionCategories();
-    } else {
-      setLoading(false);
-    }
-  }, [id, canViewPermission, canEditPermission]);
-
-  const fetchPermissionDetails = async () => {
+  const fetchPermissionDetails = useCallback(async () => {
     try {
       setLoading(true);
       const response = await permissionAPI.getPermission(id);
@@ -41,9 +32,9 @@ const PermissionEdit = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
-  const fetchPermissionCategories = async () => {
+  const fetchPermissionCategories = useCallback(async () => {
     try {
       const response = await permissionAPI.getPermissionCategories();
       setCategories(response.data || []);
@@ -51,7 +42,16 @@ const PermissionEdit = () => {
       console.error('Error fetching permission categories:', error);
       // Non-critical error, can proceed without categories
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (canViewPermission || canEditPermission) {
+      fetchPermissionDetails();
+      fetchPermissionCategories();
+    } else {
+      setLoading(false);
+    }
+  }, [canViewPermission, canEditPermission, fetchPermissionDetails, fetchPermissionCategories]);
 
   const isSystemPermission = () => {
     return permission && permission.is_system === 1;

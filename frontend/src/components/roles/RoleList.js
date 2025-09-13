@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styles from './RoleList.module.css';
 import { Container, Row, Col, Card, Table, Button, Form, InputGroup, Badge, Modal, Alert } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaPlus, FaSearch, FaEdit, FaTrash, FaUserTag, FaShieldAlt, FaCloudUploadAlt, FaKey } from 'react-icons/fa';
+import { FaPlus, FaSearch, FaEdit, FaTrash, FaShieldAlt, FaCloudUploadAlt, FaKey } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { roleAPI, permissionAPI } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { 
@@ -6,12 +6,9 @@ import {
   FaUserCheck, 
   FaUserTimes, 
   FaUserClock, 
-  FaFilter, 
   FaDownload,
-  FaPrint,
   FaEnvelope,
   FaCalendarAlt,
-  FaSearch,
   FaSync
 } from 'react-icons/fa';
 import { rsvpAPI, eventAPI } from '../../services/api';
@@ -32,21 +29,8 @@ const RSVPDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   
-  // Fetch events on component mount
-  useEffect(() => {
-    fetchEvents();
-  }, []);
-  
-  // Fetch RSVP stats when an event is selected
-  useEffect(() => {
-    if (selectedEvent) {
-      fetchRsvpStats();
-      fetchRecentResponses();
-    }
-  }, [selectedEvent]);
-  
   // Fetch events from API
-  const fetchEvents = async () => {
+  const fetchEvents = useCallback(async () => {
     try {
       setIsLoading(true);
       const response = await eventAPI.getEvents();
@@ -65,10 +49,15 @@ const RSVPDashboard = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
+
+  // Fetch events on component mount
+  useEffect(() => {
+    fetchEvents();
+  }, [fetchEvents]);
   
   // Fetch RSVP statistics for the selected event
-  const fetchRsvpStats = async () => {
+  const fetchRsvpStats = useCallback(async () => {
     if (!selectedEvent) return;
     
     try {
@@ -90,10 +79,10 @@ const RSVPDashboard = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [selectedEvent]);
   
   // Fetch recent RSVP responses
-  const fetchRecentResponses = async () => {
+  const fetchRecentResponses = useCallback(async () => {
     if (!selectedEvent) return;
     
     try {
@@ -110,7 +99,15 @@ const RSVPDashboard = () => {
     } catch (error) {
       console.error('Error fetching recent RSVP responses:', error);
     }
-  };
+  }, [selectedEvent]);
+
+  // Fetch RSVP stats when an event is selected
+  useEffect(() => {
+    if (selectedEvent) {
+      fetchRsvpStats();
+      fetchRecentResponses();
+    }
+  }, [selectedEvent, fetchRsvpStats, fetchRecentResponses]); 
   
   // Handle event change
   const handleEventChange = (e) => {
@@ -124,11 +121,6 @@ const RSVPDashboard = () => {
     toast.info('Dashboard refreshed!');
   };
   
-  // Get the selected event name
-  const getSelectedEventName = () => {
-    const event = events.find(e => e.event_id.toString() === selectedEvent);
-    return event ? event.event_name : 'All Events';
-  };
   
   // Calculate response rate percentage
   const calculateResponseRate = () => {
