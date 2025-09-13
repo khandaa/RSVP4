@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
   Container,
@@ -23,22 +23,22 @@ const ClientDetail = () => {
   const [loading, setLoading] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   
-  useEffect(() => {
-    const fetchClientData = async () => {
-      try {
-        setLoading(true);
-        const response = await clientAPI.getClient(id);
-        setClient(response.data);
-      } catch (error) {
-        toast.error('Failed to fetch client details');
-        console.error('Error fetching client:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchClientData();
+  const fetchClientData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await clientAPI.getClient(id);
+      setClient(response.data);
+    } catch (error) {
+      toast.error('Failed to fetch client details');
+      console.error('Error fetching client:', error);
+    } finally {
+      setLoading(false);
+    }
   }, [id]);
+
+  useEffect(() => {
+    fetchClientData();
+  }, [fetchClientData]);
   
   const handleDelete = async () => {
     try {

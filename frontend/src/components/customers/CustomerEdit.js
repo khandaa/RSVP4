@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { FaSave, FaTimes, FaArrowLeft, FaUser, FaEnvelope, FaPhone, FaMapMarkerAlt, FaBuilding } from 'react-icons/fa';
@@ -20,11 +20,7 @@ const CustomerEdit = () => {
   const [originalData, setOriginalData] = useState({});
   const [errors, setErrors] = useState({});
 
-  useEffect(() => {
-    fetchCustomer();
-  }, [id]);
-
-  const fetchCustomer = async () => {
+  const fetchCustomer = useCallback(async () => {
     try {
       setIsLoadingData(true);
       const response = await axios.get(`/api/customers/${id}`);
@@ -45,7 +41,11 @@ const CustomerEdit = () => {
     } finally {
       setIsLoadingData(false);
     }
-  };
+  }, [id, navigate]);
+
+  useEffect(() => {
+    fetchCustomer();
+  }, [fetchCustomer]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -105,7 +105,7 @@ const CustomerEdit = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.put(`/api/customers/${id}`, formData);
+      await axios.put(`/api/customers/${id}`, formData);
       toast.success('Customer updated successfully');
       navigate(`/customers/${id}`);
     } catch (error) {

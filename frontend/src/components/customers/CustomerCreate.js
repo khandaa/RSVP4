@@ -66,7 +66,7 @@ const CustomerCreate = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post('/api/customers', formData);
+      await axios.post('/api/customers', formData);
       toast.success('Customer created successfully');
       navigate('/customers');
     } catch (error) {
