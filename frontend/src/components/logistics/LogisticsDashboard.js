@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { toast } from 'react-toastify';
 import { 
   FaPlane,
@@ -9,21 +9,16 @@ import {
   FaHotel,
   FaCalendarAlt,
   FaClock,
-  FaMapMarkerAlt,
-  FaUsers,
   FaChartBar,
   FaFileExport,
-  FaFilter,
   FaSearch,
   // FaRefresh,
   FaInfoCircle,
   FaCheckCircle,
   FaExclamationTriangle,
-  FaTimesCircle,
   FaArrowRight,
   FaArrowDown,
   FaArrowUp,
-  FaUserFriends,
   FaRoute,
   FaBed
 } from 'react-icons/fa';
@@ -47,9 +42,9 @@ const LogisticsDashboard = () => {
   useEffect(() => {
     fetchDashboardData();
     fetchEvents();
-  }, [selectedDate, selectedEvent, timeFilter]);
+  }, [fetchDashboardData, fetchEvents]);
 
-  const fetchEvents = async () => {
+  const fetchEvents = useCallback(async () => {
     try {
       const response = await fetch('/api/events', {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
@@ -61,9 +56,9 @@ const LogisticsDashboard = () => {
     } catch (error) {
       console.error('Error fetching events:', error);
     }
-  };
+  }, []);
 
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     try {
       setIsLoading(true);
       
@@ -107,7 +102,7 @@ const LogisticsDashboard = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [selectedDate, selectedEvent, timeFilter]);
 
   const getDateRange = () => {
     const today = new Date();
@@ -272,14 +267,6 @@ const LogisticsDashboard = () => {
     });
   };
 
-  const formatDate = (dateString) => {
-    if (!dateString) return 'Not specified';
-    return new Date(dateString).toLocaleDateString('en-US', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
 
   const exportScheduleToCSV = () => {
     const headers = ['Time', 'Type', 'Guest', 'Event', 'Details', 'Status', 'Priority'];
@@ -488,7 +475,6 @@ const LogisticsDashboard = () => {
                   ) : (
                     <div className="timeline">
                       {dashboardData.upcomingSchedule.slice(0, 10).map((item, index) => {
-                        const ItemIcon = item.icon;
                         return (
                           <div key={index} className="timeline-item mb-3 p-3 border-start border-3 border-primary">
                             <div className="d-flex align-items-start">

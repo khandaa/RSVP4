@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { 
@@ -10,24 +10,16 @@ import {
   FaShip,
   FaHotel,
   FaBed,
-  FaRoute,
   FaCalendarAlt,
   FaClock,
-  FaMapMarkerAlt,
   FaPhone,
   FaEnvelope,
   FaArrowLeft,
-  FaEdit,
   FaPlus,
   FaInfoCircle,
-  FaCheckCircle,
-  FaExclamationTriangle,
-  FaTimesCircle,
-  FaFileAlt,
   FaPrint,
   FaDownload,
   FaSync,
-  FaEye,
   FaUserFriends,
   FaBuilding
 } from 'react-icons/fa';
@@ -44,13 +36,13 @@ const GuestLogisticsProfile = () => {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
-  const [selectedEvent, setSelectedEvent] = useState('');
+  const [selectedEvent] = useState('');
 
   useEffect(() => {
     fetchGuestLogistics();
-  }, [guestId, selectedEvent]);
+  }, [guestId, selectedEvent, fetchGuestLogistics]);
 
-  const fetchGuestLogistics = async () => {
+  const fetchGuestLogistics = useCallback(async () => {
     try {
       setIsLoading(true);
       
@@ -97,7 +89,7 @@ const GuestLogisticsProfile = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [guestId, selectedEvent, navigate]);
 
   const getTravelIcon = (mode) => {
     switch (mode) {

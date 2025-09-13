@@ -43,7 +43,6 @@ const QRCodeList = ({ onEdit, onRefreshNeeded, refreshTrigger }) => {
   const [actionLoading, setActionLoading] = useState(false);
   const [actionMessage, setActionMessage] = useState({ text: '', type: '' });
 
-  const { token } = useAuth();
 
   // Fetch QR codes from the API
   const fetchQrCodes = async () => {

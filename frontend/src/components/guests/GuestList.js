@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { 
-  FaPlus, 
+ 
   FaEdit, 
   FaTrash, 
   FaEye, 
@@ -47,13 +47,13 @@ const GuestList = () => {
 
   useEffect(() => {
     fetchData();
-  }, [eventId, subeventId]);
+  }, [eventId, subeventId, fetchData]);
 
   useEffect(() => {
     filterAndSortGuests();
-  }, [guests, searchTerm, sortConfig, rsvpFilter, eventFilter, customerFilter, guestTypeFilter]);
+  }, [guests, searchTerm, sortConfig, rsvpFilter, eventFilter, customerFilter, guestTypeFilter, filterAndSortGuests]);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setIsLoading(true);
       let guestsUrl = '/api/guests';
@@ -86,9 +86,9 @@ const GuestList = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [eventId, subeventId]);
 
-  const filterAndSortGuests = () => {
+  const filterAndSortGuests = useCallback(() => {
     let filtered = [...guests];
 
     // Apply search filter
@@ -154,7 +154,7 @@ const GuestList = () => {
     }
 
     setFilteredGuests(filtered);
-  };
+  }, [guests, searchTerm, sortConfig, rsvpFilter, eventFilter, customerFilter, guestTypeFilter]);
 
   const handleSort = (key) => {
     let direction = 'asc';

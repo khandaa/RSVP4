@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { toast } from 'react-toastify';
 import { 
   FaHotel,
@@ -8,7 +8,6 @@ import {
   FaEdit,
   FaTrash,
   FaSearch,
-  FaFilter,
   FaCalendarAlt,
   FaMapMarkerAlt,
   FaPhoneAlt,
@@ -19,8 +18,6 @@ import {
   FaSave,
   FaTimes,
   FaInfoCircle,
-  FaCheckCircle,
-  FaExclamationTriangle
 } from 'react-icons/fa';
 
 const AccommodationManagement = () => {
@@ -79,9 +76,9 @@ const AccommodationManagement = () => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setIsLoading(true);
       const [
@@ -119,7 +116,7 @@ const AccommodationManagement = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   const handleAccommodationSubmit = async (e) => {
     e.preventDefault();

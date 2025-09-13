@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { 
   FaCalendarAlt,
@@ -22,7 +22,6 @@ const RSVPForm = () => {
   
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [tokenData, setTokenData] = useState(null);
   const [eventData, setEventData] = useState(null);
   const [subeventData, setSubeventData] = useState([]);
   const [guestData, setGuestData] = useState(null);
@@ -45,12 +44,6 @@ const RSVPForm = () => {
     { value: 'Tentative', label: 'Maybe, I am not sure yet', icon: FaQuestionCircle, color: 'warning' }
   ];
 
-  useEffect(() => {
-    if (token) {
-      validateTokenAndLoadData();
-    }
-  }, [token, validateTokenAndLoadData]);
-
   const validateTokenAndLoadData = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -65,7 +58,62 @@ const RSVPForm = () => {
       }
 
       const data = await response.json();
-      setTokenData(data.token);
+      setEventData(data.event);
+      setGuestData(data.guest);
+      setSubeventData(data.subevents || []);
+
+      // Check if already responded
+      if (data.existing_response) {
+        setRsvpData({
+          ...rsvpData,
+          main_rsvp_status: data.existing_response.rsvp_status,
+          dietary_requirements: data.existing_response.dietary_requirements || '',
+          special_requirements: data.existing_response.special_requirements || '',
+          plus_one_count: data.existing_response.plus_one_count || 0,
+          plus_one_details: data.existing_response.plus_one_details || '',
+          guest_notes: data.existing_response.guest_notes || '',
+          subevents: data.existing_response.subevents || {}
+        });
+      }
+
+      // Initialize subevent responses
+      const subeventResponses = {};
+      data.subevents?.forEach(subevent => {
+        subeventResponses[subevent.subevent_id] = 
+          data.existing_response?.subevents?.[subevent.subevent_id] || 'Pending';
+      });
+      
+      setRsvpData(prev => ({
+        ...prev,
+        subevents: subeventResponses
+      }));
+
+    } catch (error) {
+      console.error('Error validating RSVP token:', error);
+      setError(error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [token, rsvpData]);
+
+  useEffect(() => {
+    if (token) {
+      validateTokenAndLoadData();
+    }
+  }, [token, validateTokenAndLoadData]);
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      // Validate token and get guest/event data
+      const response = await fetch(`/api/rsvp/validate/${token}`);
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Invalid or expired RSVP link');
+      }
+
+      const data = await response.json();
       setEventData(data.event);
       setEventData(data.event);
       setGuestData(data.guest);

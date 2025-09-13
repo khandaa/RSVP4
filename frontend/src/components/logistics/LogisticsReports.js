@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { toast } from 'react-toastify';
 import { 
   FaFileAlt,
@@ -6,25 +6,16 @@ import {
   FaCalendarAlt,
   FaChartBar,
   FaChartPie,
-  FaChartLine,
   FaTable,
   FaPlane,
   FaTrain,
   FaCar,
   FaBus,
   FaHotel,
-  FaBed,
-  FaUsers,
-  FaFilter,
-  FaSearch,
   FaFileExport,
   FaPrint,
-  FaEye,
   FaSpinner,
   FaInfoCircle,
-  FaCheckCircle,
-  FaExclamationTriangle,
-  FaTimesCircle
 } from 'react-icons/fa';
 
 const LogisticsReports = () => {
@@ -42,23 +33,15 @@ const LogisticsReports = () => {
     start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     end: new Date().toISOString().split('T')[0]
   });
-  const [reportType, setReportType] = useState('summary');
   const [activeTab, setActiveTab] = useState('overview');
 
-  const reportTypes = [
-    { value: 'summary', label: 'Executive Summary', icon: FaChartBar },
-    { value: 'travel', label: 'Travel Report', icon: FaPlane },
-    { value: 'accommodation', label: 'Accommodation Report', icon: FaHotel },
-    { value: 'vehicle', label: 'Vehicle Report', icon: FaCar },
-    { value: 'detailed', label: 'Detailed Report', icon: FaTable }
-  ];
 
   useEffect(() => {
     fetchEvents();
     generateReports();
-  }, [selectedEvent, dateRange.start, dateRange.end]);
+  }, [generateReports, fetchEvents]);
 
-  const fetchEvents = async () => {
+  const fetchEvents = useCallback(async () => {
     try {
       const response = await fetch('/api/events', {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
@@ -70,9 +53,9 @@ const LogisticsReports = () => {
     } catch (error) {
       console.error('Error fetching events:', error);
     }
-  };
+  }, []);
 
-  const generateReports = async () => {
+  const generateReports = useCallback(async () => {
     if (!dateRange.start || !dateRange.end) return;
 
     try {
@@ -118,7 +101,7 @@ const LogisticsReports = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [dateRange.start, dateRange.end, selectedEvent]);
 
   const generateTravelSummary = (data) => {
     const summary = {

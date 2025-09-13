@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { 
@@ -16,7 +16,6 @@ import {
   FaSortUp, 
   FaSortDown, 
   FaDownload,
-  FaCalendarAlt,
   FaClock,
   FaMapMarkerAlt,
   FaUsers,
@@ -78,13 +77,13 @@ const TravelManagement = () => {
 
   useEffect(() => {
     fetchData();
-  }, [eventId, guestId]);
+  }, [eventId, guestId, fetchData]);
 
   useEffect(() => {
     filterAndSortRecords();
-  }, [travelRecords, searchTerm, sortConfig, travelModeFilter, statusFilter, selectedEventFilter]);
+  }, [travelRecords, searchTerm, sortConfig, travelModeFilter, statusFilter, selectedEventFilter, filterAndSortRecords]);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setIsLoading(true);
       let travelUrl = '/api/crud/guest-travel-info';
@@ -115,9 +114,9 @@ const TravelManagement = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [eventId, guestId]);
 
-  const filterAndSortRecords = () => {
+  const filterAndSortRecords = useCallback(() => {
     let filtered = [...travelRecords];
 
     // Apply search filter
@@ -170,7 +169,7 @@ const TravelManagement = () => {
     }
 
     setFilteredRecords(filtered);
-  };
+  }, [travelRecords, searchTerm, sortConfig, travelModeFilter, statusFilter, selectedEventFilter]);
 
   const handleSort = (key) => {
     let direction = 'asc';

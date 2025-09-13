@@ -15,7 +15,6 @@ import {
 } from '@mui/material';
 import { useDropzone } from 'react-dropzone';
 import { paymentAPI } from '../../services/api';
-import { useAuth } from '../../contexts/AuthContext';
 
 const QRCodeUpload = ({ onSuccess }) => {
   const [formData, setFormData] = useState({

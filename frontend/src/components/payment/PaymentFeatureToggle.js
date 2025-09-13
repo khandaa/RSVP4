@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Paper,
@@ -21,7 +21,7 @@ const PaymentFeatureToggle = ({ onToggle }) => {
   const { token } = useAuth();
   
   // Fetch current feature toggle status
-  const fetchToggleStatus = async () => {
+  const fetchToggleStatus = useCallback(async () => {
     try {
       const response = await axios.get('/api/payment/status', {
         headers: {
@@ -36,12 +36,12 @@ const PaymentFeatureToggle = ({ onToggle }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
   
   // Load toggle status on component mount
   useEffect(() => {
     fetchToggleStatus();
-  }, []);
+  }, [fetchToggleStatus]);
   
   // Handle toggle change
   const handleToggle = async (event) => {
