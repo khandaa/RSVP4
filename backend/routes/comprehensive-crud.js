@@ -79,9 +79,11 @@ const createCRUDRoutes = (tableName, primaryKey, requiredFields = [], joins = []
   // PUT update record
   routes.put('/:id', authenticateToken, async (req, res) => {
     const db = req.app.locals.db;
-    const transaction = await dbMethods.beginTransaction(db);
+    let transaction;
     
     try {
+      transaction = await dbMethods.beginTransaction(db);
+      
       const existing = await dbMethods.get(db, `SELECT * FROM ${tableName} WHERE ${primaryKey} = ?`, [req.params.id]);
       if (!existing) {
         return res.status(404).json({ error: `${tableName} record not found` });
@@ -128,7 +130,9 @@ const createCRUDRoutes = (tableName, primaryKey, requiredFields = [], joins = []
         await dbMethods.run(db, query, [...values, req.params.id]);
       }
       
-      await dbMethods.commit(transaction);
+      if (transaction) {
+        await dbMethods.commit(db);
+      }
       
       // Fetch the updated record with roles if this is a user
       let updatedRecord = await dbMethods.get(db, `SELECT * FROM ${tableName} WHERE ${primaryKey} = ?`, [req.params.id]);
@@ -146,7 +150,9 @@ const createCRUDRoutes = (tableName, primaryKey, requiredFields = [], joins = []
       
       res.json(updatedRecord);
     } catch (error) {
-      await dbMethods.rollback(transaction);
+      if (transaction) {
+        await dbMethods.rollback(db);
+      }
       console.error(`Error updating ${tableName} record:`, error);
       res.status(500).json({ 
         error: `Failed to update ${tableName} record`,
@@ -233,7 +239,7 @@ userRoutes.post('/', authenticateToken, async (req, res) => {
       [userId]
     );
     
-    await dbMethods.commit(transaction);
+    await dbMethods.commit(db);
     
     res.status(201).json({
       ...user,
@@ -241,7 +247,7 @@ userRoutes.post('/', authenticateToken, async (req, res) => {
     });
     
   } catch (error) {
-    await dbMethods.rollback(transaction);
+    await dbMethods.rollback(db);
     console.error('Error creating user:', error);
     res.status(500).json({ 
       error: 'Failed to create user',
@@ -311,7 +317,7 @@ userRoutes.put('/:id', authenticateToken, async (req, res) => {
       [userId]
     );
     
-    await dbMethods.commit(transaction);
+    await dbMethods.commit(db);
     
     res.json({
       ...user,
@@ -319,7 +325,7 @@ userRoutes.put('/:id', authenticateToken, async (req, res) => {
     });
     
   } catch (error) {
-    await dbMethods.rollback(transaction);
+    await dbMethods.rollback(db);
     console.error('Error updating user:', error);
     res.status(500).json({ 
       error: 'Failed to update user',

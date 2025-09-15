@@ -27,6 +27,23 @@
   -webkit-backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.18);
   box-shadow: 0 4px 12px 0 rgba(31, 38, 135, 0.15);
+  z-index: 1050;
+  position: relative;
+}
+
+/* Navbar dropdown fixes */
+.navbar.glass-nav .dropdown-menu {
+  z-index: 1051 !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+  border-radius: 8px;
+}
+
+.navbar.glass-nav .dropdown-item:hover {
+  background: rgba(13, 110, 253, 0.1) !important;
 }
 
 /* Glass modal */
