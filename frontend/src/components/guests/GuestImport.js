@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { useAuth } from '../../contexts/AuthContext';
 import { 
   FaUpload, 
   FaTimes, 
@@ -19,6 +20,7 @@ const GuestImport = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const eventId = searchParams.get('eventId');
+  const { currentUser, hasRole } = useAuth();
   
   const [selectedFile, setSelectedFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -47,6 +49,18 @@ const GuestImport = () => {
       
       setEvents(eventsResponse.data || eventsResponse || []);
       setCustomers(customersResponse.data || customersResponse || []);
+      
+      // Auto-select customer for Customer Admin or Client Admin users
+      if (currentUser && (hasRole('Customer Admin') || hasRole('Client Admin'))) {
+        // Find customer by matching current user's email
+        const userCustomer = (customersResponse.data || customersResponse || []).find(
+          customer => customer.customer_email === currentUser.email
+        );
+        
+        if (userCustomer) {
+          setSelectedCustomer(userCustomer.customer_id.toString());
+        }
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
       toast.error('Failed to load form data');
@@ -277,28 +291,45 @@ const GuestImport = () => {
                   </div>
                 </div>
 
-                {/* Customer Selection */}
-                <div className="mb-4">
-                  <label className="form-label fw-semibold">
-                    Default Customer (Optional)
-                  </label>
-                  <select
-                    className="form-select glass-input"
-                    value={selectedCustomer}
-                    onChange={(e) => setSelectedCustomer(e.target.value)}
-                    disabled={isUploading}
-                  >
-                    <option value="">No default customer</option>
-                    {customers.map(customer => (
-                      <option key={customer.customer_id} value={customer.customer_id}>
-                        {customer.customer_name}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="form-text">
-                    This customer will be assigned to guests without a specified customer
+                {/* Customer Selection - Hidden for Customer Admin and Client Admin */}
+                {!(hasRole('Customer Admin') || hasRole('Client Admin')) && (
+                  <div className="mb-4">
+                    <label className="form-label fw-semibold">
+                      Default Customer (Optional)
+                    </label>
+                    <select
+                      className="form-select glass-input"
+                      value={selectedCustomer}
+                      onChange={(e) => setSelectedCustomer(e.target.value)}
+                      disabled={isUploading}
+                    >
+                      <option value="">No default customer</option>
+                      {customers.map(customer => (
+                        <option key={customer.customer_id} value={customer.customer_id}>
+                          {customer.customer_name}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="form-text">
+                      This customer will be assigned to guests without a specified customer
+                    </div>
                   </div>
-                </div>
+                )}
+                
+                {/* Customer Display for Customer Admin and Client Admin */}
+                {(hasRole('Customer Admin') || hasRole('Client Admin')) && selectedCustomer && (
+                  <div className="mb-4">
+                    <label className="form-label fw-semibold">
+                      Default Customer
+                    </label>
+                    <div className="form-control glass-input bg-light" style={{ backgroundColor: '#f8f9fa' }}>
+                      {customers.find(c => c.customer_id.toString() === selectedCustomer)?.customer_name || 'Loading...'}
+                    </div>
+                    <div className="form-text">
+                      Customer is automatically selected based on your account. All imported guests will be assigned to this customer.
+                    </div>
+                  </div>
+                )}
 
                 {/* File Upload */}
                 <div className="mb-4">

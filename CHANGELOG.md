@@ -2,6 +2,16 @@
 
 ### 2025-09-15
 - Fixed GuestList component fetchData initialization error causing crashes when accessing guest management from event dashboard
+- Enhanced GuestCreate component for role-based customer selection:
+  - Auto-selects customer for Customer Admin and Client Admin users based on their account
+  - Hides customer dropdown for Customer Admin and Client Admin users
+  - Shows read-only customer field with informative message for restricted roles
+  - Prevents manual customer selection for users who should only see their own customer data
+- Enhanced GuestImport component for role-based customer selection:
+  - Auto-selects default customer for Customer Admin and Client Admin users based on their account
+  - Hides customer dropdown for Customer Admin and Client Admin users during bulk import
+  - Shows read-only customer field with informative message for restricted roles
+  - Ensures all bulk imported guests are automatically assigned to the correct customer
 - Fixed Client Management page filtering for Customer Admin role:
   - Updated ClientList component to automatically filter clients by the logged-in customer for Customer Admin users
   - Added auto-detection of customer association using current user's email

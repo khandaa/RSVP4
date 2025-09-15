@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { useAuth } from '../../contexts/AuthContext';
 import { 
   FaSave, 
   FaTimes, 
@@ -19,6 +20,7 @@ const GuestCreate = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const eventId = searchParams.get('eventId');
+  const { currentUser, hasRole } = useAuth();
   
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(true);
@@ -74,6 +76,21 @@ const GuestCreate = () => {
       setEvents(eventsResponse.data || eventsResponse || []);
       setCustomers(customersResponse.data || customersResponse || []);
       setGuestGroups(groupsResponse || []);
+      
+      // Auto-select customer for Customer Admin or Client Admin users
+      if (currentUser && (hasRole('Customer Admin') || hasRole('Client Admin'))) {
+        // Find customer by matching current user's email
+        const userCustomer = (customersResponse.data || customersResponse || []).find(
+          customer => customer.customer_email === currentUser.email
+        );
+        
+        if (userCustomer) {
+          setFormData(prev => ({
+            ...prev,
+            customer_id: userCustomer.customer_id.toString()
+          }));
+        }
+      }
     } catch (error) {
       console.error('Error fetching form data:', error);
       toast.error('Failed to load form data');
@@ -297,27 +314,43 @@ const GuestCreate = () => {
                       )}
                     </div>
 
-                    {/* Customer Selection */}
-                    <div className="col-md-6">
-                      <label className="form-label fw-semibold">
-                        <FaBuilding className="me-2 text-primary" />
-                        Customer
-                      </label>
-                      <select
-                        name="customer_id"
-                        className="form-select glass-input"
-                        value={formData.customer_id}
-                        onChange={handleInputChange}
-                        disabled={isLoading}
-                      >
-                        <option value="">Select a customer</option>
-                        {customers.map(customer => (
-                          <option key={customer.customer_id} value={customer.customer_id}>
-                            {customer.customer_name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+                    {/* Customer Selection - Hidden for Customer Admin and Client Admin */}
+                    {!(hasRole('Customer Admin') || hasRole('Client Admin')) && (
+                      <div className="col-md-6">
+                        <label className="form-label fw-semibold">
+                          <FaBuilding className="me-2 text-primary" />
+                          Customer
+                        </label>
+                        <select
+                          name="customer_id"
+                          className="form-select glass-input"
+                          value={formData.customer_id}
+                          onChange={handleInputChange}
+                          disabled={isLoading}
+                        >
+                          <option value="">Select a customer</option>
+                          {customers.map(customer => (
+                            <option key={customer.customer_id} value={customer.customer_id}>
+                              {customer.customer_name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                    
+                    {/* Customer Display for Customer Admin and Client Admin */}
+                    {(hasRole('Customer Admin') || hasRole('Client Admin')) && formData.customer_id && (
+                      <div className="col-md-6">
+                        <label className="form-label fw-semibold">
+                          <FaBuilding className="me-2 text-primary" />
+                          Customer
+                        </label>
+                        <div className="form-control glass-input bg-light" style={{ backgroundColor: '#f8f9fa' }}>
+                          {customers.find(c => c.customer_id.toString() === formData.customer_id)?.customer_name || 'Loading...'}
+                        </div>
+                        <small className="text-muted">Customer is automatically selected based on your account</small>
+                      </div>
+                    )}
 
                     {/* First Name */}
                     <div className="col-md-6">
