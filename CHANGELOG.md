@@ -1,5 +1,10 @@
 ## [Unreleased]
 
+### 2025-09-15
+- Refactored the sidebar to be more modular by separating the sidebar into role-specific sidebars for customer, admin, client, and rsvp roles.
+- Created separate sidebar components for each user role (admin, client, rsvp, customer).
+- The main `Sidebar.js` now dynamically renders the appropriate sidebar based on the user's role.
+
 ### 2025-09-13
 - Configured backend to run on port 5001 and frontend on port 3001.
 - Separated `dependencies` and `devDependencies` for the root, `backend`, and `frontend` packages to optimize production builds.
