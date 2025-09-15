@@ -187,7 +187,7 @@ function App() {
             <Route index element={<ClientList />} />
             <Route path=":id" element={<ClientDetails />} />
             <Route path="create" element={<ClientCreate />} />
-            <Route path="edit/:id" element={<ClientEdit />} />
+            <Route path=":id/edit" element={<ClientEdit />} />
             <Route path="import" element={<ClientBulkImport />} />
           </Route>
           

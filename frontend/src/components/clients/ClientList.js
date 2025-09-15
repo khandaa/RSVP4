@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { FaPlus, FaEdit, FaTrash, FaEye, FaSearch, FaSort, FaSortUp, FaSortDown, FaDownload, FaUpload, FaBuilding } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaArchive, FaEye, FaSearch, FaSort, FaSortUp, FaSortDown, FaDownload, FaUpload, FaBuilding } from 'react-icons/fa';
 import axios from 'axios';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -126,21 +126,24 @@ const ClientList = () => {
     return <FaSort />;
   };
 
-  const handleDelete = async (client) => {
+  const handleArchive = async (client) => {
     setClientToDelete(client);
     setShowDeleteModal(true);
   };
 
-  const confirmDelete = async () => {
+  const confirmArchive = async () => {
     try {
-      await axios.delete(`/api/clients/${clientToDelete.client_id}`);
-      toast.success('Client deleted successfully');
+      await axios.put(`/api/clients/${clientToDelete.client_id}`, {
+        ...clientToDelete,
+        client_status: 'Archive'
+      });
+      toast.success('Client archived successfully');
       fetchData();
       setShowDeleteModal(false);
       setClientToDelete(null);
     } catch (error) {
-      console.error('Error deleting client:', error);
-      toast.error('Failed to delete client');
+      console.error('Error archiving client:', error);
+      toast.error('Failed to archive client');
     }
   };
 
@@ -245,6 +248,7 @@ const ClientList = () => {
                   <option value="all">All Status</option>
                   <option value="Active">Active</option>
                   <option value="Inactive">Inactive</option>
+                  <option value="Archive">Archive</option>
                 </select>
               </div>
               {isAdmin && (
@@ -263,22 +267,12 @@ const ClientList = () => {
                   </select>
                 </div>
               )}
-              {isCustomerAdmin && (
-                <div className="col-md-3">
-                  <select
-                    className="form-select glass-input"
-                    value={customerFilter}
-                    disabled
-                  >
-                    <option value={customerFilter}>
-                      {customers.find(c => c.customer_id.toString() === customerFilter)?.customer_name || 'Your Organization'}
-                    </option>
-                  </select>
-                </div>
-              )}
               <div className="col-md-3">
                 <div className="text-muted">
-                  Showing {filteredClients.length} of {clients.length} clients
+                  {isCustomerAdmin 
+                    ? `Total ${filteredClients.length} clients`
+                    : `Showing ${filteredClients.length} of ${clients.length} clients`
+                  }
                 </div>
               </div>
             </div>
@@ -290,13 +284,8 @@ const ClientList = () => {
           <table className="table table-hover">
             <thead>
               <tr>
-                <th 
-                  scope="col" 
-                  className="sortable" 
-                  onClick={() => handleSort('client_id')}
-                  style={{ cursor: 'pointer' }}
-                >
-                  ID {getSortIcon('client_id')}
+                <th scope="col">
+                  Sr. No.
                 </th>
                 <th 
                   scope="col" 
@@ -306,14 +295,16 @@ const ClientList = () => {
                 >
                   Client Name {getSortIcon('client_name')}
                 </th>
-                <th 
-                  scope="col" 
-                  className="sortable" 
-                  onClick={() => handleSort('customer_name')}
-                  style={{ cursor: 'pointer' }}
-                >
-                  Customer {getSortIcon('customer_name')}
-                </th>
+                {!isCustomerAdmin && (
+                  <th 
+                    scope="col" 
+                    className="sortable" 
+                    onClick={() => handleSort('customer_name')}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    Customer {getSortIcon('customer_name')}
+                  </th>
+                )}
                 <th 
                   scope="col" 
                   className="sortable" 
@@ -360,7 +351,7 @@ const ClientList = () => {
             <tbody>
               {filteredClients.length === 0 ? (
                 <tr>
-                  <td colSpan="9" className="text-center py-4">
+                  <td colSpan={isCustomerAdmin ? "8" : "9"} className="text-center py-4">
                     <div className="text-muted">
                       {searchTerm || statusFilter !== 'all' || customerFilter !== 'all'
                         ? 'No clients match your filters'
@@ -370,20 +361,32 @@ const ClientList = () => {
                   </td>
                 </tr>
               ) : (
-                filteredClients.map((client) => (
+                filteredClients.map((client, index) => (
                   <tr key={client.client_id}>
-                    <td>#{client.client_id}</td>
+                    <td>{index + 1}</td>
                     <td className="fw-semibold">
                       <div className="d-flex align-items-center">
                         <FaBuilding className="text-primary me-2" />
-                        {client.client_name}
+                        <a 
+                          href={`/clients/${client.client_id}/edit`}
+                          className="text-decoration-none text-primary fw-semibold"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            navigate(`/clients/${client.client_id}/edit`);
+                          }}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          {client.client_name}
+                        </a>
                       </div>
                     </td>
-                    <td>
-                      <span className="badge bg-info glass-badge">
-                        {client.customer_name}
-                      </span>
-                    </td>
+                    {!isCustomerAdmin && (
+                      <td>
+                        <span className="badge bg-info glass-badge">
+                          {client.customer_name}
+                        </span>
+                      </td>
+                    )}
                     <td>{client.client_email || '-'}</td>
                     <td>{client.client_phone || '-'}</td>
                     <td>{client.client_city || '-'}</td>
@@ -391,6 +394,8 @@ const ClientList = () => {
                       <span className={`badge glass-badge ${
                         client.client_status === 'Active' 
                           ? 'bg-success' 
+                          : client.client_status === 'Archive'
+                          ? 'bg-warning'
                           : 'bg-secondary'
                       }`}>
                         {client.client_status}
@@ -414,11 +419,11 @@ const ClientList = () => {
                           <FaEdit />
                         </button>
                         <button
-                          className="btn btn-sm btn-outline-danger glass-btn"
-                          onClick={() => handleDelete(client)}
-                          title="Delete Client"
+                          className="btn btn-sm btn-outline-warning glass-btn"
+                          onClick={() => handleArchive(client)}
+                          title="Archive Client"
                         >
-                          <FaTrash />
+                          <FaArchive />
                         </button>
                       </div>
                     </td>
@@ -429,7 +434,7 @@ const ClientList = () => {
           </table>
         </div>
 
-        {/* Delete Confirmation Modal */}
+        {/* Archive Confirmation Modal */}
         {showDeleteModal && (
           <div className="modal fade show" style={{ display: 'block' }} tabIndex="-1">
             <div className="modal-overlay" style={{ 
@@ -444,7 +449,7 @@ const ClientList = () => {
               <div className="modal-dialog modal-dialog-centered">
                 <div className="modal-content glass-modal">
                   <div className="modal-header">
-                    <h5 className="modal-title">Confirm Delete</h5>
+                    <h5 className="modal-title">Confirm Archive</h5>
                     <button
                       type="button"
                       className="btn-close"
@@ -452,9 +457,9 @@ const ClientList = () => {
                     ></button>
                   </div>
                   <div className="modal-body">
-                    <p>Are you sure you want to delete client <strong>{clientToDelete?.client_name}</strong>?</p>
-                    <div className="alert alert-warning">
-                      <small>This action cannot be undone. All related data will be permanently deleted.</small>
+                    <p>Are you sure you want to archive client <strong>{clientToDelete?.client_name}</strong>?</p>
+                    <div className="alert alert-info">
+                      <small>This will set the client status to "Archive". The client data will be preserved and can be reactivated later.</small>
                     </div>
                   </div>
                   <div className="modal-footer">
@@ -467,10 +472,10 @@ const ClientList = () => {
                     </button>
                     <button
                       type="button"
-                      className="btn btn-danger glass-btn-danger"
-                      onClick={confirmDelete}
+                      className="btn btn-warning glass-btn-warning"
+                      onClick={confirmArchive}
                     >
-                      Delete Client
+                      Archive Client
                     </button>
                   </div>
                 </div>

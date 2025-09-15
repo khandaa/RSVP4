@@ -33,8 +33,9 @@ const EventList = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [eventToDelete, setEventToDelete] = useState(null);
-  const { hasRole } = useAuth();
+  const { hasRole, currentUser } = useAuth();
   const isAdmin = hasRole(['Admin', 'admin', 'full_access']);
+  const isCustomerAdmin = hasRole(['Customer Admin']);
   
   const navigate = useNavigate();
   const location = useLocation();
@@ -50,6 +51,24 @@ const EventList = () => {
       setClientFilter(location.state.clientId.toString());
     }
   }, []);
+
+  // Auto-filter for Customer Admin users
+  useEffect(() => {
+    if (isCustomerAdmin && currentUser && clients.length > 0) {
+      // Find clients associated with the current user's customer
+      const userClients = clients.filter(client => 
+        client.customer_email === currentUser.email
+      );
+      
+      if (userClients.length > 0) {
+        // Set client filter to show only events from user's clients
+        const clientIds = userClients.map(client => client.client_id);
+        // Since we can only filter by one client at a time, we'll modify the filtering logic
+        // to handle multiple client IDs for Customer Admin users
+        setClientFilter('customer_admin_filter');
+      }
+    }
+  }, [isCustomerAdmin, currentUser, clients]);
 
   useEffect(() => {
     filterAndSortEvents();
@@ -144,7 +163,14 @@ const EventList = () => {
     }
 
     // Apply client filter
-    if (clientFilter !== 'all') {
+    if (clientFilter === 'customer_admin_filter' && isCustomerAdmin && currentUser) {
+      // Filter events for Customer Admin users - show only events from their clients
+      const userClients = clients.filter(client => 
+        client.customer_email === currentUser.email
+      );
+      const userClientIds = userClients.map(client => client.client_id);
+      filtered = filtered.filter(event => userClientIds.includes(event.client_id));
+    } else if (clientFilter !== 'all') {
       filtered = filtered.filter(event => event.client_id === parseInt(clientFilter));
     }
 
@@ -424,7 +450,10 @@ const EventList = () => {
               </div>
               <div className="col-lg-1">
                 <div className="text-muted small">
-                  {filteredEvents.length} of {events.length}
+                  {isCustomerAdmin 
+                    ? `Total ${filteredEvents.length} events`
+                    : `${filteredEvents.length} of ${events.length}`
+                  }
                 </div>
               </div>
             </div>
@@ -515,7 +544,19 @@ const EventList = () => {
                       <div className="d-flex align-items-center">
                         <FaCalendarAlt className="text-primary me-2" />
                         <div>
-                          <div>{event.event_name}</div>
+                          <div>
+                            <a 
+                              href={`/events/${event.event_id}`}
+                              className="text-decoration-none text-primary fw-semibold"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                navigate(`/events/${event.event_id}`);
+                              }}
+                              style={{ cursor: 'pointer' }}
+                            >
+                              {event.event_name}
+                            </a>
+                          </div>
                           {event.event_description && (
                             <small className="text-muted">{event.event_description.substring(0, 50)}...</small>
                           )}

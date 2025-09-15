@@ -1,6 +1,31 @@
 ## [Unreleased]
 
 ### 2025-09-15
+- Fixed Client Management page filtering for Customer Admin role:
+  - Updated ClientList component to automatically filter clients by the logged-in customer for Customer Admin users
+  - Added auto-detection of customer association using current user's email
+  - Added disabled customer filter dropdown for Customer Admin users showing their organization
+  - Ensured Customer Admin users can only see clients registered for their customer account
+- Enhanced Client Management UI and functionality:
+  - Made client names clickable links that navigate to the client edit page
+  - Replaced delete button with Archive Client button using archive icon
+  - Updated archive functionality to set client status to "Archive" instead of deleting
+  - Added "Archive" status option to the status filter dropdown
+  - Updated status badge styling to show archived clients with warning (yellow) color
+  - Modified confirmation modal to reflect archiving instead of deletion with appropriate messaging
+  - Removed Customer column from client list for Customer Admin users (they only see their own clients)
+  - Removed customer filter dropdown for Customer Admin users
+  - Updated client count display to show "Total X clients" for Customer Admin instead of "Showing X of Y clients"
+  - Adjusted table colspan for empty state message when Customer column is hidden
+  - Replaced ID column with Sr. No. column showing sequential serial numbers for displayed records
+  - Fixed client edit link routing by correcting the route pattern from "edit/:id" to ":id/edit" in App.js
+- Fixed Event List page filtering for Customer Admin role:
+  - Updated EventList component to automatically filter events by the logged-in customer for Customer Admin users
+  - Added auto-detection of customer association using current user's email to find associated clients
+  - Modified filtering logic to show only events from clients belonging to the Customer Admin's customer
+  - Updated event count display to show "Total X events" for Customer Admin instead of "X of Y events"
+  - Ensured Customer Admin users can only see events created by their customer's clients
+  - Made event names clickable links that navigate to the event dashboard/detail page
 - Enhanced Customer Dashboard with guest management and logistics management cards:
   - Added Guest Management card displaying guests from all customer events with RSVP status tracking
   - Added Logistics Management card showing accommodation and travel data for customer events
