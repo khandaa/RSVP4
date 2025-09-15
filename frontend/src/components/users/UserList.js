@@ -51,12 +51,38 @@ const UserList = () => {
       
       const response = await userAPI.getUsers(params);
       
-      setUsers(response.data.users);
-      setTotalUsers(response.data.total);
-      setTotalPages(Math.ceil(response.data.total / pageSize));
+      // Handle different response structures and add null checks
+      if (response.data) {
+        if (Array.isArray(response.data)) {
+          // Direct array response
+          setUsers(response.data);
+          setTotalUsers(response.data.length);
+          setTotalPages(Math.ceil(response.data.length / pageSize));
+        } else if (response.data.users && Array.isArray(response.data.users)) {
+          // Paginated response with users array
+          setUsers(response.data.users);
+          setTotalUsers(response.data.total || response.data.users.length);
+          setTotalPages(Math.ceil((response.data.total || response.data.users.length) / pageSize));
+        } else {
+          // Fallback to empty array if structure is unexpected
+          console.warn('Unexpected API response structure:', response.data);
+          setUsers([]);
+          setTotalUsers(0);
+          setTotalPages(1);
+        }
+      } else {
+        // No data in response
+        setUsers([]);
+        setTotalUsers(0);
+        setTotalPages(1);
+      }
     } catch (error) {
       console.error('Error fetching users:', error);
       toast.error('Failed to load users. Please try again.');
+      // Ensure users is set to empty array on error to prevent undefined errors
+      setUsers([]);
+      setTotalUsers(0);
+      setTotalPages(1);
     } finally {
       setLoading(false);
     }
@@ -73,7 +99,7 @@ const UserList = () => {
       toast.success('User status updated successfully');
       
       // Update user in the local state
-      setUsers(users.map(user => 
+      setUsers((prevUsers = []) => prevUsers.map(user => 
         user.user_id === userId 
           ? { ...user, is_active: !currentStatus } 
           : user
@@ -91,12 +117,12 @@ const UserList = () => {
         toast.success('User deleted successfully');
         
         // Remove user from local state
-        setUsers(users.filter(user => user.user_id !== userId));
+        setUsers((prevUsers = []) => prevUsers.filter(user => user.user_id !== userId));
         setTotalUsers(totalUsers - 1);
         setTotalPages(Math.ceil((totalUsers - 1) / pageSize));
         
         // If we deleted the last item on this page and there are other pages, go to previous page
-        if (users.length === 1 && currentPage > 1) {
+        if (users && users.length === 1 && currentPage > 1) {
           setCurrentPage(currentPage - 1);
         }
       } catch (error) {
@@ -232,7 +258,7 @@ const UserList = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {users.length > 0 ? (
+                    {users && users.length > 0 ? (
                       users.map((user, index) => (
                         <tr key={user.user_id}>
                           <td>{(currentPage - 1) * pageSize + index + 1}</td>

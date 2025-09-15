@@ -39,11 +39,6 @@ const LogisticsDashboard = () => {
   const [activeView, setActiveView] = useState('overview');
   const [timeFilter, setTimeFilter] = useState('today');
 
-  useEffect(() => {
-    fetchDashboardData();
-    fetchEvents();
-  }, [fetchDashboardData, fetchEvents]);
-
   const fetchEvents = useCallback(async () => {
     try {
       const response = await fetch('/api/events', {
@@ -103,6 +98,12 @@ const LogisticsDashboard = () => {
       setIsLoading(false);
     }
   }, [selectedDate, selectedEvent, timeFilter]);
+
+  // Ensure callbacks are defined before using them
+  useEffect(() => {
+    fetchDashboardData();
+    fetchEvents();
+  }, [fetchDashboardData, fetchEvents]);
 
   const getDateRange = () => {
     const today = new Date();

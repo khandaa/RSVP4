@@ -41,13 +41,26 @@ const UserCreate = () => {
   const validationSchema = Yup.object({
     firstName: Yup.string()
       .required('First name is required')
-      .max(50, 'First name must be at most 50 characters'),
+      .max(50, 'First name must be at most 50 characters')
+      .matches(/^[a-zA-Z\s'-]+$/, 'First name can only contain letters, spaces, hyphens, and apostrophes'),
     lastName: Yup.string()
       .required('Last name is required')
-      .max(50, 'Last name must be at most 50 characters'),
+      .max(50, 'Last name must be at most 50 characters')
+      .matches(/^[a-zA-Z\s'-]+$/, 'Last name can only contain letters, spaces, hyphens, and apostrophes'),
+    email: Yup.string()
+      .email('Invalid email address')
+      .required('Email is required')
+      .max(100, 'Email must be at most 100 characters'),
     mobileNumber: Yup.string()
       .required('Mobile number is required')
-      .matches(/^\d{10}$/, 'Mobile number must be 10 digits'),
+      .matches(/^[0-9]{10}$/, 'Mobile number must be 10 digits'),
+    password: Yup.string()
+      .required('Password is required')
+      .min(8, 'Password must be at least 8 characters')
+      .matches(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+        'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character'
+      ),
     email: Yup.string()
       .email('Invalid email address')
       .required('Email is required')
@@ -68,28 +81,50 @@ const UserCreate = () => {
     isActive: Yup.boolean()
   });
 
-  const handleSubmit = async (values, { setSubmitting }) => {
+  const handleSubmit = async (values, { setSubmitting, setFieldError }) => {
     try {
       setError('');
       setLoading(true);
       
+      // Format the user data for the API
       const userData = {
-        first_name: values.firstName,
-        last_name: values.lastName,
-        email: values.email,
-        mobile_number: values.mobileNumber,
+        firstName: values.firstName.trim(),
+        lastName: values.lastName.trim(),
+        email: values.email.trim(),
+        mobileNumber: values.mobileNumber.replace(/\D/g, ''), // Remove non-numeric characters
         password: values.password,
-        roles: values.roleIds,
-        is_active: values.isActive
+        roles: values.roleIds || [],
+        isActive: values.isActive !== false // Default to true if not specified
       };
 
-      await userAPI.createUser(userData);
+      // Call the API to create the user
+      const response = await userAPI.createUser(userData);
+      
+      // Show success message and redirect
       toast.success('User created successfully');
       navigate('/users');
     } catch (error) {
       console.error('Error creating user:', error);
-      setError(error.response?.data?.error || 'Failed to create user. Please try again.');
-      toast.error('Failed to create user');
+      
+      // Handle validation errors from the API
+      if (error.response?.data?.errors) {
+        // Set field-level errors
+        Object.entries(error.response.data.errors).forEach(([field, messages]) => {
+          setFieldError(field.toLowerCase(), Array.isArray(messages) ? messages[0] : messages);
+        });
+        
+        // Set general error message
+        const errorMessage = 'Please fix the errors in the form';
+        setError(errorMessage);
+        toast.error(errorMessage);
+      } else {
+        // Handle other types of errors
+        const errorMessage = error.response?.data?.error || 
+                           error.response?.data?.message || 
+                           'Failed to create user. Please try again.';
+        setError(errorMessage);
+        toast.error(errorMessage);
+      }
     } finally {
       setLoading(false);
       setSubmitting(false);

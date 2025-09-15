@@ -78,31 +78,80 @@ const createCRUDRoutes = (tableName, primaryKey, requiredFields = [], joins = []
 
   // PUT update record
   routes.put('/:id', authenticateToken, async (req, res) => {
+    const db = req.app.locals.db;
+    const transaction = await dbMethods.beginTransaction(db);
+    
     try {
-      const db = req.app.locals.db;
-      
       const existing = await dbMethods.get(db, `SELECT * FROM ${tableName} WHERE ${primaryKey} = ?`, [req.params.id]);
       if (!existing) {
         return res.status(404).json({ error: `${tableName} record not found` });
       }
 
-      const fields = Object.keys(req.body).filter(key => key !== primaryKey);
-      const values = fields.map(field => req.body[field]);
-      const setClause = fields.map(field => `${field} = ?`).join(', ');
-      
-      let query = `UPDATE ${tableName} SET ${setClause}`;
-      if (fields.includes('updated_at') || tableName.includes('master') || tableName.includes('rsvp_')) {
-        query += ', updated_at = CURRENT_TIMESTAMP';
+      // Handle special case for users_master to manage roles
+      if (tableName === 'users_master' && req.body.roles) {
+        // Remove existing roles
+        await dbMethods.run(db, 'DELETE FROM user_roles_tx WHERE user_id = ?', [req.params.id]);
+        
+        // Add new roles
+        const roles = Array.isArray(req.body.roles) ? req.body.roles : [req.body.roles];
+        for (const roleId of roles) {
+          await dbMethods.run(
+            db, 
+            'INSERT INTO user_roles_tx (user_id, role_id) VALUES (?, ?)',
+            [req.params.id, roleId]
+          );
+        }
       }
-      query += ` WHERE ${primaryKey} = ?`;
+
+      // Filter out roles from the update fields as they're handled separately
+      const updateFields = Object.keys(req.body).filter(key => 
+        key !== primaryKey && key !== 'roles' && key !== 'password'
+      );
       
-      await dbMethods.run(db, query, [...values, req.params.id]);
+      // Handle password update if provided
+      if (req.body.password) {
+        const bcrypt = require('bcryptjs');
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(req.body.password, salt);
+        
+        updateFields.push('password_hash');
+        req.body.password_hash = hashedPassword;
+      }
       
-      const updated = await dbMethods.get(db, `SELECT * FROM ${tableName} WHERE ${primaryKey} = ?`, [req.params.id]);
-      res.json(updated);
+      if (updateFields.length > 0) {
+        const values = updateFields.map(field => req.body[field]);
+        const setClause = updateFields.map(field => `${field} = ?`).join(', ');
+        
+        let query = `UPDATE ${tableName} SET ${setClause}, updated_at = CURRENT_TIMESTAMP 
+                    WHERE ${primaryKey} = ?`;
+        
+        await dbMethods.run(db, query, [...values, req.params.id]);
+      }
+      
+      await dbMethods.commit(transaction);
+      
+      // Fetch the updated record with roles if this is a user
+      let updatedRecord = await dbMethods.get(db, `SELECT * FROM ${tableName} WHERE ${primaryKey} = ?`, [req.params.id]);
+      
+      if (tableName === 'users_master') {
+        const roles = await dbMethods.all(
+          db,
+          'SELECT r.role_id, r.name FROM roles_master r ' +
+          'JOIN user_roles_tx ur ON r.role_id = ur.role_id ' +
+          'WHERE ur.user_id = ?',
+          [req.params.id]
+        );
+        updatedRecord.roles = roles.map(r => r.role_id);
+      }
+      
+      res.json(updatedRecord);
     } catch (error) {
+      await dbMethods.rollback(transaction);
       console.error(`Error updating ${tableName} record:`, error);
-      res.status(500).json({ error: `Failed to update ${tableName} record` });
+      res.status(500).json({ 
+        error: `Failed to update ${tableName} record`,
+        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
     }
   });
 
@@ -128,7 +177,226 @@ const createCRUDRoutes = (tableName, primaryKey, requiredFields = [], joins = []
 };
 
 // ========================= USER MANAGEMENT TABLES =========================
-router.use('/users', createCRUDRoutes('users_master', 'user_id'));
+// Custom user routes to handle role assignments
+const userRoutes = express.Router();
+
+// Create user with role assignments
+userRoutes.post('/', authenticateToken, async (req, res) => {
+  const db = req.app.locals.db;
+  const transaction = await dbMethods.beginTransaction(db);
+  
+  try {
+    const { roles, ...userData } = req.body;
+    
+    // Hash password if provided
+    if (userData.password) {
+      const bcrypt = require('bcryptjs');
+      const salt = await bcrypt.genSalt(10);
+      userData.password_hash = await bcrypt.hash(userData.password, 10);
+      delete userData.password;
+    }
+    
+    // Insert user
+    const fields = Object.keys(userData);
+    const values = fields.map(field => userData[field]);
+    const placeholders = fields.map(() => '?').join(', ');
+    
+    const result = await dbMethods.run(
+      db, 
+      `INSERT INTO users_master (${fields.join(', ')}) VALUES (${placeholders})`,
+      values
+    );
+    
+    const userId = result.lastID;
+    
+    // Assign roles if provided
+    if (roles && roles.length > 0) {
+      for (const roleId of roles) {
+        await dbMethods.run(
+          db,
+          'INSERT INTO user_roles_tx (user_id, role_id) VALUES (?, ?)',
+          [userId, roleId]
+        );
+      }
+    }
+    
+    // Get the created user with roles
+    const user = await dbMethods.get(
+      db,
+      'SELECT * FROM users_master WHERE user_id = ?',
+      [userId]
+    );
+    
+    const userRoles = await dbMethods.all(
+      db,
+      'SELECT role_id FROM user_roles_tx WHERE user_id = ?',
+      [userId]
+    );
+    
+    await dbMethods.commit(transaction);
+    
+    res.status(201).json({
+      ...user,
+      roles: userRoles.map(r => r.role_id)
+    });
+    
+  } catch (error) {
+    await dbMethods.rollback(transaction);
+    console.error('Error creating user:', error);
+    res.status(500).json({ 
+      error: 'Failed to create user',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+// Update user with role assignments
+userRoutes.put('/:id', authenticateToken, async (req, res) => {
+  const db = req.app.locals.db;
+  const transaction = await dbMethods.beginTransaction(db);
+  
+  try {
+    const userId = req.params.id;
+    const { roles, ...updateData } = req.body;
+    
+    // Hash password if provided
+    if (updateData.password) {
+      const bcrypt = require('bcryptjs');
+      updateData.password_hash = await bcrypt.hash(updateData.password, 10);
+      delete updateData.password;
+    }
+    
+    // Update user data if there are fields to update
+    if (Object.keys(updateData).length > 0) {
+      const fields = Object.keys(updateData);
+      const values = fields.map(field => updateData[field]);
+      const setClause = fields.map(field => `${field} = ?`).join(', ');
+      
+      await dbMethods.run(
+        db,
+        `UPDATE users_master SET ${setClause}, updated_at = CURRENT_TIMESTAMP WHERE user_id = ?`,
+        [...values, userId]
+      );
+    }
+    
+    // Update roles if provided
+    if (roles) {
+      // Remove existing roles
+      await dbMethods.run(
+        db,
+        'DELETE FROM user_roles_tx WHERE user_id = ?',
+        [userId]
+      );
+      
+      // Add new roles
+      for (const roleId of roles) {
+        await dbMethods.run(
+          db,
+          'INSERT INTO user_roles_tx (user_id, role_id) VALUES (?, ?)',
+          [userId, roleId]
+        );
+      }
+    }
+    
+    // Get the updated user with roles
+    const user = await dbMethods.get(
+      db,
+      'SELECT * FROM users_master WHERE user_id = ?',
+      [userId]
+    );
+    
+    const userRoles = await dbMethods.all(
+      db,
+      'SELECT role_id FROM user_roles_tx WHERE user_id = ?',
+      [userId]
+    );
+    
+    await dbMethods.commit(transaction);
+    
+    res.json({
+      ...user,
+      roles: userRoles.map(r => r.role_id)
+    });
+    
+  } catch (error) {
+    await dbMethods.rollback(transaction);
+    console.error('Error updating user:', error);
+    res.status(500).json({ 
+      error: 'Failed to update user',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+// Get user with roles
+userRoutes.get('/:id', authenticateToken, async (req, res) => {
+  try {
+    const db = req.app.locals.db;
+    const userId = req.params.id;
+    
+    const user = await dbMethods.get(
+      db,
+      'SELECT * FROM users_master WHERE user_id = ?',
+      [userId]
+    );
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    const roles = await dbMethods.all(
+      db,
+      'SELECT role_id FROM user_roles_tx WHERE user_id = ?',
+      [userId]
+    );
+    
+    res.json({
+      ...user,
+      roles: roles.map(r => r.role_id)
+    });
+    
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    res.status(500).json({ error: 'Failed to fetch user' });
+  }
+});
+
+// Get all users with their roles
+userRoutes.get('/', authenticateToken, async (req, res) => {
+  try {
+    const db = req.app.locals.db;
+    
+    const users = await dbMethods.all(
+      db,
+      'SELECT * FROM users_master ORDER BY created_at DESC'
+    );
+    
+    // Get roles for each user
+    const usersWithRoles = await Promise.all(users.map(async (user) => {
+      const roles = await dbMethods.all(
+        db,
+        'SELECT r.role_id, r.name FROM roles_master r ' +
+        'JOIN user_roles_tx ur ON r.role_id = ur.role_id ' +
+        'WHERE ur.user_id = ?',
+        [user.user_id]
+      );
+      
+      return {
+        ...user,
+        roles: roles.map(r => r.role_id)
+      };
+    }));
+    
+    res.json(usersWithRoles);
+    
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ error: 'Failed to fetch users' });
+  }
+});
+
+// Mount the user routes
+router.use('/users', userRoutes);
 router.use('/roles', createCRUDRoutes('roles_master', 'role_id'));
 router.use('/permissions', createCRUDRoutes('permissions_master', 'permission_id'));
 router.use('/user-roles', createCRUDRoutes('user_roles_tx', 'user_role_id'));

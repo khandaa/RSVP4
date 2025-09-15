@@ -117,40 +117,63 @@ export const authAPI = {
 
 // User Management API
 export const userAPI = {
-  getUsers: (params) => api.get('/user_management/users', { params }),
-  getUser: (id) => api.get(`/user_management/users/${id}`),
-  createUser: (userData) => {
+  // Get all users with pagination and filtering
+  getUsers: (params) => api.get('/crud/users', { params }),
+  
+  // Get a single user by ID with roles
+  getUser: (id) => api.get(`/crud/users/${id}`),
+  
+  // Create a new user with role assignments
+  createUser: async (userData) => {
     const formattedData = {
-      mobile_number: userData.mobileNumber,
+      firstName: userData.firstName,
+      lastName: userData.lastName,
       email: userData.email,
+      mobileNumber: userData.mobileNumber,
       password: userData.password,
-      first_name: userData.firstName,
-      last_name: userData.lastName,
       roles: userData.roles || [],
-      is_active: userData.isActive !== false // Default to true if not specified
+      isActive: userData.isActive !== false // Default to true if not specified
     };
-    return api.post('/auth/register', formattedData);
+    
+    return api.post('/crud/users', formattedData);
   },
-  updateUser: (id, userData) => api.put(`/user_management/users/${id}`, userData),
-  toggleUserStatus: (id, isActive) => api.patch(`/user_management/users/${id}/status`, { is_active: isActive }),
-  deleteUser: (id) => api.delete(`/user_management/users/${id}`),
-  uploadBulkUsers: (formData) => api.post('/user_management/users/bulk', formData, {
+  
+  // Update an existing user
+  updateUser: (id, userData) => {
+    const formattedData = { ...userData };
+    // Don't update password if it's empty
+    if (formattedData.password === '') {
+      delete formattedData.password;
+    }
+    return api.put(`/crud/users/${id}`, formattedData);
+  },
+  
+  // Toggle user active status
+  toggleUserStatus: (id, isActive) => 
+    api.patch(`/crud/users/${id}`, { isActive }),
+  
+  // Delete a user
+  deleteUser: (id) => api.delete(`/crud/users/${id}`),
+  
+  // Bulk upload users
+  uploadBulkUsers: (formData) => api.post('/crud/users/bulk', formData, {
     headers: {
       'Content-Type': 'multipart/form-data'
     }
   }),
-  downloadUserTemplate: () => api.get('/user_management/users/template', {
+  // Download user import template
+  downloadUserTemplate: () => api.get('/crud/users/template', {
     responseType: 'blob'
   }),
 };
 
 // Role Management API
 export const roleAPI = {
-  getRoles: () => api.get('/role_management/roles'),
-  getRole: (id) => api.get(`/role_management/roles/${id}`),
-  createRole: (roleData) => api.post('/role_management/roles', roleData),
-  updateRole: (id, roleData) => api.put(`/role_management/roles/${id}`, roleData),
-  deleteRole: (id) => api.delete(`/role_management/roles/${id}`),
+  getRoles: () => api.get('/crud/roles'),
+  getRole: (id) => api.get(`/crud/roles/${id}`),
+  createRole: (roleData) => api.post('/crud/roles', roleData),
+  updateRole: (id, roleData) => api.put(`/crud/roles/${id}`, roleData),
+  deleteRole: (id) => api.delete(`/crud/roles/${id}`),
   uploadBulkRoles: (formData, onUploadProgress) => {
     return api.post('/role_management/roles/bulk', formData, {
       headers: {
