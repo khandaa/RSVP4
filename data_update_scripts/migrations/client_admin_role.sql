@@ -8,7 +8,7 @@ PRAGMA foreign_keys=OFF;
 
 BEGIN TRANSACTION;
 
--- Create client_admin role
+-- Create Client Admin role
 INSERT OR IGNORE INTO roles_master (name, description)
 VALUES ('Client Admin', 'Role for client administrators with permissions to manage guests, events, and sub-events');
 

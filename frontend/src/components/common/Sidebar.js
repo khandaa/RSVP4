@@ -71,7 +71,7 @@ const Sidebar = ({ collapsed }) => {
         menuItems = [...menuItems, ...adminMenuItems, ...customerMenuItems];
       } else if (hasRole(['Customer Admin'])) {
         menuItems = [...menuItems, ...customerMenuItems];
-      } else if (hasRole(['client_admin'])) {
+      } else if (hasRole(['Client Admin'])) {
         menuItems = [...menuItems, ...clientMenuItems];
       } else if (hasRole(['rsvp_user'])) { // Example role for RSVP
         menuItems = [...menuItems, ...rsvpMenuItems];

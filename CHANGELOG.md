@@ -208,7 +208,7 @@
 - Enhanced customer creation functionality to automatically generate admin user accounts when new customers are added
 - Enhanced client creation functionality to automatically generate admin user accounts when new clients are added
 - Added automatic Customer Admin role assignment to newly created customer user accounts
-- Added automatic client_admin role assignment to newly created client user accounts
+- Added automatic Client Admin role assignment to newly created client user accounts
 - Implemented secure default password handling using bcrypt for new customer and client admin accounts
 - Integrated user creation in both single customer creation and bulk import processes
 - Added database transaction support to ensure data integrity during user and role creation processes
@@ -217,7 +217,7 @@
 - Added duplicate user detection to prevent creation of multiple users with same email
 - Improved frontend API interceptors to ensure authentication tokens are always included in requests
 - Created custom dashboard for Customer Admin users with overview of clients, active events, teams, and employees
-- Created custom dashboard for client_admin users with overview of events, sub-events, guests, RSVPs, travel, and accommodation
+- Created custom dashboard for Client Admin users with overview of events, sub-events, guests, RSVPs, travel, and accommodation
 - Implemented role-based dashboard routing to display different dashboards based on user role
 - Completely customized sidebar navigation for each user role:
   - Admin/full_access users see all system capabilities

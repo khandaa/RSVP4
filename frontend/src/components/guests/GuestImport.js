@@ -80,8 +80,6 @@ const GuestImport = () => {
       'guest_last_name*',
       'guest_email',
       'guest_phone',
-      'guest_organization',
-      'guest_designation',
       'guest_type',
       'guest_rsvp_status',
       'guest_address',
@@ -99,8 +97,6 @@ const GuestImport = () => {
         'Doe',
         'john.doe@example.com',
         '+1234567890',
-        'ABC Corporation',
-        'Manager',
         'Corporate',
         'Pending',
         '123 Main Street',
@@ -116,8 +112,6 @@ const GuestImport = () => {
         'Smith',
         'jane.smith@example.com',
         '+1987654321',
-        'XYZ Industries',
-        'Director',
         'VIP',
         'Confirmed',
         '456 Oak Avenue',
@@ -406,8 +400,6 @@ const GuestImport = () => {
                     <ul className="mb-3">
                       <li><code>guest_email</code> - Email address</li>
                       <li><code>guest_phone</code> - Phone number</li>
-                      <li><code>guest_organization</code> - Organization name</li>
-                      <li><code>guest_designation</code> - Job title/designation</li>
                       <li><code>guest_type</code> - Individual, Family, Corporate, VIP, Media</li>
                       <li><code>guest_rsvp_status</code> - Pending, Confirmed, Declined, Tentative</li>
                       <li><code>guest_address</code> - Full address</li>

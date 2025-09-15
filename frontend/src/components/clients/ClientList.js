@@ -16,8 +16,9 @@ const ClientList = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [clientToDelete, setClientToDelete] = useState(null);
-  const { hasRole } = useAuth();
+  const { hasRole, currentUser } = useAuth();
   const isAdmin = hasRole(['Admin', 'admin', 'full_access']);
+  const isCustomerAdmin = hasRole(['Customer Admin']);
   
   const navigate = useNavigate();
   const location = useLocation();
@@ -30,6 +31,20 @@ const ClientList = () => {
       setCustomerFilter(location.state.customerId.toString());
     }
   }, []);
+
+  // Auto-filter for Customer Admin users
+  useEffect(() => {
+    if (isCustomerAdmin && currentUser && customers.length > 0) {
+      // Find the customer associated with the current user's email
+      const userCustomer = customers.find(customer => 
+        customer.customer_email === currentUser.email
+      );
+      
+      if (userCustomer) {
+        setCustomerFilter(userCustomer.customer_id.toString());
+      }
+    }
+  }, [isCustomerAdmin, currentUser, customers]);
 
   useEffect(() => {
     filterAndSortClients();
@@ -245,6 +260,19 @@ const ClientList = () => {
                         {customer.customer_name}
                       </option>
                     ))}
+                  </select>
+                </div>
+              )}
+              {isCustomerAdmin && (
+                <div className="col-md-3">
+                  <select
+                    className="form-select glass-input"
+                    value={customerFilter}
+                    disabled
+                  >
+                    <option value={customerFilter}>
+                      {customers.find(c => c.customer_id.toString() === customerFilter)?.customer_name || 'Your Organization'}
+                    </option>
                   </select>
                 </div>
               )}

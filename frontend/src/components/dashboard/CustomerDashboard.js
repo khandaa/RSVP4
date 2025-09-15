@@ -156,7 +156,7 @@ const CustomerDashboard = () => {
             <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center">
               <div>
                 <FaUserTie className="me-2" />
-                <span>Clients</span>
+                <span>Latest Clients</span>
               </div>
               <span className="badge bg-light text-primary">{dashboardData.clients.length}</span>
             </Card.Header>
@@ -172,7 +172,10 @@ const CustomerDashboard = () => {
                   </thead>
                   <tbody>
                     {dashboardData.clients.length > 0 ? (
-                      dashboardData.clients.map((client) => (
+                      dashboardData.clients
+                        .sort((a, b) => new Date(b.created_at || b.client_created_at) - new Date(a.created_at || a.client_created_at))
+                        .slice(0, 5)
+                        .map((client) => (
                         <tr key={client.client_id}>
                           <td>{client.client_name}</td>
                           <td>
@@ -219,9 +222,9 @@ const CustomerDashboard = () => {
             <Card.Header className="bg-success text-white d-flex justify-content-between align-items-center">
               <div>
                 <FaCalendarAlt className="me-2" />
-                <span>Active Events</span>
+                <span>Latest Events</span>
               </div>
-              <span className="badge bg-light text-success">{dashboardData.events.length}</span>
+              <span className="badge bg-light text-success">{dashboardData.events.filter(event => event.event_status === 'Planned' || event.event_status === 'In Progress').length}</span>
             </Card.Header>
             <Card.Body>
               <div style={{ maxHeight: '250px', overflowY: 'auto' }}>
@@ -237,7 +240,11 @@ const CustomerDashboard = () => {
                   </thead>
                   <tbody>
                     {dashboardData.events.length > 0 ? (
-                      dashboardData.events.map((event) => (
+                      dashboardData.events
+                        .filter(event => event.event_status === 'Planned' || event.event_status === 'In Progress')
+                        .sort((a, b) => new Date(b.updated_at || b.event_updated_at || b.created_at || b.event_created_at) - new Date(a.updated_at || a.event_updated_at || a.created_at || a.event_created_at))
+                        .slice(0, 5)
+                        .map((event) => (
                         <tr key={event.event_id}>
                           <td>{event.event_name}</td>
                           <td>{event.client_name}</td>
@@ -281,125 +288,6 @@ const CustomerDashboard = () => {
         </Col>
       </Row>
       
-      <Row className="mb-4">
-        {/* Teams Card */}
-        <Col lg={6} md={6} sm={12} className="mb-4">
-          <Card className="h-100 shadow-sm">
-            <Card.Header className="bg-info text-white d-flex justify-content-between align-items-center">
-              <div>
-                <FaUsers className="me-2" />
-                <span>Customer Teams</span>
-              </div>
-              <span className="badge bg-light text-info">{dashboardData.teams.length}</span>
-            </Card.Header>
-            <Card.Body>
-              <div style={{ maxHeight: '250px', overflowY: 'auto' }}>
-                <Table hover responsive>
-                  <thead>
-                    <tr>
-                      <th>Team Name</th>
-                      <th>Members</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {dashboardData.teams.length > 0 ? (
-                      dashboardData.teams.map((team) => (
-                        <tr key={team.team_id}>
-                          <td>{team.team_name}</td>
-                          <td>{team.member_count || 0}</td>
-                          <td>
-                            <Button 
-                              size="sm" 
-                              variant="outline-info"
-                              onClick={() => navigateTo(`/teams/${team.team_id}`)}
-                            >
-                              View
-                            </Button>
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan="3" className="text-center">No teams found</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </Table>
-              </div>
-            </Card.Body>
-            <Card.Footer className="bg-white">
-              <Button 
-                variant="info" 
-                size="sm"
-                onClick={() => navigateTo('/teams')}
-                className="w-100 text-white"
-              >
-                Manage Teams
-              </Button>
-            </Card.Footer>
-          </Card>
-        </Col>
-
-        {/* Employees Card */}
-        <Col lg={6} md={6} sm={12} className="mb-4">
-          <Card className="h-100 shadow-sm">
-            <Card.Header className="bg-warning text-white d-flex justify-content-between align-items-center">
-              <div>
-                <FaUserFriends className="me-2" />
-                <span>Customer Employees</span>
-              </div>
-              <span className="badge bg-light text-warning">{dashboardData.employees.length}</span>
-            </Card.Header>
-            <Card.Body>
-              <div style={{ maxHeight: '250px', overflowY: 'auto' }}>
-                <Table hover responsive>
-                  <thead>
-                    <tr>
-                      <th>Name</th>
-                      <th>Role</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {dashboardData.employees.length > 0 ? (
-                      dashboardData.employees.map((employee) => (
-                        <tr key={employee.user_id}>
-                          <td>{`${employee.first_name} ${employee.last_name}`}</td>
-                          <td>{employee.role || 'Employee'}</td>
-                          <td>
-                            <Button 
-                              size="sm" 
-                              variant="outline-warning"
-                              onClick={() => navigateTo(`/users/${employee.user_id}`)}
-                            >
-                              View
-                            </Button>
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan="3" className="text-center">No employees found</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </Table>
-              </div>
-            </Card.Body>
-            <Card.Footer className="bg-white">
-              <Button 
-                variant="warning" 
-                size="sm"
-                onClick={() => navigateTo('/users')}
-                className="w-100 text-white"
-              >
-                Manage Employees
-              </Button>
-            </Card.Footer>
-          </Card>
-        </Col>
-      </Row>
       
       <Row className="mb-4">
         {/* Guest Management Card */}
@@ -408,7 +296,7 @@ const CustomerDashboard = () => {
             <Card.Header className="bg-secondary text-white d-flex justify-content-between align-items-center">
               <div>
                 <FaUserCheck className="me-2" />
-                <span>Guest Management</span>
+                <span>Latest Guests</span>
               </div>
               <span className="badge bg-light text-secondary">{dashboardData.guests.length}</span>
             </Card.Header>
@@ -425,7 +313,10 @@ const CustomerDashboard = () => {
                   </thead>
                   <tbody>
                     {dashboardData.guests.length > 0 ? (
-                      dashboardData.guests.slice(0, 5).map((guest) => (
+                      dashboardData.guests
+                        .sort((a, b) => new Date(b.updated_at || b.guest_updated_at || b.created_at || b.guest_created_at) - new Date(a.updated_at || a.guest_updated_at || a.created_at || a.guest_created_at))
+                        .slice(0, 5)
+                        .map((guest) => (
                         <tr key={`${guest.guest_id}-${guest.event_id || guest.guest_id}`}>
                           <td>{`${guest.guest_first_name} ${guest.guest_last_name}`}</td>
                           <td>{guest.event_name}</td>
@@ -458,14 +349,28 @@ const CustomerDashboard = () => {
               </div>
             </Card.Body>
             <Card.Footer className="bg-white">
-              <Button 
-                variant="secondary" 
-                size="sm"
-                onClick={() => navigateTo('/guests')}
-                className="w-100 text-white"
-              >
-                Manage Guests
-              </Button>
+              <Row>
+                <Col md={6} className="mb-2">
+                  <Button 
+                    variant="secondary" 
+                    size="sm"
+                    onClick={() => navigateTo('/guests')}
+                    className="w-100 text-white"
+                  >
+                    Manage Guests
+                  </Button>
+                </Col>
+                <Col md={6} className="mb-2">
+                  <Button 
+                    variant="outline-secondary" 
+                    size="sm"
+                    onClick={() => navigateTo('/guests/import')}
+                    className="w-100"
+                  >
+                    Bulk Upload
+                  </Button>
+                </Col>
+              </Row>
             </Card.Footer>
           </Card>
         </Col>
@@ -476,7 +381,7 @@ const CustomerDashboard = () => {
             <Card.Header className="bg-danger text-white d-flex justify-content-between align-items-center">
               <div>
                 <FaTruck className="me-2" />
-                <span>Logistics Management</span>
+                <span>Latest Logistics</span>
               </div>
               <span className="badge bg-light text-danger">{dashboardData.logistics.length}</span>
             </Card.Header>
@@ -493,7 +398,10 @@ const CustomerDashboard = () => {
                   </thead>
                   <tbody>
                     {dashboardData.logistics.length > 0 ? (
-                      dashboardData.logistics.slice(0, 5).map((item, index) => (
+                      dashboardData.logistics
+                        .sort((a, b) => new Date(b.updated_at || b.logistics_updated_at || b.created_at || b.logistics_created_at) - new Date(a.updated_at || a.logistics_updated_at || a.created_at || a.logistics_created_at))
+                        .slice(0, 5)
+                        .map((item, index) => (
                         <tr key={`${item.type}-${index}`}>
                           <td>
                             <span className={`badge ${
