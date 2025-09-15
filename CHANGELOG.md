@@ -1,6 +1,7 @@
 ## [Unreleased]
 
 ### 2025-09-15
+- Fixed GuestList component fetchData initialization error causing crashes when accessing guest management from event dashboard
 - Fixed Client Management page filtering for Customer Admin role:
   - Updated ClientList component to automatically filter clients by the logged-in customer for Customer Admin users
   - Added auto-detection of customer association using current user's email

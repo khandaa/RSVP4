@@ -47,11 +47,11 @@ const GuestList = () => {
 
   useEffect(() => {
     fetchData();
-  }, [eventId, subeventId, fetchData]);
+  }, [eventId, subeventId]);
 
   useEffect(() => {
     filterAndSortGuests();
-  }, [guests, searchTerm, sortConfig, rsvpFilter, eventFilter, customerFilter, guestTypeFilter, filterAndSortGuests]);
+  }, [guests, searchTerm, sortConfig, rsvpFilter, eventFilter, customerFilter, guestTypeFilter]);
 
   const fetchData = useCallback(async () => {
     try {
