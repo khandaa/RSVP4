@@ -11,7 +11,7 @@ import {
   FaMapMarkerAlt,
   FaTags
 } from 'react-icons/fa';
-import { eventAPI, clientAPI } from '../../services/api';
+import api, { eventAPI, clientAPI } from '../../services/api';
 
 const EventCreate = () => {
   const navigate = useNavigate();
@@ -48,7 +48,7 @@ const EventCreate = () => {
       setIsLoadingData(true);
       const [clientsResponse, eventTypesResponse] = await Promise.all([
         clientAPI.getClients(),
-        fetch('/api/master-data/event-types').then(res => res.json())
+        api.get('/master-data/event-types')
       ]);
       
       setClients(clientsResponse.data || []);

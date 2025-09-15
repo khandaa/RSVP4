@@ -7,6 +7,7 @@
   - Updated `frontend/src/contexts/AuthContext.js` to set `currentUser`, `roles`, and `permissions` immediately upon successful login and persist them in `localStorage` for the entire session.
   - Rehydrate user, roles, and permissions on app load so sidebar generation can reliably use `hasRole`/`hasPermission`.
 - Added detailed backend debug logs in `modules/authentication/backend/index.js` to print authenticated user email, roles, and permissions upon successful login.
+- Added comprehensive debug logging to `middleware/auth.js` to troubleshoot 401 Unauthorized errors during event creation by logging request details, token presence, and verification results.
 - Refactored the sidebar to be more modular by separating the sidebar into role-specific sidebars for customer, admin, client, and rsvp roles.
 - Created separate sidebar components for each user role (admin, client, rsvp, customer).
 - The main `Sidebar.js` now dynamically renders the appropriate sidebar based on the user's role.
