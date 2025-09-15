@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Spinner, Table } from 'react-bootstrap';
-import { FaUserTie, FaCalendarAlt, FaUsers, FaUserFriends } from 'react-icons/fa';
+import { FaUserTie, FaCalendarAlt, FaUsers, FaUserFriends, FaUserCheck, FaTruck } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import axios from 'axios';
@@ -13,7 +13,9 @@ const CustomerDashboard = () => {
     clients: [],
     events: [],
     teams: [],
-    employees: []
+    employees: [],
+    guests: [],
+    logistics: []
   });
 
   useEffect(() => {
@@ -61,11 +63,43 @@ const CustomerDashboard = () => {
         // Fetch employees (users) associated with this customer
         const employeesResponse = await axios.get(`/api/comprehensive-crud/users?customer_id=${customerId}`);
         
+        // Fetch guests for all events of this customer
+        let allGuests = [];
+        for (const event of allEvents) {
+          try {
+            const guestsResponse = await axios.get(`/api/guests?event_id=${event.event_id}`);
+            const eventGuests = guestsResponse.data.map(guest => ({...guest, event_name: event.event_name}));
+            allGuests = [...allGuests, ...eventGuests];
+          } catch (error) {
+            console.warn(`Could not fetch guests for event ${event.event_id}:`, error);
+          }
+        }
+        
+        // Fetch logistics data (accommodation and travel) for this customer's events
+        let logisticsData = [];
+        for (const event of allEvents) {
+          try {
+            // Fetch accommodation data
+            const accommodationResponse = await axios.get(`/api/logistics/accommodation?event_id=${event.event_id}`);
+            const accommodations = accommodationResponse.data.map(acc => ({...acc, type: 'Accommodation', event_name: event.event_name}));
+            
+            // Fetch travel data
+            const travelResponse = await axios.get(`/api/logistics/travel?event_id=${event.event_id}`);
+            const travels = travelResponse.data.map(travel => ({...travel, type: 'Travel', event_name: event.event_name}));
+            
+            logisticsData = [...logisticsData, ...accommodations, ...travels];
+          } catch (error) {
+            console.warn(`Could not fetch logistics for event ${event.event_id}:`, error);
+          }
+        }
+        
         setDashboardData({
           clients: clientsResponse.data || [],
           events: allEvents || [],
           teams: teamsResponse.data || [],
-          employees: employeesResponse.data || []
+          employees: employeesResponse.data || [],
+          guests: allGuests || [],
+          logistics: logisticsData || []
         });
         
         setLoading(false);
@@ -348,6 +382,150 @@ const CustomerDashboard = () => {
           </Card>
         </Col>
       </Row>
+      
+      <Row className="mb-4">
+        {/* Guest Management Card */}
+        <Col lg={6} md={6} sm={12} className="mb-4">
+          <Card className="h-100 shadow-sm">
+            <Card.Header className="bg-secondary text-white d-flex justify-content-between align-items-center">
+              <div>
+                <FaUserCheck className="me-2" />
+                <span>Guest Management</span>
+              </div>
+              <span className="badge bg-light text-secondary">{dashboardData.guests.length}</span>
+            </Card.Header>
+            <Card.Body>
+              <div style={{ maxHeight: '250px', overflowY: 'auto' }}>
+                <Table hover responsive>
+                  <thead>
+                    <tr>
+                      <th>Guest Name</th>
+                      <th>Event</th>
+                      <th>RSVP Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {dashboardData.guests.length > 0 ? (
+                      dashboardData.guests.slice(0, 5).map((guest) => (
+                        <tr key={`${guest.guest_id}-${guest.event_id || guest.guest_id}`}>
+                          <td>{`${guest.guest_first_name} ${guest.guest_last_name}`}</td>
+                          <td>{guest.event_name}</td>
+                          <td>
+                            <span className={`badge ${
+                              guest.rsvp_status === 'Confirmed' ? 'bg-success' : 
+                              guest.rsvp_status === 'Declined' ? 'bg-danger' : 'bg-warning'
+                            }`}>
+                              {guest.rsvp_status || 'Pending'}
+                            </span>
+                          </td>
+                          <td>
+                            <Button 
+                              size="sm" 
+                              variant="outline-secondary"
+                              onClick={() => navigateTo(`/guests/${guest.guest_id}`)}
+                            >
+                              View
+                            </Button>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="4" className="text-center">No guests found</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </Table>
+              </div>
+            </Card.Body>
+            <Card.Footer className="bg-white">
+              <Button 
+                variant="secondary" 
+                size="sm"
+                onClick={() => navigateTo('/guests')}
+                className="w-100 text-white"
+              >
+                Manage Guests
+              </Button>
+            </Card.Footer>
+          </Card>
+        </Col>
+
+        {/* Logistics Management Card */}
+        <Col lg={6} md={6} sm={12} className="mb-4">
+          <Card className="h-100 shadow-sm">
+            <Card.Header className="bg-danger text-white d-flex justify-content-between align-items-center">
+              <div>
+                <FaTruck className="me-2" />
+                <span>Logistics Management</span>
+              </div>
+              <span className="badge bg-light text-danger">{dashboardData.logistics.length}</span>
+            </Card.Header>
+            <Card.Body>
+              <div style={{ maxHeight: '250px', overflowY: 'auto' }}>
+                <Table hover responsive>
+                  <thead>
+                    <tr>
+                      <th>Type</th>
+                      <th>Event</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {dashboardData.logistics.length > 0 ? (
+                      dashboardData.logistics.slice(0, 5).map((item, index) => (
+                        <tr key={`${item.type}-${index}`}>
+                          <td>
+                            <span className={`badge ${
+                              item.type === 'Accommodation' ? 'bg-info' : 'bg-warning'
+                            }`}>
+                              {item.type}
+                            </span>
+                          </td>
+                          <td>{item.event_name}</td>
+                          <td>
+                            <span className={`badge ${
+                              item.status === 'Confirmed' ? 'bg-success' : 
+                              item.status === 'Cancelled' ? 'bg-danger' : 'bg-secondary'
+                            }`}>
+                              {item.status || 'Pending'}
+                            </span>
+                          </td>
+                          <td>
+                            <Button 
+                              size="sm" 
+                              variant="outline-danger"
+                              onClick={() => navigateTo(`/logistics/${item.type.toLowerCase()}`)}
+                            >
+                              View
+                            </Button>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="4" className="text-center">No logistics data found</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </Table>
+              </div>
+            </Card.Body>
+            <Card.Footer className="bg-white">
+              <Button 
+                variant="danger" 
+                size="sm"
+                onClick={() => navigateTo('/logistics')}
+                className="w-100 text-white"
+              >
+                Manage Logistics
+              </Button>
+            </Card.Footer>
+          </Card>
+        </Col>
+      </Row>
 
       {/* Quick Actions */}
       <Row>
@@ -396,6 +574,26 @@ const CustomerDashboard = () => {
                   >
                     <FaUserFriends className="mb-2" size={24} />
                     <div>Add Employee</div>
+                  </Button>
+                </Col>
+                <Col md={3} sm={6} className="mb-3">
+                  <Button 
+                    variant="outline-secondary" 
+                    className="w-100"
+                    onClick={() => navigateTo('/guests/create')}
+                  >
+                    <FaUserCheck className="mb-2" size={24} />
+                    <div>Add Guest</div>
+                  </Button>
+                </Col>
+                <Col md={3} sm={6} className="mb-3">
+                  <Button 
+                    variant="outline-danger" 
+                    className="w-100"
+                    onClick={() => navigateTo('/logistics/dashboard')}
+                  >
+                    <FaTruck className="mb-2" size={24} />
+                    <div>Logistics</div>
                   </Button>
                 </Col>
               </Row>

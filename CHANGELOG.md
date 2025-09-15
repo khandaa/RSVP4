@@ -1,6 +1,11 @@
 ## [Unreleased]
 
 ### 2025-09-15
+- Enhanced Customer Dashboard with guest management and logistics management cards:
+  - Added Guest Management card displaying guests from all customer events with RSVP status tracking
+  - Added Logistics Management card showing accommodation and travel data for customer events
+  - Enhanced Quick Actions section with "Add Guest" and "Logistics" buttons for improved navigation
+  - Integrated data fetching for guests and logistics with proper error handling
 - Fixed client edit button routing issue by correcting unauthenticated API call in `frontend/src/components/clients/ClientEdit.js` to use authenticated API instance for fetching customers data.
 - Updated Customer Dashboard to show both "In Progress" and "Planned" events for the logged-in customer by modifying the event filtering logic in `frontend/src/components/dashboard/CustomerDashboard.js` to fetch events with both statuses and added a status column to display event status with appropriate badges.
 - Fixed team creation 404 error by adding missing backend endpoints in `backend/routes/employee-management.js`:
