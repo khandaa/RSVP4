@@ -199,7 +199,8 @@ router.post('/login', [
             first_name: user.first_name,
             last_name: user.last_name,
             roles,
-            permissions
+            permissions,
+            customer_id: user.customer_id
           }
         };
         
@@ -244,7 +245,10 @@ router.post('/login', [
       console.log('Admin login attempt');
       // Use the hardcoded query for admin username
       db.get(
-        'SELECT user_id, email, password_hash, first_name, last_name, is_active FROM users_master LIMIT 1',
+        `SELECT um.user_id, um.email, um.password_hash, um.first_name, um.last_name, um.is_active, mc.customer_id 
+       FROM users_master um
+       LEFT JOIN master_customers mc ON um.email = mc.customer_email
+       LIMIT 1`,
         [],
         async (err, user) => {
           if (err) {
@@ -278,8 +282,14 @@ router.post('/login', [
     // Regular case - Find user by email or mobile number
     const isEmail = username.includes('@');
     const query = isEmail ? 
-      'SELECT user_id, email, password_hash, first_name, last_name, is_active FROM users_master WHERE email = ?' :
-      'SELECT user_id, email, password_hash, first_name, last_name, is_active FROM users_master WHERE mobile_number = ?';
+      `SELECT um.user_id, um.email, um.password_hash, um.first_name, um.last_name, um.is_active, mc.customer_id
+       FROM users_master um
+       LEFT JOIN master_customers mc ON um.email = mc.customer_email
+       WHERE um.email = ?` :
+      `SELECT um.user_id, um.email, um.password_hash, um.first_name, um.last_name, um.is_active, mc.customer_id
+       FROM users_master um
+       LEFT JOIN master_customers mc ON um.email = mc.customer_email
+       WHERE um.mobile_number = ?`;
     const params = isEmail ? [username] : [username];
     
     console.log('Regular login attempt:', { username, isEmail, query, params });

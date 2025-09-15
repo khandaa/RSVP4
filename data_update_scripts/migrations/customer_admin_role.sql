@@ -45,7 +45,8 @@ WHERE name IN (
     'event_room_allocation_crud',
     'task_event_subevent_mapping_crud',
     'subevents_crud',
-    'subevent_details_crud'
+    'subevent_details_crud',
+    'clients_create'
 );
 
 -- Assign guest management permissions
@@ -83,7 +84,8 @@ FROM permissions_master
 WHERE name IN (
     'team_details_crud',
     'team_event_allocation_crud',
-    'employee_team_allocation_crud'
+    'employee_team_allocation_crud',
+    'employee_management_create'
 );
 
 COMMIT;

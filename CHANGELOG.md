@@ -4,6 +4,11 @@
 - Refactored the sidebar to be more modular by separating the sidebar into role-specific sidebars for customer, admin, client, and rsvp roles.
 - Created separate sidebar components for each user role (admin, client, rsvp, customer).
 - The main `Sidebar.js` now dynamically renders the appropriate sidebar based on the user's role.
+- Fixed a `403 Forbidden` error by conditionally fetching feature toggles in the sidebar based on user permissions.
+- Fixed a `404 Not Found` error in the customer dashboard by correcting the API endpoint for fetching user data.
+- Created a new backend route `/api/users/profile` to reliably fetch the current user's data and updated the customer dashboard to use it.
+- Implemented data filtering to ensure customer admins can only see clients, employees, and events associated with their account.
+- Granted `customer_admin` role permissions to create clients, events, RSVPs, employees, and teams.
 
 ### 2025-09-13
 - Configured backend to run on port 5001 and frontend on port 3001.

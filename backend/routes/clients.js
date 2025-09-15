@@ -14,13 +14,21 @@ const { dbMethods } = require('../../modules/database/backend');
 router.get('/', authenticateToken, async (req, res) => {
   try {
     const db = req.app.locals.db;
-    const clients = await dbMethods.all(db, 
-      `SELECT c.*, cu.customer_name 
-       FROM rsvp_master_clients c 
-       LEFT JOIN master_customers cu ON c.customer_id = cu.customer_id 
-       ORDER BY c.created_at DESC`, 
-      []
-    );
+    const { roles, customer_id } = req.user;
+
+    let query = `SELECT c.*, cu.customer_name 
+                 FROM rsvp_master_clients c 
+                 LEFT JOIN master_customers cu ON c.customer_id = cu.customer_id`;
+    const params = [];
+
+    if (roles && roles.includes('customer_admin') && customer_id) {
+      query += ' WHERE c.customer_id = ?';
+      params.push(customer_id);
+    }
+
+    query += ' ORDER BY c.created_at DESC';
+
+    const clients = await dbMethods.all(db, query, params);
     res.json(clients);
   } catch (error) {
     console.error('Error fetching clients:', error);

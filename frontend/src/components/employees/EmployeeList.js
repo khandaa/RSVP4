@@ -23,14 +23,8 @@ const EmployeeList = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // Build query params for filtering by customer if not admin
-        const params = {};
-        if (!isAdmin && currentUser?.customer_id) {
-          params.customer_id = currentUser.customer_id;
-        }
-        
         const [employeesResponse, departmentsResponse] = await Promise.all([
-          employeeAPI.getEmployees(params),
+          employeeAPI.getEmployees(),
           employeeAPI.getDepartments()
         ]);
         

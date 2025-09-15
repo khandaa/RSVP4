@@ -22,7 +22,7 @@ const CustomerDashboard = () => {
         setLoading(true);
         
         // Get the customer ID associated with this admin
-        const userResponse = await axios.get(`/api/users/${currentUser.user_id}`);
+        const userResponse = await axios.get('/api/users/profile');
         const userDetails = userResponse.data;
         
         // Assuming customer_id is stored in user's metadata or can be derived from email domain
@@ -51,7 +51,7 @@ const CustomerDashboard = () => {
         const teamsResponse = await axios.get(`/api/teams?customer_id=${customerId}`);
         
         // Fetch employees (users) associated with this customer
-        const employeesResponse = await axios.get(`/api/users?customer_id=${customerId}`);
+        const employeesResponse = await axios.get(`/api/comprehensive-crud/users?customer_id=${customerId}`);
         
         setDashboardData({
           clients: clientsResponse.data || [],

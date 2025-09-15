@@ -34,20 +34,12 @@ const Sidebar = ({ collapsed }) => {
     const fetchFeatureToggles = async () => {
       try {
         const response = await featureToggleAPI.getToggles();
-        
-        console.log('Feature toggles response:', response.data);
-        
-        // Convert to a map for easier checking
         const togglesMap = {};
         response.data.forEach(toggle => {
-          // Check if the toggle has feature_name or name property
           const name = toggle.feature_name || toggle.name;
           const isEnabled = toggle.enabled === 1 || toggle.enabled === true;
-          console.log(`Toggle ${name} is ${isEnabled ? 'enabled' : 'disabled'}`);
           togglesMap[name] = isEnabled;
         });
-        
-        console.log('Feature toggles map:', togglesMap);
         setFeatureToggles(togglesMap);
       } catch (error) {
         console.error('Failed to fetch feature toggles:', error);
@@ -55,11 +47,13 @@ const Sidebar = ({ collapsed }) => {
         setLoading(false);
       }
     };
-    
-    if (token) {
+
+    if (token && (hasRole(['Admin', 'admin', 'full_access']) || hasPermission(['feature_toggle_view']))) {
       fetchFeatureToggles();
+    } else {
+      setLoading(false);
     }
-  }, [token]);
+  }, [token, hasRole, hasPermission]);
   
   // Initialize final menu items array
   const [finalMenuItems, setFinalMenuItems] = useState([]);

@@ -15,13 +15,21 @@ const { dbMethods } = require('../../modules/database/backend');
 router.get('/departments', authenticateToken, async (req, res) => {
   try {
     const db = req.app.locals.db;
-    const departments = await dbMethods.all(db, 
-      `SELECT d.*, c.customer_name 
-       FROM rsvp_master_departments d 
-       LEFT JOIN master_customers c ON d.customer_id = c.customer_id 
-       ORDER BY d.department_name`, 
-      []
-    );
+    const { roles, customer_id } = req.user;
+
+    let query = `SELECT d.*, c.customer_name 
+                 FROM rsvp_master_departments d 
+                 LEFT JOIN master_customers c ON d.customer_id = c.customer_id`;
+    const params = [];
+
+    if (roles && roles.includes('customer_admin') && customer_id) {
+      query += ' WHERE d.customer_id = ?';
+      params.push(customer_id);
+    }
+
+    query += ' ORDER BY d.department_name';
+
+    const departments = await dbMethods.all(db, query, params);
     res.json(departments);
   } catch (error) {
     console.error('Error fetching departments:', error);
@@ -31,6 +39,8 @@ router.get('/departments', authenticateToken, async (req, res) => {
 
 // POST /api/employee-management/departments
 router.post('/departments', [
+  authenticateToken,
+  checkPermissions('employee_management_create'),
   authenticateToken,
   body('customer_id').isInt().withMessage('Customer ID is required and must be an integer'),
   body('department_name').notEmpty().withMessage('Department name is required')
@@ -124,14 +134,22 @@ router.delete('/departments/:id', authenticateToken, async (req, res) => {
 router.get('/teams', authenticateToken, async (req, res) => {
   try {
     const db = req.app.locals.db;
-    const teams = await dbMethods.all(db, 
-      `SELECT t.*, c.customer_name, e.first_name as leader_first_name, e.last_name as leader_last_name 
-       FROM rsvp_master_teams t 
-       LEFT JOIN master_customers c ON t.customer_id = c.customer_id 
-       LEFT JOIN rsvp_master_employees e ON t.team_leader_id = e.employee_id 
-       ORDER BY t.team_name`, 
-      []
-    );
+    const { roles, customer_id } = req.user;
+
+    let query = `SELECT t.*, c.customer_name, e.first_name as leader_first_name, e.last_name as leader_last_name 
+                 FROM rsvp_master_teams t 
+                 LEFT JOIN master_customers c ON t.customer_id = c.customer_id 
+                 LEFT JOIN rsvp_master_employees e ON t.team_leader_id = e.employee_id`;
+    const params = [];
+
+    if (roles && roles.includes('customer_admin') && customer_id) {
+      query += ' WHERE t.customer_id = ?';
+      params.push(customer_id);
+    }
+
+    query += ' ORDER BY t.team_name';
+
+    const teams = await dbMethods.all(db, query, params);
     res.json(teams);
   } catch (error) {
     console.error('Error fetching teams:', error);
@@ -141,6 +159,8 @@ router.get('/teams', authenticateToken, async (req, res) => {
 
 // POST /api/employee-management/teams
 router.post('/teams', [
+  authenticateToken,
+  checkPermissions('employee_management_create'),
   authenticateToken,
   body('customer_id').isInt().withMessage('Customer ID is required and must be an integer'),
   body('team_name').notEmpty().withMessage('Team name is required')
@@ -179,15 +199,23 @@ router.post('/teams', [
 router.get('/employees', authenticateToken, async (req, res) => {
   try {
     const db = req.app.locals.db;
-    const employees = await dbMethods.all(db, 
-      `SELECT e.*, c.customer_name, d.department_name, t.team_name 
-       FROM rsvp_master_employees e 
-       LEFT JOIN master_customers c ON e.customer_id = c.customer_id 
-       LEFT JOIN rsvp_master_departments d ON e.department_id = d.department_id 
-       LEFT JOIN rsvp_master_teams t ON e.team_id = t.team_id 
-       ORDER BY e.first_name, e.last_name`, 
-      []
-    );
+    const { roles, customer_id } = req.user;
+
+    let query = `SELECT e.*, c.customer_name, d.department_name, t.team_name 
+                 FROM rsvp_master_employees e 
+                 LEFT JOIN master_customers c ON e.customer_id = c.customer_id 
+                 LEFT JOIN rsvp_master_departments d ON e.department_id = d.department_id 
+                 LEFT JOIN rsvp_master_teams t ON e.team_id = t.team_id`;
+    const params = [];
+
+    if (roles && roles.includes('customer_admin') && customer_id) {
+      query += ' WHERE e.customer_id = ?';
+      params.push(customer_id);
+    }
+
+    query += ' ORDER BY e.first_name, e.last_name';
+
+    const employees = await dbMethods.all(db, query, params);
     res.json(employees);
   } catch (error) {
     console.error('Error fetching employees:', error);

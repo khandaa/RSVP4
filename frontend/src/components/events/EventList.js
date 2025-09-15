@@ -17,6 +17,7 @@ import {
   FaMapMarkerAlt
 } from 'react-icons/fa';
 import { eventAPI, clientAPI } from '../../services/api';
+import { useAuth } from '../../contexts/AuthContext';
 
 const EventList = () => {
   const [events, setEvents] = useState([]);
@@ -32,6 +33,8 @@ const EventList = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [eventToDelete, setEventToDelete] = useState(null);
+  const { hasRole } = useAuth();
+  const isAdmin = hasRole(['Admin', 'admin', 'full_access']);
   
   const navigate = useNavigate();
   const location = useLocation();
@@ -374,20 +377,22 @@ const EventList = () => {
                   ))}
                 </select>
               </div>
-              <div className="col-lg-2">
-                <select
-                  className="form-select glass-input"
-                  value={clientFilter}
-                  onChange={(e) => setClientFilter(e.target.value)}
-                >
-                  <option value="all">All Clients</option>
-                  {clients.map(client => (
-                    <option key={client.client_id} value={client.client_id}>
-                      {client.client_name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              {isAdmin && (
+                <div className="col-lg-2">
+                  <select
+                    className="form-select glass-input"
+                    value={clientFilter}
+                    onChange={(e) => setClientFilter(e.target.value)}
+                  >
+                    <option value="all">All Clients</option>
+                    {clients.map(client => (
+                      <option key={client.client_id} value={client.client_id}>
+                        {client.client_name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
               <div className="col-lg-2">
                 <select
                   className="form-select glass-input"

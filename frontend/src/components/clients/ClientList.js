@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { FaPlus, FaEdit, FaTrash, FaEye, FaSearch, FaSort, FaSortUp, FaSortDown, FaDownload, FaUpload, FaBuilding } from 'react-icons/fa';
 import axios from 'axios';
+import { useAuth } from '../../contexts/AuthContext';
 
 const ClientList = () => {
   const [clients, setClients] = useState([]);
@@ -15,6 +16,8 @@ const ClientList = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [clientToDelete, setClientToDelete] = useState(null);
+  const { hasRole } = useAuth();
+  const isAdmin = hasRole(['Admin', 'admin', 'full_access']);
   
   const navigate = useNavigate();
   const location = useLocation();
@@ -229,20 +232,22 @@ const ClientList = () => {
                   <option value="Inactive">Inactive</option>
                 </select>
               </div>
-              <div className="col-md-3">
-                <select
-                  className="form-select glass-input"
-                  value={customerFilter}
-                  onChange={(e) => setCustomerFilter(e.target.value)}
-                >
-                  <option value="all">All Customers</option>
-                  {customers.map(customer => (
-                    <option key={customer.customer_id} value={customer.customer_id}>
-                      {customer.customer_name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              {isAdmin && (
+                <div className="col-md-3">
+                  <select
+                    className="form-select glass-input"
+                    value={customerFilter}
+                    onChange={(e) => setCustomerFilter(e.target.value)}
+                  >
+                    <option value="all">All Customers</option>
+                    {customers.map(customer => (
+                      <option key={customer.customer_id} value={customer.customer_id}>
+                        {customer.customer_name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
               <div className="col-md-3">
                 <div className="text-muted">
                   Showing {filteredClients.length} of {clients.length} clients
