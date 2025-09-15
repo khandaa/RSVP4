@@ -27,6 +27,14 @@
   - Added proper null safety checks for currentUser and customer_id
   - Improved parameter passing to venue API methods
   - Enhanced response data handling to ensure venues array is always valid
+- Fixed CustomerDashboard 404 errors by removing duplicate users/profile endpoint:
+  - Removed conflicting duplicate endpoint in comprehensive-crud.js
+  - Kept comprehensive implementation with customer data and roles
+  - Resolved routing conflicts causing 404 errors on dashboard load
+- Fixed logistics reports initialization error:
+  - Resolved "Cannot access 'generateReports' before initialization" ReferenceError
+  - Split useEffect hooks to prevent circular dependencies
+  - Added proper validation for date range before generating reports
 - Fixed Client Management page filtering for Customer Admin role:
   - Updated ClientList component to automatically filter clients by the logged-in customer for Customer Admin users
   - Added auto-detection of customer association using current user's email

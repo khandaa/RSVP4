@@ -629,20 +629,5 @@ router.get('/venue-availability/:venueId', authenticateToken, async (req, res) =
   }
 });
 
-router.get('/users/profile', authenticateToken, async (req, res) => {
-  try {
-    const db = req.app.locals.db;
-    const user = await dbMethods.get(db, 'SELECT * FROM users_master WHERE user_id = ?', [req.user.id]);
-
-    if (!user) {
-      return res.status(404).json({ msg: 'User not found' });
-    }
-
-    res.json(user);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
-  }
-});
 
 module.exports = router;
