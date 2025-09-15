@@ -22,7 +22,7 @@ const CustomerDashboard = () => {
         setLoading(true);
         
         // Get the customer ID associated with this admin
-        const userResponse = await axios.get('/api/users/profile');
+        const userResponse = await axios.get('/api/comprehensive-crud/users/profile');
         const userDetails = userResponse.data;
         
         // Assuming customer_id is stored in user's metadata or can be derived from email domain

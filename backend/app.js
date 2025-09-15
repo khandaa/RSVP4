@@ -166,10 +166,8 @@ const employeeManagementRoutes = require('./routes/employee-management');
 app.use('/api/employee-management', employeeManagementRoutes);
 
 const comprehensiveCrudRoutes = require('./routes/comprehensive-crud');
-app.use('/api/comprehensive-crud', comprehensiveCrudRoutes);
+app.use('/api/crud', comprehensiveCrudRoutes);
 
-const userRoutes = require('./routes/users');
-app.use('/api/users', userRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

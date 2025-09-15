@@ -51,8 +51,14 @@ const EventCreate = () => {
         fetch('/api/master-data/event-types').then(res => res.json())
       ]);
       
-      setClients(clientsResponse.data);
-      setEventTypes(eventTypesResponse);
+      setClients(clientsResponse.data || []);
+      if (Array.isArray(eventTypesResponse)) {
+        setEventTypes(eventTypesResponse);
+      } else if (eventTypesResponse && Array.isArray(eventTypesResponse.data)) {
+        setEventTypes(eventTypesResponse.data);
+      } else {
+        setEventTypes([]);
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
       toast.error('Failed to load form data');

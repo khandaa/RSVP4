@@ -25,7 +25,10 @@ WHERE name IN (
     'user_management_read',
     'user_management_create',
     'user_management_update',
-    'user_management_delete'
+    'user_management_delete',
+    'role_management_read',
+    'user_management_read',
+    'role_management_read'
 );
 
 -- Assign event management permissions

@@ -9,6 +9,7 @@
 - Created a new backend route `/api/users/profile` to reliably fetch the current user's data and updated the customer dashboard to use it.
 - Implemented data filtering to ensure customer admins can only see clients, employees, and events associated with their account.
 - Granted `customer_admin` role permissions to create clients, events, RSVPs, employees, and teams.
+- Fixed a runtime error in the Event Create component by ensuring `eventTypes` is always handled as an array.
 
 ### 2025-09-13
 - Configured backend to run on port 5001 and frontend on port 3001.

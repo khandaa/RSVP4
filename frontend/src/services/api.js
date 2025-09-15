@@ -119,7 +119,18 @@ export const authAPI = {
 export const userAPI = {
   getUsers: (params) => api.get('/user_management/users', { params }),
   getUser: (id) => api.get(`/user_management/users/${id}`),
-  createUser: (userData) => api.post('/user_management/users', userData),
+  createUser: (userData) => {
+    const formattedData = {
+      mobile_number: userData.mobileNumber,
+      email: userData.email,
+      password: userData.password,
+      first_name: userData.firstName,
+      last_name: userData.lastName,
+      roles: userData.roles || [],
+      is_active: userData.isActive !== false // Default to true if not specified
+    };
+    return api.post('/auth/register', formattedData);
+  },
   updateUser: (id, userData) => api.put(`/user_management/users/${id}`, userData),
   toggleUserStatus: (id, isActive) => api.patch(`/user_management/users/${id}/status`, { is_active: isActive }),
   deleteUser: (id) => api.delete(`/user_management/users/${id}`),
