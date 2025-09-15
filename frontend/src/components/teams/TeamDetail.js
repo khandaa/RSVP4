@@ -11,7 +11,7 @@ const TeamDetail = () => {
   const navigate = useNavigate();
   const { hasRole } = useAuth();
   const isAdmin = hasRole(['Admin', 'admin', 'full_access']);
-  const isCustomerAdmin = hasRole(['customer_admin']);
+  const isCustomerAdmin = hasRole(['Customer Admin']);
   const canEdit = isAdmin || isCustomerAdmin;
 
   const [team, setTeam] = useState(null);

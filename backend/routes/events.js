@@ -22,7 +22,7 @@ router.get('/', authenticateToken, async (req, res) => {
                  LEFT JOIN rsvp_master_event_types et ON e.event_type_id = et.event_type_id`;
     const params = [];
 
-    if (roles && roles.includes('customer_admin') && customer_id) {
+    if (roles && roles.includes('Customer Admin') && customer_id) {
       query += ' WHERE c.customer_id = ?';
       params.push(customer_id);
     }

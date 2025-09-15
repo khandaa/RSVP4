@@ -31,7 +31,7 @@
 - Fixed a `404 Not Found` error in the customer dashboard by correcting the API endpoint for fetching user data.
 - Created a new backend route `/api/users/profile` to reliably fetch the current user's data and updated the customer dashboard to use it.
 - Implemented data filtering to ensure customer admins can only see clients, employees, and events associated with their account.
-- Granted `customer_admin` role permissions to create clients, events, RSVPs, employees, and teams.
+- Granted `Customer Admin` role permissions to create clients, events, RSVPs, employees, and teams.
 - Fixed a runtime error in the Event Create component by ensuring `eventTypes` is always handled as an array.
 
 ### 2025-09-13
@@ -43,8 +43,8 @@
 - Added a deployment test script to verify frontend and backend services.
 
 ### 2025-08-04
-- Added Vendor Management functionality for customer_admin users:
-  - Added Vendor Management link to sidebar menu for admin and customer_admin roles
+- Added Vendor Management functionality for Customer Admin users:
+  - Added Vendor Management link to sidebar menu for admin and Customer Admin roles
   - Integrated vendor management with existing routing structure
   - Implemented role-based access control for vendor features
   - Created comprehensive backend API routes with SQLite integration:
@@ -56,14 +56,14 @@
 
 ### 2025-08-04
 - Implemented complete Venue Management system with role-based access control:
-  - Created VenueList component for viewing and managing venues (admin and customer_admin only)
+  - Created VenueList component for viewing and managing venues (admin and Customer Admin only)
   - Created VenueCreate component for adding and editing venues with validation
   - Created VenueDetail component for viewing venue information and associated events
   - Integrated customer selection dropdown that fetches customers from database
-  - Added role-based filtering (admins see all venues, customer_admins see only their venues)
+  - Added role-based filtering (admins see all venues, Customer Admins see only their venues)
   - Added venue API service with comprehensive endpoints
   - Added venue routes to main app navigation
-  - Added venue management link to sidebar for admin and customer_admin roles
+  - Added venue management link to sidebar for admin and Customer Admin roles
   - Implemented search, sort, and filtering functionality for venue lists
   - Added deletion confirmation to prevent accidental data loss
 
@@ -81,8 +81,8 @@
   - Created CRUD components for Team management (TeamList, TeamCreate, TeamDetail)
   - Created CRUD components for Department management (DepartmentList, DepartmentCreate)
   - Added team members management with ability to assign/remove employees and set team leaders
-  - Implemented role-based access controls for admin and customer_admin users
-  - Enhanced data filtering based on user roles (admins see all, customer_admins see only their data)
+  - Implemented role-based access controls for admin and Customer Admin users
+  - Enhanced data filtering based on user roles (admins see all, Customer Admins see only their data)
   - Added search, sort, and filter functionality for teams and employees lists
   - Updated sidebar navigation with detailed submenu items for Team and Employee management
   - Added comprehensive API service endpoints for team and employee operations
@@ -207,7 +207,7 @@
 - Created new Client Admin role with focused permissions for guest, event, and sub-event management
 - Enhanced customer creation functionality to automatically generate admin user accounts when new customers are added
 - Enhanced client creation functionality to automatically generate admin user accounts when new clients are added
-- Added automatic customer_admin role assignment to newly created customer user accounts
+- Added automatic Customer Admin role assignment to newly created customer user accounts
 - Added automatic client_admin role assignment to newly created client user accounts
 - Implemented secure default password handling using bcrypt for new customer and client admin accounts
 - Integrated user creation in both single customer creation and bulk import processes
@@ -216,7 +216,7 @@
 - Enhanced error handling in customer and client routes to prevent promise rejection errors
 - Added duplicate user detection to prevent creation of multiple users with same email
 - Improved frontend API interceptors to ensure authentication tokens are always included in requests
-- Created custom dashboard for customer_admin users with overview of clients, active events, teams, and employees
+- Created custom dashboard for Customer Admin users with overview of clients, active events, teams, and employees
 - Created custom dashboard for client_admin users with overview of events, sub-events, guests, RSVPs, travel, and accommodation
 - Implemented role-based dashboard routing to display different dashboards based on user role
 - Completely customized sidebar navigation for each user role:

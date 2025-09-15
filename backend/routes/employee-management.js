@@ -22,7 +22,7 @@ router.get('/departments', authenticateToken, async (req, res) => {
                  LEFT JOIN master_customers c ON d.customer_id = c.customer_id`;
     const params = [];
 
-    if (roles && roles.includes('customer_admin') && customer_id) {
+    if (roles && roles.includes('Customer Admin') && customer_id) {
       query += ' WHERE d.customer_id = ?';
       params.push(customer_id);
     }
@@ -142,7 +142,7 @@ router.get('/teams', authenticateToken, async (req, res) => {
                  LEFT JOIN rsvp_master_employees e ON t.team_leader_id = e.employee_id`;
     const params = [];
 
-    if (roles && roles.includes('customer_admin') && customer_id) {
+    if (roles && roles.includes('Customer Admin') && customer_id) {
       query += ' WHERE t.customer_id = ?';
       params.push(customer_id);
     }
@@ -293,7 +293,7 @@ router.get('/employees', authenticateToken, async (req, res) => {
                  LEFT JOIN rsvp_master_teams t ON e.team_id = t.team_id`;
     const params = [];
 
-    if (roles && roles.includes('customer_admin') && customer_id) {
+    if (roles && roles.includes('Customer Admin') && customer_id) {
       query += ' WHERE e.customer_id = ?';
       params.push(customer_id);
     }

@@ -306,12 +306,12 @@ function App() {
             <Route path=":id/edit" element={<DepartmentCreate />} />
           </Route>
           
-          {/* Vendors Routes - Restricted to admin and customer_admin */}
+          {/* Vendors Routes - Restricted to admin and Customer Admin */}
           <Route path="vendors">
             <Route 
               index 
               element={
-                hasRole(['admin', 'Admin', 'full_access', 'customer_admin']) ? 
+                hasRole(['admin', 'Admin', 'full_access', 'Customer Admin']) ? 
                 <Navigate to="/vendors/list" /> : 
                 <Navigate to="/dashboard" />
               } 
@@ -319,7 +319,7 @@ function App() {
             <Route 
               path="list" 
               element={
-                hasRole(['admin', 'Admin', 'full_access', 'customer_admin']) ? 
+                hasRole(['admin', 'Admin', 'full_access', 'Customer Admin']) ? 
                 <VendorList /> : 
                 <Navigate to="/dashboard" />
               } 
@@ -327,7 +327,7 @@ function App() {
             <Route 
               path="create" 
               element={
-                hasRole(['admin', 'Admin', 'full_access', 'customer_admin']) ? 
+                hasRole(['admin', 'Admin', 'full_access', 'Customer Admin']) ? 
                 <VendorCreate /> : 
                 <Navigate to="/dashboard" />
               } 
@@ -335,7 +335,7 @@ function App() {
             <Route 
               path=":id" 
               element={
-                hasRole(['admin', 'Admin', 'full_access', 'customer_admin']) ? 
+                hasRole(['admin', 'Admin', 'full_access', 'Customer Admin']) ? 
                 <VendorDetail /> : 
                 <Navigate to="/dashboard" />
               } 
@@ -343,14 +343,14 @@ function App() {
             <Route 
               path=":id/edit" 
               element={
-                hasRole(['admin', 'Admin', 'full_access', 'customer_admin']) ? 
+                hasRole(['admin', 'Admin', 'full_access', 'Customer Admin']) ? 
                 <VendorCreate /> : 
                 <Navigate to="/dashboard" />
               } 
             />
           </Route>
           
-          {/* Venues Routes - Restricted to admin and customer_admin */}
+          {/* Venues Routes - Restricted to admin and Customer Admin */}
           <Route path="venues">
             <Route index element={<Navigate to="/venues/list" />} />
             <Route path="list" element={<VenueList />} />

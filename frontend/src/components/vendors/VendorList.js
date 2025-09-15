@@ -11,7 +11,7 @@ const VendorList = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const isAdmin = user && (user.roles.includes('admin') || user.roles.includes('Admin'));
-  const isCustomerAdmin = user && user.roles.includes('customer_admin');
+  const isCustomerAdmin = user && user.roles.includes('Customer Admin');
   
   const [vendors, setVendors] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -26,7 +26,7 @@ const VendorList = () => {
     try {
       const params = {};
       
-      // Filter by customer_id for customer_admin users
+      // Filter by customer_id for Customer Admin users
       if (isCustomerAdmin && user && user.customer_id) {
         params.customer_id = user.customer_id;
       }

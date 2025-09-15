@@ -8,11 +8,11 @@ PRAGMA foreign_keys=OFF;
 
 BEGIN TRANSACTION;
 
--- Create customer_admin role
+-- Create Customer Admin role
 INSERT OR IGNORE INTO roles_master (name, description)
 VALUES ('Customer Admin', 'Role for customer administrators with permissions to manage users, events, guests, and teams');
 
--- Get the role_id for the new customer_admin role
+-- Get the role_id for the new Customer Admin role
 -- SQLite doesn't support variables, so we'll use direct joins in the INSERT statements
 
 -- Assign user management permissions

@@ -67,9 +67,9 @@ base_v1/
   - **Customer Admin Dashboard**: Tailored dashboard for customer administrators showing clients, active events, teams, and employees specific to their customer account.
   - **Client Admin Dashboard**: Specialized dashboard for client administrators displaying events, sub-events, guests, RSVPs, travel arrangements, and accommodation bookings related to their client account.
 
-- **Venue Management Module**: Complete venue management system with role-based access, allowing admin and customer_admin users to create, view, edit, and delete venues, including customer-specific venue listings and venue event associations.
+- **Venue Management Module**: Complete venue management system with role-based access, allowing admin and Customer Admin users to create, view, edit, and delete venues, including customer-specific venue listings and venue event associations.
 
-- **Vendor Management Module**: Comprehensive vendor management system restricted to admin and customer_admin roles. Features include:
+- **Vendor Management Module**: Comprehensive vendor management system restricted to admin and Customer Admin roles. Features include:
   - Complete CRUD operations for vendors with proper role-based access control
   - Integration with customer data for vendor association
   - Vendor event assignment and management

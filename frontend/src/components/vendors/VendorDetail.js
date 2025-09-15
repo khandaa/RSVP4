@@ -11,7 +11,7 @@ const VendorDetail = () => {
   const { id } = useParams();
   const { user } = useAuth();
   const isAdmin = user && (user.roles.includes('admin') || user.roles.includes('Admin'));
-  const isCustomerAdmin = user && user.roles.includes('customer_admin');
+  const isCustomerAdmin = user && user.roles.includes('Customer Admin');
   
   const [vendor, setVendor] = useState(null);
   const [loading, setLoading] = useState(true);

@@ -16,7 +16,7 @@ const EmployeeList = () => {
   const [departments, setDepartments] = useState([]);
   const { hasRole, currentUser } = useAuth();
   const isAdmin = hasRole(['Admin', 'admin', 'full_access']);
-  const isCustomerAdmin = hasRole(['customer_admin']);
+  const isCustomerAdmin = hasRole(['Customer Admin']);
   
   // Fetch employees and departments on component mount
   useEffect(() => {

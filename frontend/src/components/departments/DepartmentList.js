@@ -14,7 +14,7 @@ const DepartmentList = () => {
   const [sortDirection, setSortDirection] = useState('asc');
   const { hasRole, currentUser } = useAuth();
   const isAdmin = hasRole(['Admin', 'admin', 'full_access']);
-  const isCustomerAdmin = hasRole(['customer_admin']);
+  const isCustomerAdmin = hasRole(['Customer Admin']);
   
   // Fetch departments on component mount
   useEffect(() => {

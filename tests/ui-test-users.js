@@ -796,7 +796,7 @@ async function readUsersFromCSV() {
 function createSampleUsersFile() {
   const content = [
     'username,password,email,firstName,lastName,role',
-    'customerAdmin,Admin@123,testuser1@example.com,Test,User1,customer_admin',
+    'customerAdmin,Admin@123,testuser1@example.com,Test,User1,Customer Admin',
     'ClientAdmin,Admin@123,testuser1@example.com,Test,User1,client_admin',
     'FullAccess,Admin@123,testuser2@example.com,Test,User2,full_access',
     'Adm,Admin@123,testmanager@example.com,Test,Manager,admin'

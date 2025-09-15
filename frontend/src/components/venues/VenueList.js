@@ -10,7 +10,7 @@ import '../../styles/CommonList.css';
 const VenueList = () => {
   const { hasRole, currentUser } = useAuth();
   const isAdmin = hasRole(['Admin', 'admin', 'full_access']);
-  const isCustomerAdmin = hasRole(['customer_admin']);
+  const isCustomerAdmin = hasRole(['Customer Admin']);
   
   const [venues, setVenues] = useState([]);
   const [loading, setLoading] = useState(true);

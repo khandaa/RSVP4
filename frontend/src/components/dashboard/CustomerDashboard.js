@@ -19,6 +19,8 @@ const CustomerDashboard = () => {
   });
 
   useEffect(() => {
+    if (!currentUser) return;
+    
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
@@ -44,24 +46,40 @@ const CustomerDashboard = () => {
         
         // Fetch in-progress and planned events for this customer's clients
         let allEvents = [];
-        for (const client of clientsResponse.data) {
-          // Fetch In Progress events
-          const inProgressResponse = await axios.get(`/api/events?client_id=${client.client_id}&status=In Progress`);
-          const inProgressEvents = inProgressResponse.data.map(event => ({...event, client_name: client.client_name}));
-          
-          // Fetch Planned events
-          const plannedResponse = await axios.get(`/api/events?client_id=${client.client_id}&status=Planned`);
-          const plannedEvents = plannedResponse.data.map(event => ({...event, client_name: client.client_name}));
-          
-          // Combine both event types
-          allEvents = [...allEvents, ...inProgressEvents, ...plannedEvents];
+        for (const client of clientsResponse.data || []) {
+          try {
+            // Fetch In Progress events
+            const inProgressResponse = await axios.get(`/api/events?client_id=${client.client_id}&status=In Progress`);
+            const inProgressEvents = inProgressResponse.data.map(event => ({...event, client_name: client.client_name}));
+            
+            // Fetch Planned events
+            const plannedResponse = await axios.get(`/api/events?client_id=${client.client_id}&status=Planned`);
+            const plannedEvents = plannedResponse.data.map(event => ({...event, client_name: client.client_name}));
+            
+            // Combine both event types
+            allEvents = [...allEvents, ...inProgressEvents, ...plannedEvents];
+          } catch (error) {
+            console.warn(`Could not fetch events for client ${client.client_id}:`, error);
+          }
         }
         
         // Fetch teams associated with this customer
-        const teamsResponse = await axios.get(`/api/teams?customer_id=${customerId}`);
+        let teamsData = [];
+        try {
+          const teamsResponse = await axios.get(`/api/teams?customer_id=${customerId}`);
+          teamsData = teamsResponse.data || [];
+        } catch (error) {
+          console.warn('Could not fetch teams:', error);
+        }
         
         // Fetch employees (users) associated with this customer
-        const employeesResponse = await axios.get(`/api/comprehensive-crud/users?customer_id=${customerId}`);
+        let employeesData = [];
+        try {
+          const employeesResponse = await axios.get(`/api/comprehensive-crud/users?customer_id=${customerId}`);
+          employeesData = employeesResponse.data || [];
+        } catch (error) {
+          console.warn('Could not fetch employees:', error);
+        }
         
         // Fetch guests for all events of this customer
         let allGuests = [];
@@ -96,15 +114,15 @@ const CustomerDashboard = () => {
         setDashboardData({
           clients: clientsResponse.data || [],
           events: allEvents || [],
-          teams: teamsResponse.data || [],
-          employees: employeesResponse.data || [],
+          teams: teamsData || [],
+          employees: employeesData || [],
           guests: allGuests || [],
           logistics: logisticsData || []
         });
         
-        setLoading(false);
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
+      } finally {
         setLoading(false);
       }
     };

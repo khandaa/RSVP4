@@ -10,10 +10,10 @@ const { authenticateToken } = require('../../middleware/auth');
 const { checkRoles } = require('../../middleware/rbac');
 const { dbMethods } = require('../../modules/database/backend');
 
-// Middleware to restrict access to admin and customer_admin roles
+// Middleware to restrict access to admin and Customer Admin roles
 const restrictToAdminAndCustomerAdmin = [
   authenticateToken,
-  checkRoles(['admin', 'Admin', 'full_access', 'customer_admin'])
+  checkRoles(['admin', 'Admin', 'full_access', 'Customer Admin'])
 ];
 
 // GET /api/vendors - Get all vendors

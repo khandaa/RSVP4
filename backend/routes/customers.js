@@ -279,7 +279,7 @@ router.post('/bulk-import', [authenticateToken, upload.single('file')], async (r
               
               const customerId = result.lastID;
               
-              // Create customer_admin user if email is provided
+              // Create Customer Admin user if email is provided
               if (customerData.customer_email) {
                 try {
                   // Generate a default password (Admin@123)
