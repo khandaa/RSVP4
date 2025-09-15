@@ -8,6 +8,9 @@
   - Rehydrate user, roles, and permissions on app load so sidebar generation can reliably use `hasRole`/`hasPermission`.
 - Added detailed backend debug logs in `modules/authentication/backend/index.js` to print authenticated user email, roles, and permissions upon successful login.
 - Added comprehensive debug logging to `middleware/auth.js` to troubleshoot 401 Unauthorized errors during event creation by logging request details, token presence, and verification results.
+- Fixed 401 Unauthorized error in event creation by updating `frontend/src/components/events/EventCreate.js` to use authenticated API calls instead of direct fetch for master-data endpoints.
+- Simplified event schedule endpoint in `backend/routes/comprehensive-crud.js` to handle cases where subevents don't exist yet, preventing 404 errors during event detail views.
+- Created missing `/api/comprehensive-crud/users/profile` endpoint in `backend/routes/comprehensive-crud.js` to fix 404 errors in CustomerDashboard by providing user profile data with customer association and roles.
 - Refactored the sidebar to be more modular by separating the sidebar into role-specific sidebars for customer, admin, client, and rsvp roles.
 - Created separate sidebar components for each user role (admin, client, rsvp, customer).
 - The main `Sidebar.js` now dynamically renders the appropriate sidebar based on the user's role.

@@ -469,10 +469,66 @@ router.get('/guests-with-rsvp/:eventId', authenticateToken, async (req, res) => 
   }
 });
 
+// Get current user profile
+router.get('/users/profile', authenticateToken, async (req, res) => {
+  try {
+    const db = req.app.locals.db;
+    const userId = req.user.id;
+    
+    // Get user details with customer information
+    const query = `
+      SELECT 
+        um.user_id,
+        um.email,
+        um.first_name,
+        um.last_name,
+        um.mobile_number,
+        um.is_active,
+        mc.customer_id,
+        mc.customer_name,
+        mc.customer_email
+      FROM users_master um
+      LEFT JOIN master_customers mc ON um.email = mc.customer_email
+      WHERE um.user_id = ?
+    `;
+    
+    const user = await dbMethods.get(db, query, [userId]);
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    // Get user roles
+    const rolesQuery = `
+      SELECT r.name as role_name
+      FROM user_roles_tx ur
+      JOIN roles_master r ON ur.role_id = r.role_id
+      WHERE ur.user_id = ?
+    `;
+    const roles = await dbMethods.all(db, rolesQuery, [userId]);
+    
+    res.json({
+      ...user,
+      roles: roles.map(r => r.role_name)
+    });
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    res.status(500).json({ error: 'Failed to fetch user profile' });
+  }
+});
+
 // Get event schedule with subevents and allocations
 router.get('/event-schedule/:eventId', authenticateToken, async (req, res) => {
   try {
     const db = req.app.locals.db;
+    
+    // First check if event exists
+    const event = await dbMethods.get(db, 'SELECT * FROM rsvp_master_events WHERE event_id = ?', [req.params.eventId]);
+    if (!event) {
+      return res.status(404).json({ error: 'Event not found' });
+    }
+    
+    // Get subevents for this event (simplified query)
     const query = `
       SELECT 
         s.subevent_id,
@@ -480,22 +536,16 @@ router.get('/event-schedule/:eventId', authenticateToken, async (req, res) => {
         s.subevent_description,
         s.subevent_start_datetime,
         s.subevent_end_datetime,
-        s.subevent_status,
-        v.venue_name,
-        r.room_name,
-        COUNT(g.guest_id) as guest_count
+        s.subevent_status
       FROM rsvp_master_subevents s
-      LEFT JOIN rsvp_subevents_details sd ON s.subevent_id = sd.subevent_id
-      LEFT JOIN rsvp_master_venues v ON sd.venue_id = v.venue_id
-      LEFT JOIN rsvp_event_room_allocation era ON s.subevent_id = era.subevent_id
-      LEFT JOIN rsvp_master_rooms r ON era.room_id = r.room_id
-      LEFT JOIN rsvp_master_guests g ON s.subevent_id = g.subevent_id
       WHERE s.event_id = ?
-      GROUP BY s.subevent_id
       ORDER BY s.subevent_start_datetime
     `;
+    
     const schedule = await dbMethods.all(db, query, [req.params.eventId]);
-    res.json(schedule);
+    
+    // Return empty array if no subevents exist yet
+    res.json(schedule || []);
   } catch (error) {
     console.error('Error fetching event schedule:', error);
     res.status(500).json({ error: 'Failed to fetch event schedule' });
