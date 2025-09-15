@@ -43,12 +43,12 @@ export const customerMenuItems = [
         icon: <FaCalendarAlt />,
         permission: null
       },
-      {
-        name: 'Sub Events',
-        path: '/subevents/list',
-        icon: <FaCalendarPlus />,
-        permission: null
-      },
+      // {
+      //   name: 'Sub Events',
+      //   path: '/subevents/list',
+      //   icon: <FaCalendarPlus />,
+      //   permission: null
+      // },
       {
         name: 'Guests',
         path: '/guests/list',
@@ -82,19 +82,19 @@ export const customerMenuItems = [
         permission: null
       },
       {
-        name: 'Manage Travel',
+        name: 'Travel',
         path: '/logistics/travel',
         icon: <FaPlane />,
         permission: null
       },
       {
-        name: 'Manage Accommodation',
+        name: 'Accommodation',
         path: '/logistics/accommodation',
         icon: <FaBed />,
         permission: null
       },
       {
-        name: 'Manage Vehicle Allocations',
+        name: 'Vehicle Allocations',
         path: '/logistics/vehicles',
         icon: <FaCar />,
         permission: null

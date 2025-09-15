@@ -12,6 +12,8 @@
   - Hides customer dropdown for Customer Admin and Client Admin users during bulk import
   - Shows read-only customer field with informative message for restricted roles
   - Ensures all bulk imported guests are automatically assigned to the correct customer
+- Fixed AuthContext import errors in GuestCreate and GuestImport components by using useAuth hook instead of direct AuthContext import
+- Updated SubeventList component empty state message to display "No sub events" instead of verbose text
 - Fixed Client Management page filtering for Customer Admin role:
   - Updated ClientList component to automatically filter clients by the logged-in customer for Customer Admin users
   - Added auto-detection of customer association using current user's email

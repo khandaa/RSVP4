@@ -502,7 +502,7 @@ const SubeventList = () => {
                     <div className="text-muted">
                       {searchTerm || statusFilter !== 'all' || venueFilter !== 'all' || dateFilter !== 'all'
                         ? 'No sub events match your filters'
-                        : 'No sub events found. Create your first sub event!'
+                        : 'No sub events'
                       }
                     </div>
                   </td>
