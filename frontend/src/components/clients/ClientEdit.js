@@ -11,7 +11,7 @@ import {
   Alert
 } from 'react-bootstrap';
 import { FaSave, FaTimes, FaArrowLeft } from 'react-icons/fa';
-import { clientAPI } from '../../services/api';
+import api, { clientAPI } from '../../services/api';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -50,11 +50,8 @@ const ClientEdit = () => {
         const clientResponse = await clientAPI.getClient(id);
         
         // Fetch customers for dropdown
-        const customersResponse = await fetch('/api/customers');
-        if (!customersResponse.ok) throw new Error('Failed to fetch customers');
-        
-        const customersData = await customersResponse.json();
-        setCustomers(customersData);
+        const customersResponse = await api.get('/api/customers');
+        setCustomers(customersResponse.data);
         
         // Populate form with client data
         setFormData({

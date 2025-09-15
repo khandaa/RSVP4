@@ -1,6 +1,14 @@
 ## [Unreleased]
 
 ### 2025-09-15
+- Fixed client edit button routing issue by correcting unauthenticated API call in `frontend/src/components/clients/ClientEdit.js` to use authenticated API instance for fetching customers data.
+- Updated Customer Dashboard to show both "In Progress" and "Planned" events for the logged-in customer by modifying the event filtering logic in `frontend/src/components/dashboard/CustomerDashboard.js` to fetch events with both statuses and added a status column to display event status with appropriate badges.
+- Fixed team creation 404 error by adding missing backend endpoints in `backend/routes/employee-management.js`:
+  - Added GET `/api/employee-management/teams/:id` endpoint for fetching individual teams
+  - Added PUT `/api/employee-management/teams/:id` endpoint for updating teams
+  - Added DELETE `/api/employee-management/teams/:id` endpoint for deleting teams
+
+### 2025-09-15
 - Fixed runtime error in `frontend/src/components/logistics/LogisticsDashboard.js` by ensuring `useEffect` runs after `fetchDashboardData` and `fetchEvents` callbacks are initialized.
 - Resolved backend crash "Identifier 'dbMethods' has already been declared" by removing the duplicate import in `backend/routes/comprehensive-crud.js`.
 - Persisted authentication session data:

@@ -40,11 +40,19 @@ const CustomerDashboard = () => {
         // Fetch clients associated with this customer
         const clientsResponse = await axios.get(`/api/clients?customer_id=${customerId}`);
         
-        // Fetch active events for this customer's clients
+        // Fetch in-progress and planned events for this customer's clients
         let allEvents = [];
         for (const client of clientsResponse.data) {
-          const eventsResponse = await axios.get(`/api/events?client_id=${client.client_id}&status=active`);
-          allEvents = [...allEvents, ...eventsResponse.data.map(event => ({...event, client_name: client.client_name}))];
+          // Fetch In Progress events
+          const inProgressResponse = await axios.get(`/api/events?client_id=${client.client_id}&status=In Progress`);
+          const inProgressEvents = inProgressResponse.data.map(event => ({...event, client_name: client.client_name}));
+          
+          // Fetch Planned events
+          const plannedResponse = await axios.get(`/api/events?client_id=${client.client_id}&status=Planned`);
+          const plannedEvents = plannedResponse.data.map(event => ({...event, client_name: client.client_name}));
+          
+          // Combine both event types
+          allEvents = [...allEvents, ...inProgressEvents, ...plannedEvents];
         }
         
         // Fetch teams associated with this customer
@@ -170,6 +178,7 @@ const CustomerDashboard = () => {
                     <tr>
                       <th>Event Name</th>
                       <th>Client</th>
+                      <th>Status</th>
                       <th>Date</th>
                       <th>Action</th>
                     </tr>
@@ -180,6 +189,11 @@ const CustomerDashboard = () => {
                         <tr key={event.event_id}>
                           <td>{event.event_name}</td>
                           <td>{event.client_name}</td>
+                          <td>
+                            <span className={`badge ${event.event_status === 'In Progress' ? 'bg-warning' : 'bg-primary'}`}>
+                              {event.event_status}
+                            </span>
+                          </td>
                           <td>{new Date(event.event_date).toLocaleDateString()}</td>
                           <td>
                             <Button 
@@ -194,7 +208,7 @@ const CustomerDashboard = () => {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="4" className="text-center">No active events found</td>
+                        <td colSpan="5" className="text-center">No active events found</td>
                       </tr>
                     )}
                   </tbody>
