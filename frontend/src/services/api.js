@@ -118,62 +118,60 @@ export const authAPI = {
 // User Management API
 export const userAPI = {
   // Get all users with pagination and filtering
-  getUsers: (params) => api.get('/crud/users', { params }),
+  getUsers: (params) => api.get('/comprehensive-crud/users', { params }),
   
   // Get a single user by ID with roles
-  getUser: (id) => api.get(`/crud/users/${id}`),
+  getUser: (id) => api.get(`/comprehensive-crud/users/${id}`),
   
   // Create a new user with role assignments
   createUser: async (userData) => {
     const formattedData = {
-      firstName: userData.firstName,
-      lastName: userData.lastName,
-      email: userData.email,
-      mobileNumber: userData.mobileNumber,
-      password: userData.password,
+      ...userData,
       roles: userData.roles || [],
+      customer_id: userData.customer_id || null,
+      mobile_number: userData.mobile_number || userData.phone,
+      is_active: userData.is_active !== undefined ? userData.is_active : true,
       isActive: userData.isActive !== false // Default to true if not specified
     };
     
-    return api.post('/crud/users', formattedData);
+    return api.post('/comprehensive-crud/users', formattedData);
   },
   
   // Update an existing user
   updateUser: (id, userData) => {
     const formattedData = { ...userData };
-    // Don't update password if it's empty
     if (formattedData.password === '') {
       delete formattedData.password;
     }
-    return api.put(`/crud/users/${id}`, formattedData);
+    return api.put(`/comprehensive-crud/users/${id}`, formattedData);
   },
   
   // Toggle user active status
   toggleUserStatus: (id, isActive) => 
-    api.patch(`/crud/users/${id}`, { isActive }),
+    api.patch(`/comprehensive-crud/users/${id}`, { isActive }),
   
   // Delete a user
-  deleteUser: (id) => api.delete(`/crud/users/${id}`),
+  deleteUser: (id) => api.delete(`/comprehensive-crud/users/${id}`),
   
   // Bulk upload users
-  uploadBulkUsers: (formData) => api.post('/crud/users/bulk', formData, {
+  uploadBulkUsers: (formData) => api.post('/comprehensive-crud/users/bulk', formData, {
     headers: {
       'Content-Type': 'multipart/form-data'
     }
   }),
   // Download user import template
-  downloadUserTemplate: () => api.get('/crud/users/template', {
+  downloadUserTemplate: () => api.get('/comprehensive-crud/users/template', {
     responseType: 'blob'
   }),
 };
 
 // Role Management API
 export const roleAPI = {
-  getRoles: () => api.get('/crud/roles'),
-  getRole: (id) => api.get(`/crud/roles/${id}`),
-  createRole: (roleData) => api.post('/crud/roles', roleData),
-  updateRole: (id, roleData) => api.put(`/crud/roles/${id}`, roleData),
-  deleteRole: (id) => api.delete(`/crud/roles/${id}`),
+  getRoles: () => api.get('/comprehensive-crud/roles'),
+  getRole: (id) => api.get(`/comprehensive-crud/roles/${id}`),
+  createRole: (roleData) => api.post('/comprehensive-crud/roles', roleData),
+  updateRole: (id, roleData) => api.put(`/comprehensive-crud/roles/${id}`, roleData),
+  deleteRole: (id) => api.delete(`/comprehensive-crud/roles/${id}`),
   uploadBulkRoles: (formData, onUploadProgress) => {
     return api.post('/role_management/roles/bulk', formData, {
       headers: {
