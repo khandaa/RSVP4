@@ -19,6 +19,14 @@
   - Added support for 'all' parameter to fetch all subevents across events
   - Included additional venue, room, and guest count information in response
   - Improved error handling and data validation for event schedule requests
+- Fixed RSVP dashboard 404 errors by correcting comprehensive-crud route mounting:
+  - Changed route path from '/api/crud' to '/api/comprehensive-crud' in app.js
+  - Resolved 404 errors for guest-rsvp and other comprehensive-crud endpoints
+  - Ensured frontend API calls match backend route configuration
+- Fixed venue list fetch errors in VenueList component:
+  - Added proper null safety checks for currentUser and customer_id
+  - Improved parameter passing to venue API methods
+  - Enhanced response data handling to ensure venues array is always valid
 - Fixed Client Management page filtering for Customer Admin role:
   - Updated ClientList component to automatically filter clients by the logged-in customer for Customer Admin users
   - Added auto-detection of customer association using current user's email

@@ -38,8 +38,13 @@ const LogisticsReports = () => {
 
   useEffect(() => {
     fetchEvents();
-    generateReports();
-  }, [generateReports, fetchEvents]);
+  }, [fetchEvents]);
+
+  useEffect(() => {
+    if (dateRange.start && dateRange.end) {
+      generateReports();
+    }
+  }, [generateReports, dateRange.start, dateRange.end, selectedEvent]);
 
   const fetchEvents = useCallback(async () => {
     try {
