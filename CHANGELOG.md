@@ -14,6 +14,11 @@
   - Ensures all bulk imported guests are automatically assigned to the correct customer
 - Fixed AuthContext import errors in GuestCreate and GuestImport components by using useAuth hook instead of direct AuthContext import
 - Updated SubeventList component empty state message to display "No sub events" instead of verbose text
+- Fixed event schedule API endpoint in comprehensive-crud.js:
+  - Enhanced endpoint to return consistent data format with { data: [] } structure
+  - Added support for 'all' parameter to fetch all subevents across events
+  - Included additional venue, room, and guest count information in response
+  - Improved error handling and data validation for event schedule requests
 - Fixed Client Management page filtering for Customer Admin role:
   - Updated ClientList component to automatically filter clients by the logged-in customer for Customer Admin users
   - Added auto-detection of customer association using current user's email

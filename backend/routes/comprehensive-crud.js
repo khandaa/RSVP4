@@ -522,13 +522,39 @@ router.get('/event-schedule/:eventId', authenticateToken, async (req, res) => {
   try {
     const db = req.app.locals.db;
     
+    // Handle special case for 'all' to get all subevents
+    if (req.params.eventId === 'all') {
+      const query = `
+        SELECT 
+          s.subevent_id,
+          s.subevent_name,
+          s.subevent_description,
+          s.subevent_start_datetime,
+          s.subevent_end_datetime,
+          s.subevent_status,
+          s.event_id,
+          e.event_name,
+          v.venue_name,
+          r.room_name,
+          s.capacity
+        FROM rsvp_master_subevents s
+        LEFT JOIN rsvp_master_events e ON s.event_id = e.event_id
+        LEFT JOIN venues v ON s.venue_id = v.venue_id
+        LEFT JOIN rooms r ON s.room_id = r.room_id
+        ORDER BY s.subevent_start_datetime
+      `;
+      
+      const allSubevents = await dbMethods.all(db, query, []);
+      return res.json({ data: allSubevents || [] });
+    }
+    
     // First check if event exists
     const event = await dbMethods.get(db, 'SELECT * FROM rsvp_master_events WHERE event_id = ?', [req.params.eventId]);
     if (!event) {
       return res.status(404).json({ error: 'Event not found' });
     }
     
-    // Get subevents for this event (simplified query)
+    // Get subevents for this event with additional details
     const query = `
       SELECT 
         s.subevent_id,
@@ -536,16 +562,27 @@ router.get('/event-schedule/:eventId', authenticateToken, async (req, res) => {
         s.subevent_description,
         s.subevent_start_datetime,
         s.subevent_end_datetime,
-        s.subevent_status
+        s.subevent_status,
+        s.event_id,
+        e.event_name,
+        v.venue_name,
+        r.room_name,
+        s.capacity,
+        COUNT(ga.guest_id) as guest_count
       FROM rsvp_master_subevents s
+      LEFT JOIN rsvp_master_events e ON s.event_id = e.event_id
+      LEFT JOIN venues v ON s.venue_id = v.venue_id
+      LEFT JOIN rooms r ON s.room_id = r.room_id
+      LEFT JOIN guest_allocations ga ON s.subevent_id = ga.subevent_id
       WHERE s.event_id = ?
+      GROUP BY s.subevent_id
       ORDER BY s.subevent_start_datetime
     `;
     
     const schedule = await dbMethods.all(db, query, [req.params.eventId]);
     
-    // Return empty array if no subevents exist yet
-    res.json(schedule || []);
+    // Return data in consistent format
+    res.json({ data: schedule || [] });
   } catch (error) {
     console.error('Error fetching event schedule:', error);
     res.status(500).json({ error: 'Failed to fetch event schedule' });

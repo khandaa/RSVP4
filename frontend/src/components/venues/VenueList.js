@@ -25,15 +25,21 @@ const VenueList = () => {
     try {
       let response;
       if (isAdmin) {
-        response = await venueAPI.getAllVenues(sortField, sortDirection);
-      } else if (isCustomerAdmin) {
-        response = await venueAPI.getCustomerVenues(currentUser.customer_id, sortField, sortDirection);
+        response = await venueAPI.getAllVenues({ sortField, sortDirection });
+      } else if (isCustomerAdmin && currentUser?.customer_id) {
+        response = await venueAPI.getCustomerVenues(currentUser.customer_id, { sortField, sortDirection });
       } else {
         setVenues([]);
         setLoading(false);
         return;
       }
-      setVenues(response.data);
+      
+      // Handle response data structure
+      if (response?.data) {
+        setVenues(Array.isArray(response.data) ? response.data : []);
+      } else {
+        setVenues([]);
+      }
     } catch (error) {
       console.error("Failed to fetch venues:", error);
       toast.error("Failed to load venues. Please try again later.");
