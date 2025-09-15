@@ -23,67 +23,14 @@ import {
 
 export const customerMenuItems = [
   {
-    name: 'Manage Team',
-    submenu: true,
-    icon: <FaUsers />,
-    permission: null,
-    items:[
-      {
-        name: 'Employees',
-        path: '/employees/list',
-        icon: <FaUserFriends />,
-        permission: 'employee_view'
-      },
-      {
-        name: 'Add Employee',
-        path: '/employees/create',
-        icon: <FaUserPlus />,
-        permission: 'employee_create'
-      },
-      {
-        name: 'Teams',
-        path: '/teams/list',
-        icon: <FaUsers />,
-        permission: 'team_view'
-      },
-      {
-        name: 'Create Team',
-        path: '/teams/create',
-        icon: <FaUsersCog />,
-        permission: 'team_create'
-      },
-      {
-        name: 'Departments',
-        path: '/departments/list',
-        icon: <FaBuilding />,
-        permission: 'department_view'
-      },
-      {
-        name: 'Add Department',
-        path: '/departments/create',
-        icon: <FaPlusSquare />,
-        permission: 'department_create'
-      }
-    ]
-  },
-  {
-    name: 'Manage Clients',
+    name: 'Clients',
     icon: <FaAddressCard />,
     permission: null,
     path: '/clients',
   },
-  {
-    name: 'Venue Management',
-    icon: <FaBuilding />,
-    permission: null,
-    path: '/venues/list',
-  },
-  {
-    name: 'Vendor Management',
-    icon: <FaTruck />,
-    permission: null,
-    path: '/vendors/list',
-  },
+
+  
+  
   {
     name: 'Event Management',
     icon: <FaCalendarAlt />,
@@ -159,5 +106,62 @@ export const customerMenuItems = [
         permission: null
       }
     ]
-  }
+  },
+
+  {
+    name: 'My Team',
+    submenu: true,
+    icon: <FaUsers />,
+    permission: null,
+    items:[
+      {
+        name: 'Employees',
+        path: '/employees/list',
+        icon: <FaUserFriends />,
+        permission: 'employee_view'
+      },
+      // {
+      //   name: 'Add Employee',
+      //   path: '/employees/create',
+      //   icon: <FaUserPlus />,
+      //   permission: 'employee_create'
+      // },
+      {
+        name: 'Teams',
+        path: '/teams/list',
+        icon: <FaUsers />,
+        permission: 'team_view'
+      },
+      // {
+      //   name: 'Create Team',
+      //   path: '/teams/create',
+      //   icon: <FaUsersCog />,
+      //   permission: 'team_create'
+      // },
+      {
+        name: 'Departments',
+        path: '/departments/list',
+        icon: <FaBuilding />,
+        permission: 'department_view'
+      },
+      // {
+      //   name: 'Add Department',
+      //   path: '/departments/create',
+      //   icon: <FaPlusSquare />,
+      //   permission: 'department_create'
+      // }
+    ]
+  },
+  {
+    name: 'Venue Management',
+    icon: <FaBuilding />,
+    permission: null,
+    path: '/venues/list',
+  },
+  {
+    name: 'Vendor Management',
+    icon: <FaTruck />,
+    permission: null,
+    path: '/vendors/list',
+  },
 ];

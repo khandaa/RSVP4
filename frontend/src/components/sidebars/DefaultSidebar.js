@@ -11,11 +11,11 @@ export const baseMenuItems = [
     icon: <FaHome />,
     permission: null
   },
-  {
-    name: 'Pricing',
-    path: '/pricing',
-    icon: <FaTag />,
-    permission: null
-  },
+  // {
+  //   name: 'Pricing',
+  //   path: '/pricing',
+  //   icon: <FaTag />,
+  //   permission: null
+  // },
   
 ];
