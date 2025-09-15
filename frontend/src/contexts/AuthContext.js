@@ -36,11 +36,32 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      const stored = localStorage.getItem('currentUser');
+      return stored ? JSON.parse(stored) : null;
+    } catch (_) {
+      return null;
+    }
+  });
   const [token, setToken] = useState(localStorage.getItem('token') || null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [permissions, setPermissions] = useState([]);
-  const [roles, setRoles] = useState([]);
+  const [permissions, setPermissions] = useState(() => {
+    try {
+      const stored = localStorage.getItem('permissions');
+      return stored ? JSON.parse(stored) : [];
+    } catch (_) {
+      return [];
+    }
+  });
+  const [roles, setRoles] = useState(() => {
+    try {
+      const stored = localStorage.getItem('roles');
+      return stored ? JSON.parse(stored) : [];
+    } catch (_) {
+      return [];
+    }
+  });
   const [isLoading, setIsLoading] = useState(true);
   
   const navigate = useNavigate();
@@ -81,18 +102,30 @@ export const AuthProvider = ({ children }) => {
             return;
           }
           
-          // Set user information from token
+          // Set user information from token (fallback if localStorage missing)
           // The JWT token payload structure has user data nested under 'user'
-          setCurrentUser({
-            user_id: decoded.user?.id,
-            email: decoded.user?.email,
-            firstName: decoded.user?.first_name,
-            lastName: decoded.user?.last_name
-          });
+          if (!currentUser) {
+            const decodedUser = {
+              id: decoded.user?.id,
+              email: decoded.user?.email,
+              firstName: decoded.user?.first_name,
+              lastName: decoded.user?.last_name
+            };
+            setCurrentUser(decodedUser);
+            try { localStorage.setItem('currentUser', JSON.stringify(decodedUser)); } catch (_) {}
+          }
           
           // Set permissions and roles - correctly access from decoded.user
-          setPermissions(decoded.user?.permissions || []);
-          setRoles(decoded.user?.roles || []);
+          if (!permissions || permissions.length === 0) {
+            const perms = decoded.user?.permissions || [];
+            setPermissions(perms);
+            try { localStorage.setItem('permissions', JSON.stringify(perms)); } catch (_) {}
+          }
+          if (!roles || roles.length === 0) {
+            const r = decoded.user?.roles || [];
+            setRoles(r);
+            try { localStorage.setItem('roles', JSON.stringify(r)); } catch (_) {}
+          }
           
           // Debug the permissions extraction
           console.log('Token decoded:', decoded);
@@ -132,23 +165,29 @@ export const AuthProvider = ({ children }) => {
       console.log('Decoded token:', decoded);
       
       // Set user info
-      setCurrentUser({
-        user_id: user.user_id,
-        email: user.email,
-        firstName: user.first_name,
-        lastName: user.last_name
-      });
+      const hydratedUser = {
+        id: user.id || decoded.user?.id,
+        email: user.email || decoded.user?.email,
+        firstName: user.first_name || decoded.user?.first_name,
+        lastName: user.last_name || decoded.user?.last_name
+      };
+      setCurrentUser(hydratedUser);
+      try { localStorage.setItem('currentUser', JSON.stringify(hydratedUser)); } catch (_) {}
       
       // Set permissions and roles from the decoded token
       // The JWT token payload structure has user data nested under 'user'
-      const userPermissions = decoded.user?.permissions || [];
-      const userRoles = decoded.user?.roles || [];
+      const userPermissions = user.permissions || decoded.user?.permissions || [];
+      const userRoles = user.roles || decoded.user?.roles || [];
       
       console.log('Setting permissions:', userPermissions);
       console.log('Setting roles:', userRoles);
       
       setPermissions(userPermissions);
       setRoles(userRoles);
+      try {
+        localStorage.setItem('permissions', JSON.stringify(userPermissions));
+        localStorage.setItem('roles', JSON.stringify(userRoles));
+      } catch (_) {}
       
       setIsAuthenticated(true);
       

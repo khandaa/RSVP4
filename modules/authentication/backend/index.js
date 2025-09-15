@@ -190,6 +190,10 @@ router.post('/login', [
         const permissions = userRolesAndPermissions
           .filter(item => item.permission_name)
           .map(item => item.permission_name);
+        // Debug logs for roles and permissions
+        console.log('[Auth] Successful login user:', user.email);
+        console.log('[Auth] Roles:', roles);
+        console.log('[Auth] Permissions:', permissions);
         
         // Create JWT payload
         const payload = {
@@ -321,6 +325,7 @@ router.post('/login', [
         }
         
         console.log('Login successful for user:', user.email);
+        console.log('role for user:', user.role);
         // Use the shared function to process successful login
         processSuccessfulLogin(user, req, res, db, eventBus);
       }

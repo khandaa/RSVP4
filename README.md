@@ -1,3 +1,16 @@
+### Authentication Session Persistence
+
+On successful login, the frontend now immediately stores the authenticated user's profile, roles, and permissions in `localStorage` and in the in-memory auth context.
+
+- Source: `frontend/src/contexts/AuthContext.js`
+- Stored keys: `token`, `currentUser`, `roles`, `permissions`
+- Behavior: Values are rehydrated on app load so components like `frontend/src/components/common/Sidebar.js` can render role/permission-based menus reliably throughout the session.
+
+The backend authentication module now logs helpful debug information upon successful login, including the user's email, roles, and permissions. These logs appear in the server console.
+
+- Source: `modules/authentication/backend/index.js`
+- Debug lines: `[Auth] Successful login user: <email>`, `[Auth] Roles: [...]`, `[Auth] Permissions: [...]`
+
 # EmployDEX Base Platform
 
 A foundational system providing essential user management capabilities, including user registration, authentication, role-based access control, and an administrative dashboard.

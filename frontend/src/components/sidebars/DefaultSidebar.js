@@ -17,4 +17,5 @@ export const baseMenuItems = [
     icon: <FaTag />,
     permission: null
   },
+  
 ];

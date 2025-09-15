@@ -65,6 +65,8 @@ const Sidebar = ({ collapsed }) => {
     const getMenuItems = () => {
       let menuItems = [...baseMenuItems];
 
+      console.log('hasRole:', hasRole);
+
       if (hasRole(['Admin', 'admin', 'full_access'])) {
         menuItems = [...menuItems, ...adminMenuItems, ...customerMenuItems];
       } else if (hasRole(['customer_admin'])) {
