@@ -18,7 +18,7 @@ import {
   FaCalendarAlt,
   FaClipboardList
 } from 'react-icons/fa';
-import { eventAPI, venueAPI } from '../../services/api';
+import { eventAPI, venueAPI, subeventAPI } from '../../services/api';
 
 const SubeventList = () => {
   const [subevents, setSubevents] = useState([]);
@@ -208,16 +208,12 @@ const SubeventList = () => {
 
   const confirmDelete = async () => {
     try {
-      const response = await api.delete(`/comprehensive-crud/subevents/${subeventToDelete.subevent_id}`);
-      if (response.status === 200) {
-        toast.success('Subevent deleted successfully');
-        if (eventId) {
-          await fetchData();
-        } else {
-          await fetchAllSubevents();
-        }
+      await subeventAPI.deleteSubevent(subeventToDelete.subevent_id);
+      toast.success('Subevent deleted successfully');
+      if (eventId) {
+        await fetchData();
       } else {
-        throw new Error('Failed to delete subevent');
+        await fetchAllSubevents();
       }
     } catch (error) {
       console.error('Error deleting subevent:', error);
