@@ -53,7 +53,12 @@ const EventEdit = () => {
       const [eventResponse, clientsResponse, eventTypesResponse] = await Promise.all([
         eventAPI.getEvent(id),
         clientAPI.getClients(),
-        fetch('/api/master-data/event-types').then(res => res.json())
+        fetch('/api/master-data/event-types')
+          .then(res => res.json())
+          .catch(error => {
+            console.error('Error fetching event types:', error);
+            return []; // Return empty array as fallback
+          })
       ]);
       
       const eventData = {
@@ -70,8 +75,11 @@ const EventEdit = () => {
       
       setFormData(eventData);
       setOriginalData(eventData);
-      setClients(clientsResponse.data);
-      setEventTypes(eventTypesResponse);
+      setClients(clientsResponse.data || []);
+      // Ensure eventTypes is always an array
+      const types = Array.isArray(eventTypesResponse) ? eventTypesResponse : 
+                   (eventTypesResponse?.data ? eventTypesResponse.data : []);
+      setEventTypes(types);
 
       // Create mock status history (in real app this would come from API)
       setStatusHistory([

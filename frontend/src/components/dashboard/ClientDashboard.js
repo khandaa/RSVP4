@@ -38,69 +38,82 @@ const ClientDashboard = () => {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
+
+        // For now, fetch all events that the user has access to based on their role
+        // The backend handles filtering based on user permissions
+        const eventsResponse = await axios.get('/api/events');
+        const allEvents = eventsResponse.data || [];
+
+        // Filter for active/planned events only
+        const events = allEvents.filter(event =>
+          event.event_status === 'active' ||
+          event.event_status === 'Planned' ||
+          event.event_status === 'planned'
+        );
         
-        // Get the client ID associated with this admin
-        const userResponse = await axios.get(`/api/users/${currentUser.user_id}`);
-        const userDetails = userResponse.data;
-        
-        // Assuming client_id is stored in user's metadata or can be derived from email domain
-        // This will depend on your implementation - you might need to modify this part
-        const clientEmail = userDetails.email;
-        const clientResponse = await axios.get(`/api/clients?email=${encodeURIComponent(clientEmail)}`);
-        const clientId = clientResponse.data[0]?.client_id;
-        
-        if (!clientId) {
-          console.error('Could not determine client ID for this user');
-          setLoading(false);
-          return;
-        }
-        
-        // Fetch active events for this client
-        const eventsResponse = await axios.get(`/api/events?client_id=${clientId}&status=active`);
-        const events = eventsResponse.data || [];
-        
-        // Fetch all sub-events for these events
+        // Fetch all sub-events
         let allSubEvents = [];
-        for (const event of events) {
-          const subEventsResponse = await axios.get(`/api/events/${event.event_id}/sub-events`);
-          allSubEvents = [...allSubEvents, ...subEventsResponse.data.map(subEvent => ({
-            ...subEvent, 
-            event_name: event.event_name
-          }))];
+        try {
+          const subEventsResponse = await axios.get('/api/comprehensive-crud/rsvp_master_subevents');
+          allSubEvents = subEventsResponse.data.map(subEvent => {
+            const parentEvent = events.find(e => e.event_id === subEvent.event_id);
+            return {
+              ...subEvent,
+              event_name: parentEvent?.event_name || 'Unknown Event'
+            };
+          });
+        } catch (error) {
+          console.warn('Could not fetch sub-events:', error);
         }
         
-        // Fetch all guests for these events
+        // Fetch all guests
         let allGuests = [];
         let rsvpStats = { confirmed: 0, declined: 0, pending: 0, total: 0 };
         let travelStats = { booked: 0, pending: 0, total: 0 };
         let accommodationStats = { booked: 0, pending: 0, total: 0 };
-        
-        for (const event of events) {
-          const guestsResponse = await axios.get(`/api/events/${event.event_id}/guests`);
-          const eventGuests = guestsResponse.data || [];
-          
-          allGuests = [...allGuests, ...eventGuests.map(guest => ({
-            ...guest,
-            event_name: event.event_name
-          }))];
-          
+
+        try {
+          const guestsResponse = await axios.get('/api/comprehensive-crud/rsvp_master_guests');
+          const allGuestsData = guestsResponse.data || [];
+
+          // Filter guests for events that are available to this user
+          allGuests = allGuestsData
+            .filter(guest => events.some(e => e.event_id === guest.event_id))
+            .map(guest => {
+              const event = events.find(e => e.event_id === guest.event_id);
+              return {
+                ...guest,
+                event_name: event?.event_name || 'Unknown Event',
+                guest_name: `${guest.guest_first_name || ''} ${guest.guest_last_name || ''}`.trim()
+              };
+            });
+
           // Calculate RSVP statistics
-          rsvpStats.total += eventGuests.length;
-          rsvpStats.confirmed += eventGuests.filter(g => g.rsvp_status === 'confirmed').length;
-          rsvpStats.declined += eventGuests.filter(g => g.rsvp_status === 'declined').length;
-          rsvpStats.pending += eventGuests.filter(g => g.rsvp_status === 'pending' || !g.rsvp_status).length;
-          
+          rsvpStats.total = allGuests.length;
+          rsvpStats.confirmed = allGuests.filter(g =>
+            g.guest_rsvp_status === 'confirmed' || g.guest_rsvp_status === 'Confirmed'
+          ).length;
+          rsvpStats.declined = allGuests.filter(g =>
+            g.guest_rsvp_status === 'declined' || g.guest_rsvp_status === 'Declined'
+          ).length;
+          rsvpStats.pending = allGuests.filter(g =>
+            g.guest_rsvp_status === 'pending' || g.guest_rsvp_status === 'Pending' || !g.guest_rsvp_status
+          ).length;
+
           // Calculate travel statistics
-          const needTravel = eventGuests.filter(g => g.requires_travel);
-          travelStats.total += needTravel.length;
-          travelStats.booked += needTravel.filter(g => g.travel_status === 'booked').length;
-          travelStats.pending += needTravel.filter(g => g.travel_status !== 'booked').length;
-          
+          const needTravel = allGuests.filter(g => g.requires_travel);
+          travelStats.total = needTravel.length;
+          travelStats.booked = needTravel.filter(g => g.travel_status === 'booked').length;
+          travelStats.pending = needTravel.filter(g => g.travel_status !== 'booked').length;
+
           // Calculate accommodation statistics
-          const needAccommodation = eventGuests.filter(g => g.requires_accommodation);
-          accommodationStats.total += needAccommodation.length;
-          accommodationStats.booked += needAccommodation.filter(g => g.accommodation_status === 'booked').length;
-          accommodationStats.pending += needAccommodation.filter(g => g.accommodation_status !== 'booked').length;
+          const needAccommodation = allGuests.filter(g => g.requires_accommodation);
+          accommodationStats.total = needAccommodation.length;
+          accommodationStats.booked = needAccommodation.filter(g => g.accommodation_status === 'booked').length;
+          accommodationStats.pending = needAccommodation.filter(g => g.accommodation_status !== 'booked').length;
+
+        } catch (error) {
+          console.warn('Could not fetch guests:', error);
         }
         
         setDashboardData({
@@ -168,7 +181,7 @@ const ClientDashboard = () => {
                       dashboardData.events.map((event) => (
                         <tr key={event.event_id}>
                           <td>{event.event_name}</td>
-                          <td>{new Date(event.event_date).toLocaleDateString()}</td>
+                          <td>{event.event_start_date ? new Date(event.event_start_date).toLocaleDateString() : 'Not set'}</td>
                           <td>{dashboardData.guests.filter(g => g.event_id === event.event_id).length}</td>
                           <td>
                             <Button 
@@ -358,31 +371,31 @@ const ClientDashboard = () => {
               <div className="mb-3">
                 <div className="d-flex justify-content-between mb-1">
                   <span>Confirmed</span>
-                  <span>{Math.round((dashboardData.rsvps.confirmed / dashboardData.rsvps.total) * 100)}%</span>
+                  <span>{dashboardData.rsvps.total > 0 ? Math.round((dashboardData.rsvps.confirmed / dashboardData.rsvps.total) * 100) : 0}%</span>
                 </div>
-                <ProgressBar 
-                  variant="success" 
-                  now={(dashboardData.rsvps.confirmed / dashboardData.rsvps.total) * 100} 
+                <ProgressBar
+                  variant="success"
+                  now={dashboardData.rsvps.total > 0 ? (dashboardData.rsvps.confirmed / dashboardData.rsvps.total) * 100 : 0}
                   className="mb-3"
                 />
-                
+
                 <div className="d-flex justify-content-between mb-1">
                   <span>Declined</span>
-                  <span>{Math.round((dashboardData.rsvps.declined / dashboardData.rsvps.total) * 100)}%</span>
+                  <span>{dashboardData.rsvps.total > 0 ? Math.round((dashboardData.rsvps.declined / dashboardData.rsvps.total) * 100) : 0}%</span>
                 </div>
-                <ProgressBar 
-                  variant="danger" 
-                  now={(dashboardData.rsvps.declined / dashboardData.rsvps.total) * 100} 
+                <ProgressBar
+                  variant="danger"
+                  now={dashboardData.rsvps.total > 0 ? (dashboardData.rsvps.declined / dashboardData.rsvps.total) * 100 : 0}
                   className="mb-3"
                 />
-                
+
                 <div className="d-flex justify-content-between mb-1">
                   <span>Pending</span>
-                  <span>{Math.round((dashboardData.rsvps.pending / dashboardData.rsvps.total) * 100)}%</span>
+                  <span>{dashboardData.rsvps.total > 0 ? Math.round((dashboardData.rsvps.pending / dashboardData.rsvps.total) * 100) : 0}%</span>
                 </div>
-                <ProgressBar 
-                  variant="warning" 
-                  now={(dashboardData.rsvps.pending / dashboardData.rsvps.total) * 100} 
+                <ProgressBar
+                  variant="warning"
+                  now={dashboardData.rsvps.total > 0 ? (dashboardData.rsvps.pending / dashboardData.rsvps.total) * 100 : 0}
                 />
               </div>
               
@@ -437,21 +450,21 @@ const ClientDashboard = () => {
                 <div className="mb-3">
                   <div className="d-flex justify-content-between mb-1">
                     <span>Booked</span>
-                    <span>{Math.round((dashboardData.travel.booked / dashboardData.travel.total) * 100)}%</span>
+                    <span>{dashboardData.travel.total > 0 ? Math.round((dashboardData.travel.booked / dashboardData.travel.total) * 100) : 0}%</span>
                   </div>
-                  <ProgressBar 
-                    variant="success" 
-                    now={(dashboardData.travel.booked / dashboardData.travel.total) * 100} 
+                  <ProgressBar
+                    variant="success"
+                    now={dashboardData.travel.total > 0 ? (dashboardData.travel.booked / dashboardData.travel.total) * 100 : 0}
                     className="mb-3"
                   />
-                  
+
                   <div className="d-flex justify-content-between mb-1">
                     <span>Pending</span>
-                    <span>{Math.round((dashboardData.travel.pending / dashboardData.travel.total) * 100)}%</span>
+                    <span>{dashboardData.travel.total > 0 ? Math.round((dashboardData.travel.pending / dashboardData.travel.total) * 100) : 0}%</span>
                   </div>
-                  <ProgressBar 
-                    variant="warning" 
-                    now={(dashboardData.travel.pending / dashboardData.travel.total) * 100} 
+                  <ProgressBar
+                    variant="warning"
+                    now={dashboardData.travel.total > 0 ? (dashboardData.travel.pending / dashboardData.travel.total) * 100 : 0}
                   />
                   
                   <div className="text-center mt-4">
@@ -505,21 +518,21 @@ const ClientDashboard = () => {
                 <div className="mb-3">
                   <div className="d-flex justify-content-between mb-1">
                     <span>Booked</span>
-                    <span>{Math.round((dashboardData.accommodation.booked / dashboardData.accommodation.total) * 100)}%</span>
+                    <span>{dashboardData.accommodation.total > 0 ? Math.round((dashboardData.accommodation.booked / dashboardData.accommodation.total) * 100) : 0}%</span>
                   </div>
-                  <ProgressBar 
-                    variant="success" 
-                    now={(dashboardData.accommodation.booked / dashboardData.accommodation.total) * 100} 
+                  <ProgressBar
+                    variant="success"
+                    now={dashboardData.accommodation.total > 0 ? (dashboardData.accommodation.booked / dashboardData.accommodation.total) * 100 : 0}
                     className="mb-3"
                   />
-                  
+
                   <div className="d-flex justify-content-between mb-1">
                     <span>Pending</span>
-                    <span>{Math.round((dashboardData.accommodation.pending / dashboardData.accommodation.total) * 100)}%</span>
+                    <span>{dashboardData.accommodation.total > 0 ? Math.round((dashboardData.accommodation.pending / dashboardData.accommodation.total) * 100) : 0}%</span>
                   </div>
-                  <ProgressBar 
-                    variant="warning" 
-                    now={(dashboardData.accommodation.pending / dashboardData.accommodation.total) * 100} 
+                  <ProgressBar
+                    variant="warning"
+                    now={dashboardData.accommodation.total > 0 ? (dashboardData.accommodation.pending / dashboardData.accommodation.total) * 100 : 0}
                   />
                   
                   <div className="text-center mt-4">
