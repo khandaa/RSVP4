@@ -358,56 +358,69 @@ export const customerAPI = {
 export const eventAPI = {
   getEvents: async (params = {}) => {
     try {
-      const response = await api.get('/comprehensive-crud/events', { params });
-      return { success: true, data: response.data };
+      const response = await api.get('/events', { params });
+      return { data: response.data || [], success: true };
     } catch (error) {
       console.error('Error fetching events:', error);
-      return { success: false, error: error.response?.data?.error || 'Failed to fetch events' };
+      return { data: [], error: error.response?.data?.error || 'Failed to fetch events', success: false };
     }
   },
   getEvent: async (id) => {
     try {
-      const response = await api.get(`/comprehensive-crud/events/${id}`);
-      return { success: true, data: response.data };
+      const response = await api.get(`/events/${id}`);
+      return { data: response.data, success: true };
     } catch (error) {
-      console.error('Error fetching event:', error);
-      return { success: false, error: error.response?.data?.error || 'Failed to fetch event' };
+      console.error(`Error fetching event ${id}:`, error);
+      return { data: null, error: error.response?.data?.error || 'Failed to fetch event', success: false };
     }
   },
   createEvent: async (eventData) => {
     try {
-      const response = await api.post('/comprehensive-crud/events', eventData);
-      return { success: true, data: response.data };
+      const response = await api.post('/events', eventData);
+      return { data: response.data, success: true };
     } catch (error) {
       console.error('Error creating event:', error);
-      return { success: false, error: error.response?.data?.error || 'Failed to create event' };
+      return {
+        data: null,
+        error: error.response?.data?.error || 'Failed to create event',
+        validationErrors: error.response?.data?.errors,
+        success: false
+      };
     }
   },
   updateEvent: async (id, eventData) => {
     try {
-      const response = await api.put(`/comprehensive-crud/events/${id}`, eventData);
-      return { success: true, data: response.data };
+      const response = await api.put(`/events/${id}`, eventData);
+      return { data: response.data, success: true };
     } catch (error) {
-      console.error('Error updating event:', error);
-      return { success: false, error: error.response?.data?.error || 'Failed to update event' };
+      console.error(`Error updating event ${id}:`, error);
+      return {
+        data: null,
+        error: error.response?.data?.error || 'Failed to update event',
+        validationErrors: error.response?.data?.errors,
+        success: false
+      };
     }
   },
   deleteEvent: async (id) => {
     try {
-      await api.delete(`/comprehensive-crud/events/${id}`);
+      await api.delete(`/events/${id}`);
       return { success: true };
     } catch (error) {
-      console.error('Error deleting event:', error);
-      return { success: false, error: error.response?.data?.error || 'Failed to delete event' };
+      console.error(`Error deleting event ${id}:`, error);
+      return {
+        success: false,
+        error: error.response?.data?.error || 'Failed to delete event'
+      };
     }
   },
   getEventsByClient: async (clientId) => {
     try {
-      const response = await api.get(`/comprehensive-crud/events?client_id=${clientId}`);
-      return { success: true, data: response.data };
+      const response = await api.get(`/clients/${clientId}/events`);
+      return { data: response.data || [], success: true };
     } catch (error) {
-      console.error('Error fetching events by client:', error);
-      return { success: false, error: error.response?.data?.error || 'Failed to fetch events by client' };
+      console.error(`Error fetching events for client ${clientId}:`, error);
+      return { data: [], error: 'Failed to fetch client events', success: false };
     }
   },
   getEventSchedule: async (eventId) => {
@@ -429,11 +442,11 @@ export const eventAPI = {
   },
   getEventStats: async (eventId) => {
     try {
-      const response = await api.get(`/comprehensive-crud/event-stats/${eventId}`);
-      return { success: true, data: response.data };
+      const response = await api.get(`/events/${eventId}/stats`);
+      return { data: response.data, success: true };
     } catch (error) {
-      console.error('Error fetching event stats:', error);
-      return { success: false, error: error.response?.data?.error || 'Failed to fetch event stats' };
+      console.error(`Error fetching stats for event ${eventId}:`, error);
+      return { data: null, error: 'Failed to fetch event statistics', success: false };
     }
   }
 };
@@ -560,6 +573,15 @@ export const logisticsAPI = {
   getScheduleOverview: (date, eventId) => api.get(`/logistics/dashboard/schedule`, {
     params: { date, event_id: eventId }
   })
+};
+
+// Room Management API
+export const roomAPI = {
+  getRooms: (params) => api.get('/comprehensive-crud/rooms', { params }),
+  getRoom: (id) => api.get(`/comprehensive-crud/rooms/${id}`),
+  createRoom: (roomData) => api.post('/comprehensive-crud/rooms', roomData),
+  updateRoom: (id, roomData) => api.put(`/comprehensive-crud/rooms/${id}`, roomData),
+  deleteRoom: (id) => api.delete(`/comprehensive-crud/rooms/${id}`)
 };
 
 // Team and Employee Management API

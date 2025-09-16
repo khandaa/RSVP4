@@ -13,7 +13,7 @@ import {
   FaArrowLeft,
   FaLink
 } from 'react-icons/fa';
-import { eventAPI, subeventAPI } from '../../services/api';
+import { eventAPI, subeventAPI, venueAPI, roomAPI } from '../../services/api';
 
 const SubeventCreate = () => {
   const navigate = useNavigate();
@@ -52,26 +52,20 @@ const SubeventCreate = () => {
   const fetchData = useCallback(async () => {
     try {
       setIsLoadingData(true);
-      const requests = [
-        fetch('/api/venues').then(res => res.json()),
-        fetch('/api/master-data/rooms').then(res => res.json())
-      ];
+      const [venuesResponse, roomsResponse] = await Promise.all([
+        venueAPI.getAllVenues(),
+        roomAPI.getRooms()
+      ]);
+
+      setVenues(Array.isArray(venuesResponse) ? venuesResponse : (venuesResponse?.data || []));
+      setRooms(Array.isArray(roomsResponse) ? roomsResponse : (roomsResponse?.data || []));
 
       if (eventId) {
-        requests.push(eventAPI.getEvent(eventId));
+        const eventResponse = await eventAPI.getEvent(eventId);
+        setParentEvent(eventResponse.data);
       } else {
-        requests.push(eventAPI.getEvents());
-      }
-
-      const responses = await Promise.all(requests);
-      
-      setVenues(responses[0] || []);
-      setRooms(responses[1] || []);
-      
-      if (eventId) {
-        setParentEvent(responses[2].data);
-      } else {
-        setEvents(responses[2].data || []);
+        const eventsResponse = await eventAPI.getEvents();
+        setEvents(eventsResponse.data || []);
       }
     } catch (error) {
       console.error('Error fetching data:', error);

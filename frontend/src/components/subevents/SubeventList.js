@@ -18,7 +18,7 @@ import {
   FaCalendarAlt,
   FaClipboardList
 } from 'react-icons/fa';
-import { eventAPI } from '../../services/api';
+import { eventAPI, venueAPI } from '../../services/api';
 
 const SubeventList = () => {
   const [subevents, setSubevents] = useState([]);
@@ -46,7 +46,7 @@ const SubeventList = () => {
       setIsLoading(true);
       const [subeventResponse, venuesResponse, eventResponse] = await Promise.all([
         eventAPI.getEventSchedule(eventId),
-        fetch('/api/venues').then(res => res.json()),
+        venueAPI.getAllVenues(),
         eventAPI.getEvent(eventId)
       ]);
       
@@ -67,7 +67,7 @@ const SubeventList = () => {
       // Use the API service instead of direct fetch calls
       const [subeventResponse, venuesResponse] = await Promise.all([
         eventAPI.getEventSchedule('all'),
-        fetch('/api/venues').then(res => res.json())
+        venueAPI.getAllVenues()
       ]);
       
       // Ensure we have an array even if the API returns null or undefined
