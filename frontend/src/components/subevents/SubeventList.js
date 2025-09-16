@@ -50,12 +50,18 @@ const SubeventList = () => {
         eventAPI.getEvent(eventId)
       ]);
       
-      setSubevents(subeventResponse.data || []);
-      setVenues(Array.isArray(venuesResponse) ? venuesResponse : (venuesResponse?.data || []));
-      setParentEvent(eventResponse.data);
+      if (subeventResponse.success && eventResponse.success) {
+        setSubevents(subeventResponse.data || []);
+        setVenues(Array.isArray(venuesResponse) ? venuesResponse : (venuesResponse?.data || []));
+        setParentEvent(eventResponse.data);
+      } else {
+        throw new Error(subeventResponse.error || eventResponse.error || 'Failed to fetch event data');
+      }
     } catch (error) {
       console.error('Error fetching subevents:', error);
-      toast.error('Failed to fetch subevents data');
+      toast.error(error.message || 'Failed to fetch subevents data');
+      setSubevents([]);
+      setVenues([]);
     } finally {
       setIsLoading(false);
     }
@@ -64,19 +70,20 @@ const SubeventList = () => {
   const fetchAllSubevents = useCallback(async () => {
     try {
       setIsLoading(true);
-      // Use the API service instead of direct fetch calls
       const [subeventResponse, venuesResponse] = await Promise.all([
         eventAPI.getEventSchedule('all'),
         venueAPI.getAllVenues()
       ]);
       
-      // Ensure we have an array even if the API returns null or undefined
-      setSubevents(subeventResponse?.data || []);
-      setVenues(Array.isArray(venuesResponse) ? venuesResponse : (venuesResponse?.data || []));
+      if (subeventResponse.success) {
+        setSubevents(subeventResponse.data || []);
+        setVenues(Array.isArray(venuesResponse) ? venuesResponse : (venuesResponse?.data || []));
+      } else {
+        throw new Error(subeventResponse.error || 'Failed to fetch subevents');
+      }
     } catch (error) {
       console.error('Error fetching all subevents:', error);
-      toast.error('Failed to fetch subevents data. Using fallback data.');
-      // Provide fallback data in case of API failure
+      toast.error(error.message || 'Failed to fetch subevents data');
       setSubevents([]);
       setVenues([]);
     } finally {
@@ -201,23 +208,23 @@ const SubeventList = () => {
 
   const confirmDelete = async () => {
     try {
-      await fetch(`/api/crud/event-schedule/${subeventToDelete.subevent_id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+      const response = await api.delete(`/comprehensive-crud/subevents/${subeventToDelete.subevent_id}`);
+      if (response.status === 200) {
+        toast.success('Subevent deleted successfully');
+        if (eventId) {
+          await fetchData();
+        } else {
+          await fetchAllSubevents();
         }
-      });
-      toast.success('Subevent deleted successfully');
-      if (eventId) {
-        fetchData();
       } else {
-        fetchAllSubevents();
+        throw new Error('Failed to delete subevent');
       }
-      setShowDeleteModal(false);
-      setSubeventToDelete(null);
     } catch (error) {
       console.error('Error deleting subevent:', error);
-      toast.error('Failed to delete subevent');
+      toast.error(error.response?.data?.error || 'Failed to delete subevent');
+    } finally {
+      setShowDeleteModal(false);
+      setSubeventToDelete(null);
     }
   };
 

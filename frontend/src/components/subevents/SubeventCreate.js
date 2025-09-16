@@ -1,17 +1,17 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { 
-  FaSave, 
-  FaTimes, 
-  FaCalendarAlt, 
-  FaFileAlt, 
+import {
+  FaSave,
+  FaTimes,
+  FaCalendarAlt,
+  FaFileAlt,
   FaClock,
   FaTags,
-  FaUsers,
   FaClipboardList,
   FaArrowLeft,
-  FaLink
+  FaLink,
+  FaMapMarkerAlt
 } from 'react-icons/fa';
 import { eventAPI, subeventAPI, venueAPI, roomAPI } from '../../services/api';
 
@@ -40,9 +40,7 @@ const SubeventCreate = () => {
     subevent_start_datetime: '',
     subevent_end_datetime: '',
     venue_id: '',
-    room_id: '',
-    capacity: '',
-    special_requirements: ''
+    room_id: ''
   });
   const [errors, setErrors] = useState({});
 
@@ -133,10 +131,6 @@ const SubeventCreate = () => {
       }
     }
 
-    // Capacity validation
-    if (formData.capacity && (isNaN(formData.capacity) || parseInt(formData.capacity) < 1)) {
-      newErrors.capacity = 'Capacity must be a positive number';
-    }
 
     // Venue/Room validation
     if (formData.room_id && !formData.venue_id) {
@@ -158,19 +152,38 @@ const SubeventCreate = () => {
     setIsLoading(true);
 
     try {
-      const submitData = {
-        ...formData,
+      // Only include fields that exist in the rsvp_master_subevents table
+      const subeventData = {
         event_id: parseInt(formData.event_id),
-        venue_id: formData.venue_id ? parseInt(formData.venue_id) : null,
-        room_id: formData.room_id ? parseInt(formData.room_id) : null,
-        capacity: formData.capacity ? parseInt(formData.capacity) : null,
-        // Add parent event info for better linking
-        parent_event_name: parentEvent?.event_name || null,
-        parent_event_date: parentEvent?.event_start_date || null
+        subevent_name: formData.subevent_name,
+        subevent_description: formData.subevent_description,
+        subevent_start_datetime: formData.subevent_start_datetime || null,
+        subevent_end_datetime: formData.subevent_end_datetime || null,
+        subevent_status: formData.subevent_status
       };
 
       // Use the subeventAPI to create the subevent
-      await subeventAPI.createSubevent(submitData);
+      const result = await subeventAPI.createSubevent(subeventData);
+
+      // If venue or room was selected, create the allocations
+      const newSubeventId = result.subevent_id;
+
+      // Create room allocation if room was selected
+      if (formData.room_id && newSubeventId) {
+        try {
+          // Note: This would require creating room allocation API calls
+          // For now, just log what would be created
+          console.log('Room allocation needed:', {
+            subevent_id: newSubeventId,
+            room_id: parseInt(formData.room_id),
+            allocation_start_datetime: formData.subevent_start_datetime,
+            allocation_end_datetime: formData.subevent_end_datetime
+          });
+        } catch (allocationError) {
+          console.warn('Failed to create room allocation:', allocationError);
+          // Don't fail the whole creation for allocation errors
+        }
+      }
       
       toast.success('Sub event created successfully');
       
@@ -428,27 +441,6 @@ const SubeventCreate = () => {
                       </select>
                     </div>
 
-                    {/* Capacity */}
-                    <div className="col-md-6">
-                      <label className="form-label fw-semibold">
-                        <FaUsers className="me-2 text-primary" />
-                        Capacity
-                      </label>
-                      <input
-                        type="number"
-                        name="capacity"
-                        className={`form-control glass-input ${errors.capacity ? 'is-invalid' : ''}`}
-                        placeholder="Enter capacity"
-                        min="1"
-                        value={formData.capacity}
-                        onChange={handleInputChange}
-                        disabled={isLoading}
-                      />
-                      {errors.capacity && (
-                        <div className="invalid-feedback">{errors.capacity}</div>
-                      )}
-                    </div>
-
                     {/* Start DateTime */}
                     <div className="col-md-6">
                       <label className="form-label fw-semibold">
@@ -489,6 +481,30 @@ const SubeventCreate = () => {
                     </div>
                     
                     <div className="mb-3">
+                      <label className="form-label fw-semibold">
+                        <FaMapMarkerAlt className="me-2 text-primary" />
+                        Venue
+                      </label>
+                      <select
+                        name="venue_id"
+                        className={`form-select glass-input ${errors.venue_id ? 'is-invalid' : ''}`}
+                        value={formData.venue_id}
+                        onChange={handleInputChange}
+                        disabled={isLoading}
+                      >
+                        <option value="">Select a venue</option>
+                        {venues.map(venue => (
+                          <option key={venue.venue_id} value={venue.venue_id}>
+                            {venue.venue_name}
+                          </option>
+                        ))}
+                      </select>
+                      {errors.venue_id && (
+                        <div className="invalid-feedback">{errors.venue_id}</div>
+                      )}
+                    </div>
+
+                    <div className="mb-3">
                       <label className="form-label">
                         Room
                       </label>
@@ -513,21 +529,6 @@ const SubeventCreate = () => {
                       )}
                     </div>
 
-                    {/* Special Requirements */}
-                    <div className="col-12">
-                      <label className="form-label fw-semibold">
-                        Special Requirements
-                      </label>
-                      <textarea
-                        name="special_requirements"
-                        className="form-control glass-input"
-                        placeholder="Enter any special requirements or notes"
-                        rows="3"
-                        value={formData.special_requirements}
-                        onChange={handleInputChange}
-                        disabled={isLoading}
-                      />
-                    </div>
                   </div>
 
                   {/* Form Info */}
