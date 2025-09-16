@@ -51,7 +51,7 @@ const SubeventList = () => {
       ]);
       
       setSubevents(subeventResponse.data || []);
-      setVenues(venuesResponse || []);
+      setVenues(Array.isArray(venuesResponse) ? venuesResponse : (venuesResponse?.data || []));
       setParentEvent(eventResponse.data);
     } catch (error) {
       console.error('Error fetching subevents:', error);
@@ -72,12 +72,13 @@ const SubeventList = () => {
       
       // Ensure we have an array even if the API returns null or undefined
       setSubevents(subeventResponse?.data || []);
-      setVenues(venuesResponse || []);
+      setVenues(Array.isArray(venuesResponse) ? venuesResponse : (venuesResponse?.data || []));
     } catch (error) {
       console.error('Error fetching all subevents:', error);
       toast.error('Failed to fetch subevents data. Using fallback data.');
       // Provide fallback data in case of API failure
       setSubevents([]);
+      setVenues([]);
     } finally {
       setIsLoading(false);
     }
@@ -398,7 +399,7 @@ const SubeventList = () => {
                   onChange={(e) => setVenueFilter(e.target.value)}
                 >
                   <option value="all">All Venues</option>
-                  {venues.map(venue => (
+                  {Array.isArray(venues) && venues.map(venue => (
                     <option key={venue.venue_id} value={venue.venue_id}>
                       {venue.venue_name}
                     </option>

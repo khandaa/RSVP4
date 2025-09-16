@@ -375,7 +375,11 @@ const EventList = () => {
     }
 
     setFilteredEvents(filtered);
-  };
+  } catch (error) {
+    console.error('Error filtering and sorting events:', error);
+    setFilteredEvents([]);
+  }
+};
 
   const handleSort = (key) => {
     try {

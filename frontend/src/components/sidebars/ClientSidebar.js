@@ -8,8 +8,7 @@ import {
   FaBed,
   FaCar,
   FaList,
-  FaChartLine,
-  FaUserFriends
+  FaChartLine
 } from 'react-icons/fa';
 
 export const clientMenuItems = [

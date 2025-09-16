@@ -75,52 +75,6 @@ const TravelManagement = () => {
 
   const statusOptions = ['Booked', 'Confirmed', 'In Transit', 'Arrived', 'Cancelled', 'Delayed'];
 
-  // const filterAndSortRecords = useCallback(() => {
-  //   let filtered = [...travelRecords];
-
-  //   // Apply search filter
-  //   if (searchTerm) {
-  //     filtered = filtered.filter(record =>
-  //       (record.guest_name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-  //       (record.departure_location?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-  //       (record.arrival_location?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-  //       (record.carrier_name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-  //       (record.travel_reference?.toLowerCase() || '').includes(searchTerm.toLowerCase())
-  //     );
-  //   }
-
-  //   // Apply filters
-  //   if (travelModeFilter !== 'all') {
-  //     filtered = filtered.filter(record => record.travel_mode === travelModeFilter);
-  //   }
-
-  //   if (statusFilter !== 'all') {
-  //     filtered = filtered.filter(record => record.travel_status === statusFilter);
-  //   }
-
-  //   if (selectedEventFilter !== 'all') {
-  //     filtered = filtered.filter(record => record.event_id === parseInt(selectedEventFilter));
-  //   }
-
-  //   // Apply sorting
-  //   if (sortConfig.key) {
-  //     filtered.sort((a, b) => {
-  //       const aValue = a[sortConfig.key] || '';
-  //       const bValue = b[sortConfig.key] || '';
-
-  //       if (aValue < bValue) {
-  //         return sortConfig.direction === 'asc' ? -1 : 1;
-  //       }
-  //       if (aValue > bValue) {
-  //         return sortConfig.direction === 'asc' ? 1 : -1;
-  //       }
-  //       return 0;
-  //     });
-  //   }
-
-  //   setFilteredRecords(filtered);
-  // }, [travelRecords, searchTerm, sortConfig, travelModeFilter, statusFilter, selectedEventFilter]);
-
   const fetchData = useCallback(async () => {
     try {
       setIsLoading(true);
