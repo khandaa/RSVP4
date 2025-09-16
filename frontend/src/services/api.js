@@ -584,6 +584,30 @@ export const roomAPI = {
   deleteRoom: (id) => api.delete(`/comprehensive-crud/rooms/${id}`)
 };
 
+// Guest Management API
+export const guestAPI = {
+  getGuests: (params) => api.get('/guests', { params }),
+  getGuest: (id) => api.get(`/guests/${id}`),
+  createGuest: (guestData) => api.post('/guests', guestData),
+  updateGuest: (id, guestData) => api.put(`/guests/${id}`, guestData),
+  deleteGuest: (id) => api.delete(`/guests/${id}`),
+  getGuestsByEvent: (eventId) => api.get(`/guests/event/${eventId}`),
+  uploadBulkGuests: (formData) => api.post('/guests/bulk', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
+};
+
+// Guest Groups API
+export const guestGroupAPI = {
+  getGuestGroups: (params) => api.get('/comprehensive-crud/guest-groups', { params }),
+  getGuestGroup: (id) => api.get(`/comprehensive-crud/guest-groups/${id}`),
+  createGuestGroup: (groupData) => api.post('/comprehensive-crud/guest-groups', groupData),
+  updateGuestGroup: (id, groupData) => api.put(`/comprehensive-crud/guest-groups/${id}`, groupData),
+  deleteGuestGroup: (id) => api.delete(`/comprehensive-crud/guest-groups/${id}`)
+};
+
 // Team and Employee Management API
 export const teamAPI = {
   getTeams: (params) => api.get('/employee-management/teams', { params }),

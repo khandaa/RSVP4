@@ -72,7 +72,13 @@ const createCRUDRoutes = (tableName, primaryKey, requiredFields = [], joins = []
       res.status(201).json(newRecord);
     } catch (error) {
       console.error(`Error creating ${tableName} record:`, error);
-      res.status(500).json({ error: `Failed to create ${tableName} record` });
+      console.error(`Query was: INSERT INTO ${tableName} (${Object.keys(req.body).filter(key => key !== primaryKey).join(', ')}) VALUES (${Object.keys(req.body).filter(key => key !== primaryKey).map(() => '?').join(', ')})`);
+      console.error(`Values were:`, Object.keys(req.body).filter(key => key !== primaryKey).map(field => req.body[field]));
+      res.status(500).json({
+        error: `Failed to create ${tableName} record`,
+        details: error.message,
+        sql_error: error.code
+      });
     }
   });
 
@@ -531,7 +537,7 @@ router.get('/event-schedule/:eventId', authenticateToken, async (req, res) => {
     // Handle special case for 'all' to get all subevents
     if (req.params.eventId === 'all') {
       const query = `
-        SELECT 
+        SELECT
           s.subevent_id,
           s.subevent_name,
           s.subevent_description,
@@ -542,11 +548,12 @@ router.get('/event-schedule/:eventId', authenticateToken, async (req, res) => {
           e.event_name,
           v.venue_name,
           r.room_name,
-          s.capacity
+          r.capacity
         FROM rsvp_master_subevents s
         LEFT JOIN rsvp_master_events e ON s.event_id = e.event_id
-        LEFT JOIN venues v ON s.venue_id = v.venue_id
-        LEFT JOIN rooms r ON s.room_id = r.room_id
+        LEFT JOIN rsvp_event_room_allocation era ON s.subevent_id = era.subevent_id
+        LEFT JOIN rsvp_master_rooms r ON era.room_id = r.room_id
+        LEFT JOIN rsvp_master_venues v ON r.venue_id = v.venue_id
         ORDER BY s.subevent_start_datetime
       `;
       
@@ -562,7 +569,7 @@ router.get('/event-schedule/:eventId', authenticateToken, async (req, res) => {
     
     // Get subevents for this event with additional details
     const query = `
-      SELECT 
+      SELECT
         s.subevent_id,
         s.subevent_name,
         s.subevent_description,
@@ -573,13 +580,14 @@ router.get('/event-schedule/:eventId', authenticateToken, async (req, res) => {
         e.event_name,
         v.venue_name,
         r.room_name,
-        s.capacity,
-        COUNT(ga.guest_id) as guest_count
+        r.capacity,
+        COUNT(gea.guest_id) as guest_count
       FROM rsvp_master_subevents s
       LEFT JOIN rsvp_master_events e ON s.event_id = e.event_id
-      LEFT JOIN venues v ON s.venue_id = v.venue_id
-      LEFT JOIN rooms r ON s.room_id = r.room_id
-      LEFT JOIN guest_allocations ga ON s.subevent_id = ga.subevent_id
+      LEFT JOIN rsvp_event_room_allocation era ON s.subevent_id = era.subevent_id
+      LEFT JOIN rsvp_master_rooms r ON era.room_id = r.room_id
+      LEFT JOIN rsvp_master_venues v ON r.venue_id = v.venue_id
+      LEFT JOIN rsvp_guest_event_allocation gea ON s.subevent_id = gea.subevent_id
       WHERE s.event_id = ?
       GROUP BY s.subevent_id
       ORDER BY s.subevent_start_datetime

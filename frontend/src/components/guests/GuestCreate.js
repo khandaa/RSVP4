@@ -15,6 +15,7 @@ import {
   FaArrowLeft,
   FaInfoCircle
 } from 'react-icons/fa';
+import { guestGroupAPI, eventAPI, customerAPI, guestAPI } from '../../services/api';
 
 const GuestCreate = () => {
   const navigate = useNavigate();
@@ -75,23 +76,14 @@ const GuestCreate = () => {
 
   const createDefaultGuestGroup = async (clientId) => {
     try {
-      const response = await fetch('/api/comprehensive-crud/guest-groups', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({
-          client_id: clientId,
-          group_name: 'Default Group',
-          group_description: 'Default guest group for all guests'
-        })
-      });
+      const groupData = {
+        client_id: clientId,
+        group_name: 'Default Group',
+        group_description: 'Default guest group for all guests'
+      };
 
-      if (response.ok) {
-        return await response.json();
-      }
-      return null;
+      const result = await guestGroupAPI.createGuestGroup(groupData);
+      return result;
     } catch (error) {
       console.error('Error creating default guest group:', error);
       return null;
@@ -102,36 +94,18 @@ const GuestCreate = () => {
     try {
       setIsLoadingData(true);
       const [eventsResponse, customersResponse, groupsResponse] = await Promise.all([
-        fetch('/api/events', {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-        }).then(res => res.json()),
-        fetch('/api/customers', {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-        }).then(res => res.json()),
-        fetch('/api/comprehensive-crud/guest-groups', {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-        }).then(res => res.json()).catch(() => [])
+        eventAPI.getEvents(),
+        customerAPI.getCustomers(),
+        guestGroupAPI.getGuestGroups().catch(() => ({ data: [] }))
       ]);
       
       setEvents(eventsResponse.data || eventsResponse || []);
       setCustomers(customersResponse.data || customersResponse || []);
 
-      let finalGuestGroups = groupsResponse || [];
+      let finalGuestGroups = groupsResponse.data || groupsResponse || [];
 
-      // If no guest groups exist and we have events, create a default group
-      if (finalGuestGroups.length === 0 && (eventsResponse.data || eventsResponse || []).length > 0) {
-        const events = eventsResponse.data || eventsResponse || [];
-
-        // Try to create a default group for each client that has events
-        const clientIds = [...new Set(events.map(event => event.client_id).filter(id => id))];
-
-        for (const clientId of clientIds) {
-          const defaultGroup = await createDefaultGuestGroup(clientId);
-          if (defaultGroup) {
-            finalGuestGroups.push(defaultGroup);
-          }
-        }
-      }
+      // Guest groups are optional - load them if they exist
+      // Don't automatically create guest groups to avoid foreign key issues
 
       setGuestGroups(finalGuestGroups);
 
@@ -220,75 +194,23 @@ const GuestCreate = () => {
       setIsLoading(true);
 
       try {
-        // Format and validate all fields before submission
-        let defaultGroupId = null;
-
-        // If no guest group is selected, find or create a default group
-        if (!formData.guest_group_id && formData.event_id) {
-          const selectedEvent = events.find(event => event.event_id === parseInt(formData.event_id));
-          if (selectedEvent && selectedEvent.client_id) {
-            // Look for an existing default group for this client
-            let defaultGroup = guestGroups.find(group =>
-              group.client_id === selectedEvent.client_id &&
-              group.group_name === 'Default Group'
-            );
-
-            // If no default group exists, create one
-            if (!defaultGroup) {
-              defaultGroup = await createDefaultGuestGroup(selectedEvent.client_id);
-              if (defaultGroup) {
-                setGuestGroups(prev => [...prev, defaultGroup]);
-              }
-            }
-
-            if (defaultGroup) {
-              defaultGroupId = defaultGroup.guest_group_id;
-            }
-          }
-        }
+        // Guest groups are managed separately from individual guests
 
         const selectedEvent = events.find(event => event.event_id === parseInt(formData.event_id));
 
+        // Only send fields that exist in the database table
         const submitData = {
-          ...formData,
-          // Trim all string fields
+          client_id: selectedEvent?.client_id || null,
+          event_id: parseInt(formData.event_id),
+          subevent_id: formData.subevent_id ? parseInt(formData.subevent_id) : null,
           guest_first_name: formData.guest_first_name?.trim() || '',
           guest_last_name: formData.guest_last_name?.trim() || '',
           guest_email: formData.guest_email?.trim() || null,
           guest_phone: formData.guest_phone?.trim() || null,
-          guest_address: formData.guest_address?.trim() || null,
-          guest_city: formData.guest_city?.trim() || null,
-          guest_country: formData.guest_country?.trim() || null,
-          guest_dietary_preferences: formData.guest_dietary_preferences?.trim() || null,
-          guest_special_requirements: formData.guest_special_requirements?.trim() || null,
-          guest_notes: formData.guest_notes?.trim() || null,
-          // Parse IDs
-          client_id: selectedEvent?.client_id || null,
-          customer_id: formData.customer_id ? parseInt(formData.customer_id) : null,
-          event_id: parseInt(formData.event_id),
-          guest_group_id: formData.guest_group_id ? parseInt(formData.guest_group_id) : defaultGroupId,
-          // Ensure required fields
-          guest_type: formData.guest_type || 'Bride\'s Family',
-          guest_rsvp_status: formData.guest_rsvp_status || 'Pending'
+          guest_status: formData.guest_status || 'Active'
         };
 
-        const response = await fetch('/api/guests', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          },
-          body: JSON.stringify(submitData)
-        });
-
-        const responseData = await response.json();
-        
-        if (!response.ok) {
-          // If the response is not ok, we'll throw an error with the response data
-          const error = new Error(responseData.message || 'Failed to create guest');
-          error.response = { data: responseData };
-          throw error;
-        }
+        const result = await guestAPI.createGuest(submitData);
 
         toast.success('Guest created successfully');
         
