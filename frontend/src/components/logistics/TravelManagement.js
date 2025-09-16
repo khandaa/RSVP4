@@ -75,18 +75,56 @@ const TravelManagement = () => {
 
   const statusOptions = ['Booked', 'Confirmed', 'In Transit', 'Arrived', 'Cancelled', 'Delayed'];
 
-  useEffect(() => {
-    fetchData();
-  }, [eventId, guestId, fetchData]);
+  // const filterAndSortRecords = useCallback(() => {
+  //   let filtered = [...travelRecords];
 
-  useEffect(() => {
-    filterAndSortRecords();
-  }, [travelRecords, searchTerm, sortConfig, travelModeFilter, statusFilter, selectedEventFilter, filterAndSortRecords]);
+  //   // Apply search filter
+  //   if (searchTerm) {
+  //     filtered = filtered.filter(record =>
+  //       (record.guest_name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+  //       (record.departure_location?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+  //       (record.arrival_location?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+  //       (record.carrier_name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+  //       (record.travel_reference?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+  //     );
+  //   }
+
+  //   // Apply filters
+  //   if (travelModeFilter !== 'all') {
+  //     filtered = filtered.filter(record => record.travel_mode === travelModeFilter);
+  //   }
+
+  //   if (statusFilter !== 'all') {
+  //     filtered = filtered.filter(record => record.travel_status === statusFilter);
+  //   }
+
+  //   if (selectedEventFilter !== 'all') {
+  //     filtered = filtered.filter(record => record.event_id === parseInt(selectedEventFilter));
+  //   }
+
+  //   // Apply sorting
+  //   if (sortConfig.key) {
+  //     filtered.sort((a, b) => {
+  //       const aValue = a[sortConfig.key] || '';
+  //       const bValue = b[sortConfig.key] || '';
+
+  //       if (aValue < bValue) {
+  //         return sortConfig.direction === 'asc' ? -1 : 1;
+  //       }
+  //       if (aValue > bValue) {
+  //         return sortConfig.direction === 'asc' ? 1 : -1;
+  //       }
+  //       return 0;
+  //     });
+  //   }
+
+  //   setFilteredRecords(filtered);
+  // }, [travelRecords, searchTerm, sortConfig, travelModeFilter, statusFilter, selectedEventFilter]);
 
   const fetchData = useCallback(async () => {
     try {
       setIsLoading(true);
-      let travelUrl = '/api/crud/guest-travel-info';
+      let travelUrl = '/api/comprehensive-crud/guest-travel-info';
       
       const params = new URLSearchParams();
       if (eventId) params.append('event_id', eventId);
@@ -97,10 +135,10 @@ const TravelManagement = () => {
         fetch(travelUrl, {
           headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         }).then(res => res.json()),
-        fetch('/api/guests', {
+        fetch('/guests', {
           headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         }).then(res => res.json()),
-        fetch('/api/events', {
+        fetch('/events', {
           headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         }).then(res => res.json())
       ]);
@@ -116,17 +154,22 @@ const TravelManagement = () => {
     }
   }, [eventId, guestId]);
 
+  // Initialize data and set up effect for filtering/sorting
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
   const filterAndSortRecords = useCallback(() => {
     let filtered = [...travelRecords];
 
     // Apply search filter
     if (searchTerm) {
       filtered = filtered.filter(record =>
-        record.guest_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.departure_location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.arrival_location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.carrier_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.travel_reference?.toLowerCase().includes(searchTerm.toLowerCase())
+        (record.guest_name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+        (record.departure_location?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+        (record.arrival_location?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+        (record.carrier_name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+        (record.travel_reference?.toLowerCase() || '').includes(searchTerm.toLowerCase())
       );
     }
 
@@ -170,6 +213,11 @@ const TravelManagement = () => {
 
     setFilteredRecords(filtered);
   }, [travelRecords, searchTerm, sortConfig, travelModeFilter, statusFilter, selectedEventFilter]);
+
+  // Update filtered records when dependencies change
+  useEffect(() => {
+    filterAndSortRecords();
+  }, [filterAndSortRecords]);
 
   const handleSort = (key) => {
     let direction = 'asc';
@@ -297,8 +345,8 @@ const TravelManagement = () => {
       };
 
       const url = isEdit 
-        ? `/api/crud/guest-travel-info/${selectedRecord.travel_id}`
-        : '/api/crud/guest-travel-info';
+        ? `/api/comprehensive-crud/guest-travel/${selectedRecord.travel_id}`
+        : '/api/comprehensive-crud/guest-travel';
       
       const method = isEdit ? 'PUT' : 'POST';
 
@@ -330,7 +378,7 @@ const TravelManagement = () => {
 
   const confirmDelete = async () => {
     try {
-      const response = await fetch(`/api/crud/guest-travel-info/${selectedRecord.travel_id}`, {
+      const response = await fetch(`/api/comprehensive-crud/guest-travel/${selectedRecord.travel_id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
