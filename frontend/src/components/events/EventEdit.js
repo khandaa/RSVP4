@@ -13,6 +13,7 @@ import {
   FaExclamationTriangle
 } from 'react-icons/fa';
 import { eventAPI, clientAPI } from '../../services/api';
+import masterDataAPI from '../../services/masterDataAPI';
 
 const EventEdit = () => {
   const { id } = useParams();
@@ -53,12 +54,10 @@ const EventEdit = () => {
       const [eventResponse, clientsResponse, eventTypesResponse] = await Promise.all([
         eventAPI.getEvent(id),
         clientAPI.getClients(),
-        fetch('/api/master-data/event-types')
-          .then(res => res.json())
-          .catch(error => {
-            console.error('Error fetching event types:', error);
-            return []; // Return empty array as fallback
-          })
+        masterDataAPI.getEventTypes().catch(error => {
+          console.error('Error fetching event types:', error);
+          return []; // Return empty array as fallback
+        })
       ]);
       
       const eventData = {

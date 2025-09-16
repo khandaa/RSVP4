@@ -92,7 +92,12 @@ router.post('/', [
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { client_id, event_id, subevent_id, guest_first_name, guest_last_name, guest_email, guest_phone, guest_status } = req.body;
+    const {
+      client_id, event_id, subevent_id, guest_first_name, guest_last_name,
+      guest_email, guest_phone, guest_status, guest_group_id,
+      guest_type, guest_rsvp_status, guest_address, guest_city, guest_country,
+      guest_dietary_preferences, guest_special_requirements, guest_notes
+    } = req.body;
     const db = req.app.locals.db;
 
     // Check if client and event exist
@@ -106,19 +111,30 @@ router.post('/', [
       return res.status(400).json({ error: 'Event not found' });
     }
 
-    const result = await dbMethods.run(db, 
+    // Create the guest record first
+    const result = await dbMethods.run(db,
       'INSERT INTO rsvp_master_guests (client_id, event_id, subevent_id, guest_first_name, guest_last_name, guest_email, guest_phone, guest_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
       [client_id, event_id, subevent_id, guest_first_name, guest_last_name, guest_email, guest_phone, guest_status || 'Active']
     );
 
-    const newGuest = await dbMethods.get(db, 
-      `SELECT g.*, c.client_name, e.event_name, s.subevent_name 
-       FROM rsvp_master_guests g 
-       LEFT JOIN rsvp_master_clients c ON g.client_id = c.client_id 
-       LEFT JOIN rsvp_master_events e ON g.event_id = e.event_id 
-       LEFT JOIN rsvp_master_subevents s ON g.subevent_id = s.subevent_id 
-       WHERE g.guest_id = ?`, 
-      [result.lastID]
+    const guestId = result.lastID;
+
+    // If guest_group_id is provided, create the relationship
+    if (guest_group_id) {
+      await dbMethods.run(db,
+        'INSERT INTO rsvp_guest_group_details (guest_group_id, guest_id, group_notes) VALUES (?, ?, ?)',
+        [guest_group_id, guestId, `Auto-assigned to group on ${new Date().toISOString()}`]
+      );
+    }
+
+    const newGuest = await dbMethods.get(db,
+      `SELECT g.*, c.client_name, e.event_name, s.subevent_name
+       FROM rsvp_master_guests g
+       LEFT JOIN rsvp_master_clients c ON g.client_id = c.client_id
+       LEFT JOIN rsvp_master_events e ON g.event_id = e.event_id
+       LEFT JOIN rsvp_master_subevents s ON g.subevent_id = s.subevent_id
+       WHERE g.guest_id = ?`,
+      [guestId]
     );
     res.status(201).json(newGuest);
   } catch (error) {

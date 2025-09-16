@@ -73,6 +73,31 @@ const GuestCreate = () => {
     fetchData();
   }, []);
 
+  const createDefaultGuestGroup = async (clientId) => {
+    try {
+      const response = await fetch('/api/comprehensive-crud/guest-groups', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          client_id: clientId,
+          group_name: 'Default Group',
+          group_description: 'Default guest group for all guests'
+        })
+      });
+
+      if (response.ok) {
+        return await response.json();
+      }
+      return null;
+    } catch (error) {
+      console.error('Error creating default guest group:', error);
+      return null;
+    }
+  };
+
   const fetchData = async () => {
     try {
       setIsLoadingData(true);
@@ -83,15 +108,33 @@ const GuestCreate = () => {
         fetch('/api/customers', {
           headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         }).then(res => res.json()),
-        fetch('/api/crud/guest-groups', {
+        fetch('/api/comprehensive-crud/guest-groups', {
           headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         }).then(res => res.json()).catch(() => [])
       ]);
       
       setEvents(eventsResponse.data || eventsResponse || []);
       setCustomers(customersResponse.data || customersResponse || []);
-      setGuestGroups(groupsResponse || []);
-      
+
+      let finalGuestGroups = groupsResponse || [];
+
+      // If no guest groups exist and we have events, create a default group
+      if (finalGuestGroups.length === 0 && (eventsResponse.data || eventsResponse || []).length > 0) {
+        const events = eventsResponse.data || eventsResponse || [];
+
+        // Try to create a default group for each client that has events
+        const clientIds = [...new Set(events.map(event => event.client_id).filter(id => id))];
+
+        for (const clientId of clientIds) {
+          const defaultGroup = await createDefaultGuestGroup(clientId);
+          if (defaultGroup) {
+            finalGuestGroups.push(defaultGroup);
+          }
+        }
+      }
+
+      setGuestGroups(finalGuestGroups);
+
       // Auto-select customer for Customer Admin or Client Admin users
       if (currentUser && (hasRole('Customer Admin') || hasRole('Client Admin'))) {
         // Find customer by matching current user's email
@@ -133,12 +176,12 @@ const GuestCreate = () => {
   const validateForm = () => {
     const newErrors = {};
 
-    // Required field validation
-    if (!formData.guest_first_name.trim()) {
+    // Required fields validation
+    if (!formData.guest_first_name?.trim()) {
       newErrors.guest_first_name = 'First name is required';
     }
 
-    if (!formData.guest_last_name.trim()) {
+    if (!formData.guest_last_name?.trim()) {
       newErrors.guest_last_name = 'Last name is required';
     }
 
@@ -152,8 +195,13 @@ const GuestCreate = () => {
     }
 
     // Phone validation (basic)
-    if (formData.guest_phone && formData.guest_phone.length < 10) {
-      newErrors.guest_phone = 'Please enter a valid phone number';
+    if (formData.guest_phone && formData.guest_phone.replace(/\D/g, '').length < 10) {
+      newErrors.guest_phone = 'Please enter a valid phone number (at least 10 digits)';
+    }
+    
+    // Validate guest group if provided
+    if (formData.guest_group_id && isNaN(parseInt(formData.guest_group_id))) {
+      newErrors.guest_group_id = 'Please select a valid guest group';
     }
 
     setErrors(newErrors);
@@ -172,11 +220,56 @@ const GuestCreate = () => {
       setIsLoading(true);
 
       try {
+        // Format and validate all fields before submission
+        let defaultGroupId = null;
+
+        // If no guest group is selected, find or create a default group
+        if (!formData.guest_group_id && formData.event_id) {
+          const selectedEvent = events.find(event => event.event_id === parseInt(formData.event_id));
+          if (selectedEvent && selectedEvent.client_id) {
+            // Look for an existing default group for this client
+            let defaultGroup = guestGroups.find(group =>
+              group.client_id === selectedEvent.client_id &&
+              group.group_name === 'Default Group'
+            );
+
+            // If no default group exists, create one
+            if (!defaultGroup) {
+              defaultGroup = await createDefaultGuestGroup(selectedEvent.client_id);
+              if (defaultGroup) {
+                setGuestGroups(prev => [...prev, defaultGroup]);
+              }
+            }
+
+            if (defaultGroup) {
+              defaultGroupId = defaultGroup.guest_group_id;
+            }
+          }
+        }
+
+        const selectedEvent = events.find(event => event.event_id === parseInt(formData.event_id));
+
         const submitData = {
           ...formData,
+          // Trim all string fields
+          guest_first_name: formData.guest_first_name?.trim() || '',
+          guest_last_name: formData.guest_last_name?.trim() || '',
+          guest_email: formData.guest_email?.trim() || null,
+          guest_phone: formData.guest_phone?.trim() || null,
+          guest_address: formData.guest_address?.trim() || null,
+          guest_city: formData.guest_city?.trim() || null,
+          guest_country: formData.guest_country?.trim() || null,
+          guest_dietary_preferences: formData.guest_dietary_preferences?.trim() || null,
+          guest_special_requirements: formData.guest_special_requirements?.trim() || null,
+          guest_notes: formData.guest_notes?.trim() || null,
+          // Parse IDs
+          client_id: selectedEvent?.client_id || null,
           customer_id: formData.customer_id ? parseInt(formData.customer_id) : null,
           event_id: parseInt(formData.event_id),
-          guest_group_id: formData.guest_group_id ? parseInt(formData.guest_group_id) : null
+          guest_group_id: formData.guest_group_id ? parseInt(formData.guest_group_id) : defaultGroupId,
+          // Ensure required fields
+          guest_type: formData.guest_type || 'Bride\'s Family',
+          guest_rsvp_status: formData.guest_rsvp_status || 'Pending'
         };
 
         const response = await fetch('/api/guests', {
@@ -188,11 +281,15 @@ const GuestCreate = () => {
           body: JSON.stringify(submitData)
         });
 
+        const responseData = await response.json();
+        
         if (!response.ok) {
-          throw new Error('Failed to create guest');
+          // If the response is not ok, we'll throw an error with the response data
+          const error = new Error(responseData.message || 'Failed to create guest');
+          error.response = { data: responseData };
+          throw error;
         }
 
-        const result = await response.json();
         toast.success('Guest created successfully');
         
         if (eventId) {
@@ -207,12 +304,16 @@ const GuestCreate = () => {
           // Handle validation errors from backend
           const backendErrors = {};
           error.response.data.errors.forEach(err => {
-            backendErrors[err.param] = err.msg;
+            const fieldName = err.param || err.field || 'general';
+            backendErrors[fieldName] = err.msg || err.message || 'Validation error';
           });
           setErrors(backendErrors);
           toast.error('Please fix the form errors');
+        } else if (error.response?.data?.message) {
+          // Handle other error messages from backend
+          toast.error(error.response.data.message);
         } else {
-          toast.error('Failed to create guest');
+          toast.error(error.message || 'Failed to create guest');
         }
       } finally {
         setIsLoading(false);
@@ -242,11 +343,36 @@ const GuestCreate = () => {
     setIsLoading(true);
 
     try {
+      // Find or create default group for guests without a group
+      let defaultGroupId = null;
+      const selectedEvent = events.find(event => event.event_id === parseInt(formData.event_id));
+
+      if (selectedEvent && selectedEvent.client_id) {
+        // Look for an existing default group for this client
+        let defaultGroup = guestGroups.find(group =>
+          group.client_id === selectedEvent.client_id &&
+          group.group_name === 'Default Group'
+        );
+
+        // If no default group exists, create one
+        if (!defaultGroup) {
+          defaultGroup = await createDefaultGuestGroup(selectedEvent.client_id);
+          if (defaultGroup) {
+            setGuestGroups(prev => [...prev, defaultGroup]);
+          }
+        }
+
+        if (defaultGroup) {
+          defaultGroupId = defaultGroup.guest_group_id;
+        }
+      }
+
       const guestsToSubmit = validGuests.map(guest => ({
         ...guest,
+        client_id: selectedEvent?.client_id || null,
         customer_id: formData.customer_id ? parseInt(formData.customer_id) : null,
         event_id: parseInt(formData.event_id),
-        guest_group_id: formData.guest_group_id ? parseInt(formData.guest_group_id) : null
+        guest_group_id: guest.guest_group_id ? parseInt(guest.guest_group_id) : defaultGroupId
       }));
 
       // Submit all guests
@@ -668,6 +794,7 @@ const GuestCreate = () => {
                               <th style={{minWidth: '130px'}}>Phone</th>
                               <th style={{minWidth: '140px'}}>Guest Type</th>
                               <th style={{minWidth: '120px'}}>RSVP Status</th>
+                              <th style={{minWidth: '150px'}}>Guest Group</th>
                               <th style={{width: '100px'}}>Actions</th>
                             </tr>
                           </thead>
@@ -735,6 +862,21 @@ const GuestCreate = () => {
                                   >
                                     {rsvpStatusOptions.map(status => (
                                       <option key={status} value={status}>{status}</option>
+                                    ))}
+                                  </select>
+                                </td>
+                                <td>
+                                  <select
+                                    className="form-select form-select-sm"
+                                    value={guest.guest_group_id || ''}
+                                    onChange={(e) => handleTableInputChange(index, 'guest_group_id', e.target.value)}
+                                    disabled={isLoading}
+                                  >
+                                    <option value="">No group</option>
+                                    {guestGroups.map(group => (
+                                      <option key={group.guest_group_id} value={group.guest_group_id}>
+                                        {group.guest_group_name}
+                                      </option>
                                     ))}
                                   </select>
                                 </td>

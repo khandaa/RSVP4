@@ -56,6 +56,13 @@ export const customerMenuItems = [
         permission: null
       },
       {
+        name: 'Guests Gropus',
+        path: '/guests/groupManagement',
+        icon: <FaUserCheck />,
+        permission: null
+      },
+      
+      {
         name: 'RSVPs',
         path: '/rsvps/dashboard',
         icon: <FaReply />,

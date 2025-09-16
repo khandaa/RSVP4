@@ -219,6 +219,110 @@ export const loggingAPI = {
   getStats: () => api.get('/logging/stats'),
 };
 
+// Client Management API
+export const clientAPI = {
+  getClients: async (params = {}) => {
+    try {
+      const response = await api.get('/clients', { params });
+      return { data: response.data || [], success: true };
+    } catch (error) {
+      console.error('Error fetching clients:', error);
+      return { data: [], error: error.response?.data?.error || 'Failed to fetch clients', success: false };
+    }
+  },
+  getClient: async (id) => {
+    try {
+      const response = await api.get(`/clients/${id}`);
+      return { data: response.data, success: true };
+    } catch (error) {
+      console.error(`Error fetching client ${id}:`, error);
+      return { data: null, error: error.response?.data?.error || 'Failed to fetch client', success: false };
+    }
+  },
+  createClient: async (clientData) => {
+    try {
+      const response = await api.post('/clients', clientData);
+      return { data: response.data, success: true };
+    } catch (error) {
+      console.error('Error creating client:', error);
+      return { 
+        data: null, 
+        error: error.response?.data?.error || 'Failed to create client',
+        validationErrors: error.response?.data?.errors,
+        success: false 
+      };
+    }
+  },
+  updateClient: async (id, clientData) => {
+    try {
+      const response = await api.put(`/clients/${id}`, clientData);
+      return { data: response.data, success: true };
+    } catch (error) {
+      console.error(`Error updating client ${id}:`, error);
+      return { 
+        data: null, 
+        error: error.response?.data?.error || 'Failed to update client',
+        validationErrors: error.response?.data?.errors,
+        success: false 
+      };
+    }
+  },
+  deleteClient: async (id) => {
+    try {
+      await api.delete(`/clients/${id}`);
+      return { success: true };
+    } catch (error) {
+      console.error(`Error deleting client ${id}:`, error);
+      return { 
+        success: false, 
+        error: error.response?.data?.error || 'Failed to delete client' 
+      };
+    }
+  },
+  uploadBulkClients: async (formData) => {
+    try {
+      const response = await api.post('/clients/bulk-upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      return { data: response.data, success: true };
+    } catch (error) {
+      console.error('Error uploading bulk clients:', error);
+      return { 
+        data: null, 
+        error: error.response?.data?.error || 'Failed to upload clients',
+        validationErrors: error.response?.data?.errors,
+        success: false 
+      };
+    }
+  },
+  downloadClientTemplate: async () => {
+    try {
+      const response = await api.get('/clients/template', {
+        responseType: 'blob'
+      });
+      
+      // Create blob link to download
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'client-template.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Error downloading client template:', error);
+      return { 
+        success: false, 
+        error: error.response?.data?.error || 'Failed to download template' 
+      };
+    }
+  }  
+};
+
 // Customer Management API
 export const customerAPI = {
   getCustomers: (params) => api.get('/customers', { params }),
@@ -248,52 +352,92 @@ export const customerAPI = {
     
     // Clean up and remove the link
     link.parentNode.removeChild(link);
-  })
-};
-
-// Client Management API
-export const clientAPI = {
-  getClients: (params) => api.get('/clients', { params }),
-  getClient: (id) => api.get(`/clients/${id}`),
-  createClient: (clientData) => api.post('/clients', clientData),
-  updateClient: (id, clientData) => api.put(`/clients/${id}`, clientData),
-  deleteClient: (id) => api.delete(`/clients/${id}`),
-  uploadBulkClients: (formData) => api.post('/clients/bulk', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data'
-    }
-  }),
-  downloadClientTemplate: () => api.get('/clients/template', {
-    responseType: 'blob'
-  }).then(response => {
-    // Create blob link to download
-    const url = window.URL.createObjectURL(new Blob([response.data]));
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', 'client-template.csv');
-    
-    // Append to html page
-    document.body.appendChild(link);
-    
-    // Force download
-    link.click();
-    
-    // Clean up and remove the link
-    link.parentNode.removeChild(link);
-  })
-};
-
-// Event Management API
 export const eventAPI = {
-  getEvents: (params) => api.get('/events', { params }),
-  getEvent: (id) => api.get(`/events/${id}`),
-  createEvent: (eventData) => api.post('/events', eventData),
-  updateEvent: (id, eventData) => api.put(`/events/${id}`, eventData),
-  deleteEvent: (id) => api.delete(`/events/${id}`),
-  getEventsByClient: (clientId) => api.get(`/clients/${clientId}/events`),
-  // Fixed endpoint for event schedule - using correct path from comprehensive-crud
-  getEventSchedule: (eventId) => api.get(`/comprehensive-crud/event-schedule/${eventId}`),
-  getEventStats: (eventId) => api.get(`/events/${eventId}/stats`)
+  getEvents: async (params = {}) => {
+    try {
+      const response = await api.get('/events', { params });
+      return { data: response.data || [], success: true };
+    } catch (error) {
+      console.error('Error fetching events:', error);
+      return { data: [], error: error.response?.data?.error || 'Failed to fetch events', success: false };
+    }
+  },
+  getEvent: async (id) => {
+    try {
+      const response = await api.get(`/events/${id}`);
+      return { data: response.data, success: true };
+    } catch (error) {
+      console.error(`Error fetching event ${id}:`, error);
+      return { data: null, error: error.response?.data?.error || 'Failed to fetch event', success: false };
+    }
+  },
+  createEvent: async (eventData) => {
+    try {
+      const response = await api.post('/events', eventData);
+      return { data: response.data, success: true };
+    } catch (error) {
+      console.error('Error creating event:', error);
+      return { 
+        data: null, 
+        error: error.response?.data?.error || 'Failed to create event',
+        validationErrors: error.response?.data?.errors,
+        success: false 
+      };
+    }
+  },
+  updateEvent: async (id, eventData) => {
+    try {
+      const response = await api.put(`/events/${id}`, eventData);
+      return { data: response.data, success: true };
+    } catch (error) {
+      console.error(`Error updating event ${id}:`, error);
+      return { 
+        data: null, 
+        error: error.response?.data?.error || 'Failed to update event',
+        validationErrors: error.response?.data?.errors,
+        success: false 
+      };
+    }
+  },
+  deleteEvent: async (id) => {
+    try {
+      await api.delete(`/events/${id}`);
+      return { success: true };
+    } catch (error) {
+      console.error(`Error deleting event ${id}:`, error);
+      return { 
+        success: false, 
+        error: error.response?.data?.error || 'Failed to delete event' 
+      };
+    }
+  },
+  getEventsByClient: async (clientId) => {
+    try {
+      const response = await api.get(`/clients/${clientId}/events`);
+      return { data: response.data || [], success: true };
+    } catch (error) {
+      console.error(`Error fetching events for client ${clientId}:`, error);
+      return { data: [], error: 'Failed to fetch client events', success: false };
+    }
+  },
+  getEventSchedule: async (eventId) => {
+    try {
+      const response = await api.get(`/comprehensive-crud/event-schedule/${eventId}`);
+      return { data: response.data, success: true };
+    } catch (error) {
+      console.error(`Error fetching schedule for event ${eventId}:`, error);
+      return { data: null, error: 'Failed to fetch event schedule', success: false };
+    }
+  },
+  getEventStats: async (eventId) => {
+    try {
+      const response = await api.get(`/events/${eventId}/stats`);
+      return { data: response.data, success: true };
+    } catch (error) {
+      console.error(`Error fetching stats for event ${eventId}:`, error);
+      return { data: null, error: 'Failed to fetch event statistics', success: false };
+    }
+  }
 };
 
 // Feature Toggles API

@@ -78,163 +78,299 @@ const EventList = () => {
     try {
       setIsLoading(true);
       
-      // Get token from localStorage
-      const token = localStorage.getItem('token');
-      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      // Fetch events, clients, and event types in parallel
+      const [eventsResponse, clientsResponse, eventTypesResponse] = await Promise.allSettled([
+        eventAPI.getEvents(),
+        clientAPI.getClients(),
+        // Use the masterDataAPI for event types
+        fetch('/api/master-data/event-types', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token') || ''}`,
+            'Content-Type': 'application/json'
+          }
+        }).then(async res => {
+          if (!res.ok) {
+            const errorData = await res.json().catch(() => ({}));
+            throw new Error(errorData.message || `Event types fetch failed: ${res.status}`);
+          }
+          return res.json();
+        })
+      ]);
+
+      // Process events response
+      const eventsResult = eventsResponse.status === 'fulfilled' ? 
+        eventsResponse.value : { success: false, error: eventsResponse.reason };
       
-      // Handle events and clients with axios interceptors
-      const eventsResponse = await eventAPI.getEvents();
-      const clientsResponse = await clientAPI.getClients();
-      
-      // Handle event types with explicit headers
-      const eventTypesResponse = await fetch('/api/master-data/event-types', {
-        headers: {
-          ...headers,
-          'Content-Type': 'application/json'
-        }
-      }).then(res => {
-        if (!res.ok) {
-          throw new Error(`Event types fetch failed: ${res.status}`);
-        }
-        return res.json();
-      });
-      
-      setEvents(eventsResponse.data || []);
-      setClients(clientsResponse.data || []);
-      
-      // Ensure eventTypes is always an array
-      if (Array.isArray(eventTypesResponse)) {
-        setEventTypes(eventTypesResponse);
-      } else if (eventTypesResponse && Array.isArray(eventTypesResponse.data)) {
-        setEventTypes(eventTypesResponse.data);
+      if (eventsResult.success) {
+        setEvents(Array.isArray(eventsResult.data) ? eventsResult.data : []);
       } else {
-        // If there's no event type data, create fallback data
-        console.error('Event types response is not an array:', eventTypesResponse);
-        const fallbackEventTypes = [
-          { event_type_id: 1, event_type_name: 'Conference' },
-          { event_type_id: 2, event_type_name: 'Wedding' },
-          { event_type_id: 3, event_type_name: 'Corporate' },
-          { event_type_id: 4, event_type_name: 'Social Gathering' },
-          { event_type_id: 5, event_type_name: 'Workshop' },
-          { event_type_id: 6, event_type_name: 'Seminar' }
-        ];
-        setEventTypes(fallbackEventTypes);
-        toast.info('Using default event types due to data retrieval issues', {
+        console.error('Error fetching events:', eventsResult.error);
+        setEvents([]);
+        if (!eventsResult.error?.includes('No events found')) {
+          toast.error(eventsResult.error || 'Failed to load events', {
+            position: toast.POSITION.BOTTOM_RIGHT,
+            autoClose: 5000
+          });
+        }
+      }
+      
+      // Process clients response
+      const clientsResult = clientsResponse.status === 'fulfilled' ? 
+        clientsResponse.value : { success: false, error: clientsResponse.reason };
+      
+      if (clientsResult.success) {
+        setClients(Array.isArray(clientsResult.data) ? clientsResult.data : []);
+      } else {
+        console.error('Error fetching clients:', clientsResult.error);
+        setClients([]);
+        toast.error('Failed to load clients. Some features may be limited.', {
           position: toast.POSITION.BOTTOM_RIGHT,
-          autoClose: 3000
+          autoClose: 5000
         });
       }
+      
+      // Process event types response
+      if (eventTypesResponse.status === 'fulfilled') {
+        try {
+          const eventTypesData = eventTypesResponse.value;
+          if (Array.isArray(eventTypesData)) {
+            setEventTypes(eventTypesData);
+          } else if (eventTypesData && Array.isArray(eventTypesData.data)) {
+            setEventTypes(eventTypesData.data);
+          } else {
+            console.warn('Unexpected event types format, using fallback');
+            setEventTypes(getFallbackEventTypes());
+          }
+        } catch (parseError) {
+          console.error('Error parsing event types:', parseError);
+          setEventTypes(getFallbackEventTypes());
+        }
+      } else {
+        console.error('Failed to fetch event types:', eventTypesResponse.reason);
+        setEventTypes(getFallbackEventTypes());
+      }
     } catch (error) {
-      console.error('Error fetching data:', error);
-      toast.error('Failed to fetch events data');
-      // Set default values in case of error
-      setEvents([]);
-      setClients([]);
-      // Ensure eventTypes is always an array even when API calls fail
-      setEventTypes([
-        { event_type_id: 1, event_type_name: 'Conference' },
-        { event_type_id: 2, event_type_name: 'Wedding' },
-        { event_type_id: 3, event_type_name: 'Corporate' },
-        { event_type_id: 4, event_type_name: 'Social Gathering' },
-        { event_type_id: 5, event_type_name: 'Workshop' },
-        { event_type_id: 6, event_type_name: 'Seminar' }
-      ]);
+      console.error('Error in fetchData:', error);
+      
+      // Set fallback event types if we don't have any
+      if (eventTypes.length === 0) {
+        setEventTypes(getFallbackEventTypes());
+        toast.info('Using default event types due to data retrieval issues', {
+          position: toast.POSITION.BOTTOM_RIGHT,
+          autoClose: 5000
+        });
+      }
+      
+      if (events.length === 0) {
+        const errorMessage = error.response?.data?.error || 'Failed to load events. Please try refreshing the page.';
+        toast.error(errorMessage, {
+          position: toast.POSITION.BOTTOM_RIGHT,
+          autoClose: 5000
+        });
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
   const filterAndSortEvents = () => {
-    let filtered = [...events];
+    try {
+      // Start with a fresh copy of events
+      let filtered = Array.isArray(events) ? [...events] : [];
 
-    // Apply search filter
-    if (searchTerm) {
-      filtered = filtered.filter(event =>
-        event.event_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        event.event_description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        event.client_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        event.event_type_name?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
+      // Apply search filter if search term exists
+      if (searchTerm && searchTerm.trim() !== '') {
+        const searchTermLower = searchTerm.toLowerCase().trim();
+        filtered = filtered.filter(event => {
+          // Safely check each field for the search term
+          const eventName = String(event.event_name || '').toLowerCase();
+          const eventDesc = String(event.event_description || '').toLowerCase();
+          const clientName = String(event.client_name || '').toLowerCase();
+          const eventType = String(event.event_type_name || '').toLowerCase();
+          
+          return (
+            eventName.includes(searchTermLower) ||
+            eventDesc.includes(searchTermLower) ||
+            clientName.includes(searchTermLower) ||
+            eventType.includes(searchTermLower)
+          );
+        });
+      }
 
-    // Apply status filter
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(event => event.event_status === statusFilter);
-    }
+      // Apply status filter
+      if (statusFilter && statusFilter !== 'all') {
+        filtered = filtered.filter(event => event.event_status === statusFilter);
+      }
 
-    // Apply client filter
-    if (clientFilter === 'customer_admin_filter' && isCustomerAdmin && currentUser) {
-      // Filter events for Customer Admin users - show only events from their clients
-      const userClients = clients.filter(client => 
-        client.customer_email === currentUser.email
-      );
-      const userClientIds = userClients.map(client => client.client_id);
-      filtered = filtered.filter(event => userClientIds.includes(event.client_id));
-    } else if (clientFilter !== 'all') {
-      filtered = filtered.filter(event => event.client_id === parseInt(clientFilter));
-    }
-
-    // Apply event type filter
-    if (typeFilter !== 'all') {
-      filtered = filtered.filter(event => event.event_type_id === parseInt(typeFilter));
-    }
-
-    // Apply date filter
-    if (dateFilter !== 'all') {
-      const now = new Date();
-      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      
-      filtered = filtered.filter(event => {
-        if (!event.event_start_date) return dateFilter === 'no-date';
-        
-        const eventDate = new Date(event.event_start_date);
-        const eventDateOnly = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate());
-        
-        switch (dateFilter) {
-          case 'today':
-            return eventDateOnly.getTime() === today.getTime();
-          case 'this-week':
-            const weekStart = new Date(today);
-            weekStart.setDate(today.getDate() - today.getDay());
-            const weekEnd = new Date(weekStart);
-            weekEnd.setDate(weekStart.getDate() + 6);
-            return eventDateOnly >= weekStart && eventDateOnly <= weekEnd;
-          case 'this-month':
-            return eventDate.getMonth() === now.getMonth() && eventDate.getFullYear() === now.getFullYear();
-          case 'upcoming':
-            return eventDateOnly >= today;
-          case 'past':
-            return eventDateOnly < today;
-          case 'no-date':
-            return !event.event_start_date;
-          default:
-            return true;
+      // Apply client filter with customer admin check
+      if (clientFilter && clientFilter !== 'all') {
+        if (clientFilter === 'customer_admin_filter' && isCustomerAdmin && currentUser) {
+          // For customer admins, only show events from their clients
+          const userClients = Array.isArray(clients) ? 
+            clients.filter(client => 
+              client && client.customer_email === currentUser.email
+            ) : [];
+          
+          if (userClients.length > 0) {
+            const userClientIds = userClients
+              .map(client => client?.client_id)
+              .filter(id => id !== undefined);
+            
+            filtered = filtered.filter(event => 
+              event && event.client_id && userClientIds.includes(event.client_id)
+            );
+          } else {
+            filtered = []; // No clients found for this customer admin
+          }
+        } else if (clientFilter !== 'customer_admin_filter') {
+          // Regular client filter by ID
+          const clientId = parseInt(clientFilter, 10);
+          if (!isNaN(clientId)) {
+            filtered = filtered.filter(event => event && event.client_id === clientId);
+          }
         }
-      });
+      }
+
+      // Apply event type filter
+      if (typeFilter && typeFilter !== 'all') {
+        const typeId = parseInt(typeFilter, 10);
+        if (!isNaN(typeId)) {
+          filtered = filtered.filter(event => event && event.event_type_id === typeId);
+        }
+      }
+
+    // Apply date filter with enhanced error handling
+    if (dateFilter && dateFilter !== 'all') {
+      try {
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        
+        filtered = filtered.filter(event => {
+          // Handle events without a start date
+          if (!event?.event_start_date) {
+            return dateFilter === 'no-date';
+          }
+          
+          try {
+            const eventDate = new Date(event.event_start_date);
+            // Handle invalid dates
+            if (isNaN(eventDate.getTime())) {
+              return dateFilter === 'no-date';
+            }
+            
+            const eventDateOnly = new Date(
+              eventDate.getFullYear(), 
+              eventDate.getMonth(), 
+              eventDate.getDate()
+            );
+            
+            switch (dateFilter) {
+              case 'today':
+                return eventDateOnly.getTime() === today.getTime();
+                
+              case 'this-week': {
+                const weekStart = new Date(today);
+                weekStart.setDate(today.getDate() - today.getDay());
+                const weekEnd = new Date(weekStart);
+                weekEnd.setDate(weekStart.getDate() + 6);
+                weekEnd.setHours(23, 59, 59, 999); // End of day
+                return eventDateOnly >= weekStart && eventDateOnly <= weekEnd;
+              }
+                
+              case 'this-month':
+                return eventDate.getMonth() === today.getMonth() && 
+                       eventDate.getFullYear() === today.getFullYear();
+                       
+              case 'next-30-days': {
+                const next30Days = new Date(today);
+                next30Days.setDate(today.getDate() + 30);
+                next30Days.setHours(23, 59, 59, 999);
+                return eventDateOnly >= today && eventDateOnly <= next30Days;
+              }
+                
+              case 'upcoming':
+                return eventDateOnly >= today;
+                
+              case 'past':
+                return eventDateOnly < today;
+                
+              case 'no-date':
+                return !event.event_start_date;
+                
+              default:
+                return true;
+            }
+          } catch (dateError) {
+            console.error('Error processing event date:', dateError, event);
+            return dateFilter === 'no-date';
+          }
+        });
+      } catch (filterError) {
+        console.error('Error applying date filter:', filterError);
+        // Don't filter if there's an error with the date filter
+      }
     }
 
-    // Apply sorting
-    if (sortConfig.key) {
+    // Apply sorting with enhanced type handling
+    if (sortConfig?.key) {
       filtered.sort((a, b) => {
-        const aValue = a[sortConfig.key] || '';
-        const bValue = b[sortConfig.key] || '';
-        
-        // Handle date sorting
-        if (sortConfig.key.includes('date')) {
-          const aDate = aValue ? new Date(aValue) : new Date(0);
-          const bDate = bValue ? new Date(bValue) : new Date(0);
-          return sortConfig.direction === 'asc' 
-            ? aDate.getTime() - bDate.getTime()
-            : bDate.getTime() - aDate.getTime();
+        try {
+          let aValue = a[sortConfig.key];
+          let bValue = b[sortConfig.key];
+          
+          // Handle undefined/null values
+          if (aValue === undefined || aValue === null) aValue = '';
+          if (bValue === undefined || bValue === null) bValue = '';
+          
+          // Convert to string for comparison if not already
+          if (typeof aValue !== 'string') aValue = String(aValue);
+          if (typeof bValue !== 'string') bValue = String(bValue);
+          
+          // Handle date sorting
+          if (sortConfig.key.includes('date') || sortConfig.key.includes('time')) {
+            try {
+              const aDate = aValue ? new Date(aValue) : new Date(0);
+              const bDate = bValue ? new Date(bValue) : new Date(0);
+              
+              // If either date is invalid, push to bottom
+              if (isNaN(aDate.getTime()) && isNaN(bDate.getTime())) return 0;
+              if (isNaN(aDate.getTime())) return 1;
+              if (isNaN(bDate.getTime())) return -1;
+              
+              return sortConfig.direction === 'asc' 
+                ? aDate.getTime() - bDate.getTime()
+                : bDate.getTime() - aDate.getTime();
+            } catch (dateError) {
+              console.error('Error sorting dates:', dateError);
+              return 0; // Don't change order if there's an error
+            }
+          }
+          
+          // Numeric comparison for numeric strings or numbers
+          if (!isNaN(Number(aValue)) && !isNaN(Number(bValue))) {
+            const numA = Number(aValue);
+            const numB = Number(bValue);
+            return sortConfig.direction === 'asc' 
+              ? numA - numB 
+              : numB - numA;
+          }
+          
+          // String comparison (case insensitive)
+          const aStr = aValue.toLowerCase();
+          const bStr = bValue.toLowerCase();
+          
+          if (aStr < bStr) {
+            return sortConfig.direction === 'asc' ? -1 : 1;
+          }
+          if (aStr > bStr) {
+            return sortConfig.direction === 'asc' ? 1 : -1;
+          }
+          return 0;
+          
+        } catch (sortError) {
+          console.error('Error during sorting:', sortError);
+          return 0; // Maintain original order on error
         }
-        
-        if (aValue < bValue) {
-          return sortConfig.direction === 'asc' ? -1 : 1;
-        }
-        if (aValue > bValue) {
-          return sortConfig.direction === 'asc' ? 1 : -1;
-        }
-        return 0;
       });
     }
 
@@ -242,11 +378,40 @@ const EventList = () => {
   };
 
   const handleSort = (key) => {
-    let direction = 'asc';
-    if (sortConfig.key === key && sortConfig.direction === 'asc') {
-      direction = 'desc';
+    try {
+      // Validate the key is a non-empty string
+      if (typeof key !== 'string' || key.trim() === '') {
+        console.warn('Invalid sort key provided');
+        return;
+      }
+      
+      // Determine sort direction
+      let direction = 'asc';
+      if (sortConfig.key === key) {
+        // Toggle direction if clicking the same column
+        direction = sortConfig.direction === 'asc' ? 'desc' : 'asc';
+      }
+      
+      // Update sort configuration with additional metadata
+      setSortConfig({ 
+        key, 
+        direction,
+        // Add type hint for special handling in the sort function
+        isDate: key.includes('date') || key.includes('time') || key === 'created_at',
+        isNumeric: key.includes('id') || key.includes('count') || key.includes('total')
+      });
+      
+    } catch (error) {
+      console.error('Error in handleSort:', error);
+      // Reset to default sort on error
+      setSortConfig({ key: null, direction: 'asc' });
+      
+      // Show error toast to user
+      toast.error('An error occurred while sorting. Please try again.', {
+        position: toast.POSITION.BOTTOM_RIGHT,
+        autoClose: 3000
+      });
     }
-    setSortConfig({ key, direction });
   };
 
   const getSortIcon = (columnName) => {
@@ -257,49 +422,153 @@ const EventList = () => {
   };
 
   const handleDelete = (event) => {
+    if (!event || !event.event_id) {
+      console.error('Invalid event data for deletion');
+      toast.error('Invalid event data. Cannot delete.', {
+        position: toast.POSITION.BOTTOM_RIGHT,
+        autoClose: 3000
+      });
+      return;
+    }
     setEventToDelete(event);
     setShowDeleteModal(true);
   };
 
   const confirmDelete = async () => {
-    try {
-      await eventAPI.deleteEvent(eventToDelete.event_id);
-      toast.success('Event deleted successfully');
-      fetchData();
+    if (!eventToDelete?.event_id) {
+      console.error('No event selected for deletion');
       setShowDeleteModal(false);
-      setEventToDelete(null);
+      return;
+    }
+
+    const toastId = toast.loading('Deleting event...', {
+      position: toast.POSITION.BOTTOM_RIGHT
+    });
+    
+    try {
+      const result = await eventAPI.deleteEvent(eventToDelete.event_id);
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to delete event');
+      }
+      
+      toast.update(toastId, {
+        render: 'Event deleted successfully',
+        type: 'success',
+        isLoading: false,
+        autoClose: 3000
+      });
+      
+      // Refresh the events list
+      await fetchData();
+      
     } catch (error) {
       console.error('Error deleting event:', error);
-      toast.error('Failed to delete event');
+      
+      toast.update(toastId, {
+        render: error.message || 'Failed to delete event. Please try again.',
+        type: 'error',
+        isLoading: false,
+        autoClose: 5000
+      });
+    } finally {
+      setShowDeleteModal(false);
+      setEventToDelete(null);
     }
   };
 
   const exportToCSV = () => {
-    const headers = ['ID', 'Event Name', 'Client', 'Status', 'Type', 'Start Date', 'End Date', 'Created At'];
-    const csvContent = [
-      headers.join(','),
-      ...filteredEvents.map(event => [
-        event.event_id,
-        `"${event.event_name || ''}"`,
-        `"${event.client_name || ''}"`,
-        event.event_status || '',
-        `"${event.event_type_name || ''}"`,
-        event.event_start_date ? new Date(event.event_start_date).toLocaleDateString() : '',
-        event.event_end_date ? new Date(event.event_end_date).toLocaleDateString() : '',
-        new Date(event.created_at).toLocaleDateString()
-      ].join(','))
-    ].join('\n');
+    try {
+      // Validate we have data to export
+      if (!Array.isArray(filteredEvents) || filteredEvents.length === 0) {
+        toast.error('No events available to export', {
+          position: toast.POSITION.BOTTOM_RIGHT,
+          autoClose: 3000
+        });
+        return;
+      }
 
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.setAttribute('hidden', '');
-    a.setAttribute('href', url);
-    a.setAttribute('download', `events_${new Date().toISOString().split('T')[0]}.csv`);
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
+      // Define CSV columns with their headers and data accessors
+      const columns = [
+        { header: 'ID', accessor: 'event_id' },
+        { header: 'Event Name', accessor: 'event_name' },
+        { header: 'Client', accessor: 'client_name' },
+        { header: 'Status', accessor: 'event_status' },
+        { header: 'Type', accessor: 'event_type_name' },
+        { 
+          header: 'Start Date', 
+          accessor: 'event_start_date',
+          formatter: (date) => date ? new Date(date).toLocaleString() : ''
+        },
+        { 
+          header: 'End Date', 
+          accessor: 'event_end_date',
+          formatter: (date) => date ? new Date(date).toLocaleString() : ''
+        },
+        { 
+          header: 'Created At', 
+          accessor: 'created_at',
+          formatter: (date) => date ? new Date(date).toLocaleString() : ''
+        }
+      ];
+
+      // Escape CSV values (handles quotes and commas)
+      const escapeCsvValue = (value) => {
+        if (value === null || value === undefined) return '';
+        const stringValue = String(value);
+        // Escape double quotes by doubling them
+        const escaped = stringValue.replace(/"/g, '""');
+        // Wrap in quotes if contains comma, newline, or double quote
+        if (escaped.includes(',') || escaped.includes('"') || escaped.includes('\n')) {
+          return `"${escaped}"`;
+        }
+        return escaped;
+      };
+
+      // Generate CSV content
+      const headerRow = columns.map(col => escapeCsvValue(col.header)).join(',');
+      const dataRows = filteredEvents.map(event => {
+        return columns.map(col => {
+          const value = event[col.accessor];
+          const formattedValue = col.formatter ? col.formatter(value) : value;
+          return escapeCsvValue(formattedValue);
+        }).join(',');
+      });
+
+      const csvContent = [headerRow, ...dataRows].join('\n');
+
+      // Create and trigger download with BOM for Excel compatibility
+      const blob = new Blob(['\ufeff' + csvContent], { 
+        type: 'text/csv;charset=utf-8;' 
+      });
+      
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('hidden', '');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `events_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      
+      // Cleanup
+      setTimeout(() => {
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      }, 100);
+      
+      // Show success message
+      toast.success(`Exported ${filteredEvents.length} events successfully`, {
+        position: toast.POSITION.BOTTOM_RIGHT,
+        autoClose: 3000
+      });
+      
+    } catch (error) {
+      console.error('Error exporting to CSV:', error);
+      toast.error('Failed to export events. Please try again.', {
+        position: toast.POSITION.BOTTOM_RIGHT,
+        autoClose: 5000
+      });
+    }
   };
 
   const getStatusBadgeClass = (status) => {
@@ -679,5 +948,15 @@ const EventList = () => {
     </div>
   );
 };
+
+// Helper function to get fallback event types
+const getFallbackEventTypes = () => [
+  { event_type_id: 1, event_type_name: 'Conference' },
+  { event_type_id: 2, event_type_name: 'Wedding' },
+  { event_type_id: 3, event_type_name: 'Corporate' },
+  { event_type_id: 4, event_type_name: 'Social Gathering' },
+  { event_type_id: 5, event_type_name: 'Workshop' },
+  { event_type_id: 6, event_type_name: 'Seminar' }
+];
 
 export default EventList;
