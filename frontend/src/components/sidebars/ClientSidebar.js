@@ -37,6 +37,12 @@ export const clientMenuItems = [
         icon: <FaUserCheck />,
         permission: null
       },
+      {
+        name: 'Guest Groups',
+        path: '/guests/groups',
+        icon: <FaList />,
+        permission: null
+      }
           ]
         },
         {

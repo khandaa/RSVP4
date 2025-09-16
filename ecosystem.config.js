@@ -2,25 +2,30 @@ module.exports = {
   apps: [
     {
       name: 'rsvp-app',
-      script: './backend/app.js',
-      cwd: '/var/www/rsvp',
+      script: 'backend/app.js',
+      cwd: '/Users/alokk/EmployDEX/Applications/RSVP4',
       instances: 'max',
       exec_mode: 'cluster',
       env: {
-        NODE_ENV: 'production',
+        NODE_ENV: 'development',
         PORT: 5001,
-        DB_PATH: '/var/www/rsvp/db/RSVP4.db'
+        DB_PATH: 'db/RSVP4.db'
       },
       env_production: {
         NODE_ENV: 'production',
         PORT: 5001,
         DB_PATH: '/var/www/rsvp/db/RSVP4.db'
       },
+      env_development: {
+        NODE_ENV: 'development',
+        PORT: 5001,
+        DB_PATH: 'db/RSVP4.db'
+      },
 
       // Logging
-      log_file: '/var/log/rsvp/combined.log',
-      out_file: '/var/log/rsvp/out.log',
-      error_file: '/var/log/rsvp/error.log',
+      log_file: 'logs/combined.log',
+      out_file: 'logs/out.log',
+      error_file: 'logs/error.log',
       log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
       
       // Process management

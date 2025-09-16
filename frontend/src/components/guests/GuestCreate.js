@@ -412,54 +412,207 @@ const GuestCreate = () => {
             <div className="card glass-card">
               <div className="card-body p-4">
                 <form id="guestForm" onSubmit={viewMode === 'form' ? handleSubmit : handleTableSubmit}>
-                  {viewMode === 'form' ? (
-                    <div className="row g-4">
-                      {/* Event Selection */}
+                  {/* Event and Customer Selection */}
+                  <div className="row g-4 mb-4">
+                    <div className="col-md-6">
+                      <label className="form-label fw-semibold">
+                        <FaCalendarAlt className="me-2 text-primary" />
+                        Event *
+                      </label>
+                      <select
+                        name="event_id"
+                        className={`form-select glass-input ${!formData.event_id ? 'is-invalid' : ''}`}
+                        value={formData.event_id}
+                        onChange={handleInputChange}
+                        disabled={isLoading || eventId}
+                      >
+                        <option value="">Select an event</option>
+                        {events.map(event => (
+                          <option key={event.event_id} value={event.event_id}>
+                            {event.event_name} ({event.client_name})
+                          </option>
+                        ))}
+                      </select>
+                      {errors.event_id && (
+                        <div className="invalid-feedback">{errors.event_id}</div>
+                      )}
+                    </div>
+
+                    {!(hasRole('Customer Admin') || hasRole('Client Admin')) && (
                       <div className="col-md-6">
                         <label className="form-label fw-semibold">
-                          <FaCalendarAlt className="me-2 text-primary" />
-                          Event *
+                          <FaBuilding className="me-2 text-primary" />
+                          Customer
                         </label>
                         <select
-                          name="event_id"
-                          className={`form-select glass-input ${!formData.event_id ? 'is-invalid' : ''}`}
-                          value={formData.event_id}
+                          name="customer_id"
+                          className="form-select glass-input"
+                          value={formData.customer_id}
                           onChange={handleInputChange}
-                          disabled={isLoading || eventId}
+                          disabled={isLoading}
                         >
-                          <option value="">Select an event</option>
-                          {events.map(event => (
-                            <option key={event.event_id} value={event.event_id}>
-                              {event.event_name} ({event.client_name})
+                          <option value="">Select a customer</option>
+                          {customers.map(customer => (
+                            <option key={customer.customer_id} value={customer.customer_id}>
+                              {customer.customer_name}
                             </option>
                           ))}
                         </select>
                       </div>
+                    )}
+                  </div>
 
-                      {!(hasRole('Customer Admin') || hasRole('Client Admin')) && (
-                        <div className="col-md-6">
-                          <label className="form-label fw-semibold">
-                            <FaBuilding className="me-2 text-primary" />
-                            Customer
-                          </label>
-                          <select
-                            name="customer_id"
-                            className="form-select glass-input"
-                            value={formData.customer_id}
-                            onChange={handleInputChange}
-                            disabled={isLoading}
-                          >
-                            <option value="">Select a customer</option>
-                            {customers.map(customer => (
-                              <option key={customer.customer_id} value={customer.customer_id}>
-                                {customer.customer_name}
-                              </option>
-                            ))}
-                          </select>
+                  {viewMode === 'form' ? (
+                    <div className="row g-4">
+                      {/* Guest Form Fields */}
+                      <div className="col-12">
+                        <div className="row g-4">
+                          <div className="col-md-6">
+                            <label className="form-label fw-semibold">
+                              <FaUser className="me-2 text-primary" />
+                              First Name *
+                            </label>
+                            <input
+                              type="text"
+                              name="guest_first_name"
+                              className={`form-control glass-input ${errors.guest_first_name ? 'is-invalid' : ''}`}
+                              value={formData.guest_first_name}
+                              onChange={handleInputChange}
+                              disabled={isLoading}
+                              placeholder="Enter first name"
+                            />
+                            {errors.guest_first_name && (
+                              <div className="invalid-feedback">{errors.guest_first_name}</div>
+                            )}
+                          </div>
+
+                          <div className="col-md-6">
+                            <label className="form-label fw-semibold">
+                              <FaUser className="me-2 text-primary" />
+                              Last Name *
+                            </label>
+                            <input
+                              type="text"
+                              name="guest_last_name"
+                              className={`form-control glass-input ${errors.guest_last_name ? 'is-invalid' : ''}`}
+                              value={formData.guest_last_name}
+                              onChange={handleInputChange}
+                              disabled={isLoading}
+                              placeholder="Enter last name"
+                            />
+                            {errors.guest_last_name && (
+                              <div className="invalid-feedback">{errors.guest_last_name}</div>
+                            )}
+                          </div>
+
+                          <div className="col-md-6">
+                            <label className="form-label fw-semibold">
+                              <FaEnvelope className="me-2 text-primary" />
+                              Email
+                            </label>
+                            <input
+                              type="email"
+                              name="guest_email"
+                              className={`form-control glass-input ${errors.guest_email ? 'is-invalid' : ''}`}
+                              value={formData.guest_email}
+                              onChange={handleInputChange}
+                              disabled={isLoading}
+                              placeholder="Enter email"
+                            />
+                            {errors.guest_email && (
+                              <div className="invalid-feedback">{errors.guest_email}</div>
+                            )}
+                          </div>
+
+                          <div className="col-md-6">
+                            <label className="form-label fw-semibold">
+                              <FaPhone className="me-2 text-primary" />
+                              Phone
+                            </label>
+                            <input
+                              type="tel"
+                              name="guest_phone"
+                              className={`form-control glass-input ${errors.guest_phone ? 'is-invalid' : ''}`}
+                              value={formData.guest_phone}
+                              onChange={handleInputChange}
+                              disabled={isLoading}
+                              placeholder="Enter phone number"
+                            />
+                            {errors.guest_phone && (
+                              <div className="invalid-feedback">{errors.guest_phone}</div>
+                            )}
+                          </div>
+
+                          <div className="col-md-6">
+                            <label className="form-label fw-semibold">
+                              <FaTags className="me-2 text-primary" />
+                              Guest Type
+                            </label>
+                            <select
+                              name="guest_type"
+                              className="form-select glass-input"
+                              value={formData.guest_type}
+                              onChange={handleInputChange}
+                              disabled={isLoading}
+                            >
+                              {guestTypeOptions.map(type => (
+                                <option key={type} value={type}>
+                                  {type}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+
+                          <div className="col-md-6">
+                            <label className="form-label fw-semibold">
+                              <FaUsers className="me-2 text-primary" />
+                              RSVP Status
+                            </label>
+                            <select
+                              name="guest_rsvp_status"
+                              className="form-select glass-input"
+                              value={formData.guest_rsvp_status}
+                              onChange={handleInputChange}
+                              disabled={isLoading}
+                            >
+                              {rsvpStatusOptions.map(status => (
+                                <option key={status} value={status}>
+                                  {status}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
                         </div>
-                      )}
+                      </div>
 
-                      {/* Table Header */}
+                      {/* Guest Group Selection */}
+                      <div className="col-12">
+                        <div className="row g-4">
+                          <div className="col-md-6">
+                            <label className="form-label fw-semibold">
+                              <FaUsers className="me-2 text-primary" />
+                              Guest Group (Optional)
+                            </label>
+                            <select
+                              name="guest_group_id"
+                              className="form-select glass-input"
+                              value={formData.guest_group_id}
+                              onChange={handleInputChange}
+                              disabled={isLoading}
+                            >
+                              <option value="">No group</option>
+                              {guestGroups.map(group => (
+                                <option key={group.guest_group_id} value={group.guest_group_id}>
+                                  {group.guest_group_name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="col-12">
                       <div className="d-flex justify-content-between align-items-center mb-3">
                         <h5 className="text-primary mb-0">
                           <FaUsers className="me-2" />
@@ -474,8 +627,6 @@ const GuestCreate = () => {
                           + Add Row
                         </button>
                       </div>
-
-                      {/* Table */}
                       <div className="table-responsive">
                         <table className="table table-bordered">
                           <thead className="table-light">
@@ -666,17 +817,49 @@ const GuestCreate = () => {
                             <FaUsers className="me-2" />
                             Guest Details
                           </h5>
-                          <button
-                            type="button"
-                            className="btn btn-outline-primary btn-sm glass-btn"
-                            onClick={addTableRow}
-                            disabled={isLoading}
-                          >
-                            + Add Row
-                          </button>
+                          <div className="d-flex gap-2">
+                            <button
+                              type="button"
+                              className="btn btn-outline-primary btn-sm glass-btn"
+                              onClick={addTableRow}
+                              disabled={isLoading}
+                            >
+                              + Add Row
+                            </button>
+                            <button
+                              type="button"
+                              className="btn btn-outline-secondary btn-sm glass-btn"
+                              onClick={() => setTableGuests([{
+                                id: Date.now(),
+                                guest_first_name: '',
+                                guest_last_name: '',
+                                guest_email: '',
+                                guest_phone: '',
+                                guest_type: 'Bride\'s Family',
+                                guest_rsvp_status: 'Pending',
+                                guest_address: '',
+                                guest_city: '',
+                                guest_country: '',
+                                guest_dietary_preferences: '',
+                                guest_special_requirements: '',
+                                guest_notes: ''
+                              }])}
+                              disabled={isLoading}
+                            >
+                              Clear All
+                            </button>
+                          </div>
                         </div>
+                        
+                        {tableGuests.some(g => !g.guest_first_name || !g.guest_last_name) && (
+                          <div className="alert alert-warning mb-3">
+                            <FaInfoCircle className="me-2" />
+                            Please fill in at least first and last name for each guest.
+                          </div>
+                        )}
+                        
                         <div className="table-responsive">
-                          <table className="table table-bordered">
+                          <table className="table table-bordered table-hover">
                             <thead className="table-light">
                               <tr>
                                 <th style={{minWidth: '120px'}}>First Name *</th>
@@ -685,28 +868,30 @@ const GuestCreate = () => {
                                 <th style={{minWidth: '130px'}}>Phone</th>
                                 <th style={{minWidth: '140px'}}>Guest Type</th>
                                 <th style={{minWidth: '120px'}}>RSVP Status</th>
-                                <th style={{minWidth: '100px'}}>Action</th>
+                                <th style={{width: '100px'}}>Actions</th>
                               </tr>
                             </thead>
                             <tbody>
                               {tableGuests.map((guest, index) => (
-                                <tr key={guest.id}>
+                                <tr key={guest.id} className={!guest.guest_first_name || !guest.guest_last_name ? 'table-warning' : ''}>
                                   <td>
                                     <input
                                       type="text"
-                                      className="form-control form-control-sm"
+                                      className={`form-control form-control-sm ${!guest.guest_first_name ? 'is-invalid' : ''}`}
                                       value={guest.guest_first_name}
                                       onChange={(e) => handleTableInputChange(index, 'guest_first_name', e.target.value)}
                                       disabled={isLoading}
+                                      placeholder="First name"
                                     />
                                   </td>
                                   <td>
                                     <input
                                       type="text"
-                                      className="form-control form-control-sm"
+                                      className={`form-control form-control-sm ${!guest.guest_last_name ? 'is-invalid' : ''}`}
                                       value={guest.guest_last_name}
                                       onChange={(e) => handleTableInputChange(index, 'guest_last_name', e.target.value)}
                                       disabled={isLoading}
+                                      placeholder="Last name"
                                     />
                                   </td>
                                   <td>
@@ -716,6 +901,7 @@ const GuestCreate = () => {
                                       value={guest.guest_email}
                                       onChange={(e) => handleTableInputChange(index, 'guest_email', e.target.value)}
                                       disabled={isLoading}
+                                      placeholder="email@example.com"
                                     />
                                   </td>
                                   <td>
@@ -725,6 +911,7 @@ const GuestCreate = () => {
                                       value={guest.guest_phone}
                                       onChange={(e) => handleTableInputChange(index, 'guest_phone', e.target.value)}
                                       disabled={isLoading}
+                                      placeholder="+1 (___) ___-____"
                                     />
                                   </td>
                                   <td>
@@ -754,10 +941,10 @@ const GuestCreate = () => {
                                   <td className="text-center">
                                     <button
                                       type="button"
-                                      className="btn btn-link text-danger p-0"
+                                      className="btn btn-sm btn-outline-danger"
                                       onClick={() => removeTableRow(index)}
-                                      disabled={isLoading || tableGuests.length === 1}
-                                      title="Remove row"
+                                      disabled={isLoading || tableGuests.length <= 1}
+                                      title="Remove guest"
                                     >
                                       <FaTimes />
                                     </button>
