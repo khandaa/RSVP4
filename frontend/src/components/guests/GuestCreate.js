@@ -618,17 +618,48 @@ const GuestCreate = () => {
                           <FaUsers className="me-2" />
                           Guest Details
                         </h5>
-                        <button
-                          type="button"
-                          className="btn btn-outline-primary btn-sm glass-btn"
-                          onClick={addTableRow}
-                          disabled={isLoading}
-                        >
-                          + Add Row
-                        </button>
+                        <div className="d-flex gap-2">
+                          <button
+                            type="button"
+                            className="btn btn-outline-primary btn-sm glass-btn"
+                            onClick={addTableRow}
+                            disabled={isLoading}
+                          >
+                            + Add Row
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-outline-secondary btn-sm glass-btn"
+                            onClick={() => setTableGuests([{
+                              id: Date.now(),
+                              guest_first_name: '',
+                              guest_last_name: '',
+                              guest_email: '',
+                              guest_phone: '',
+                              guest_type: 'Bride\'s Family',
+                              guest_rsvp_status: 'Pending',
+                              guest_address: '',
+                              guest_city: '',
+                              guest_country: '',
+                              guest_dietary_preferences: '',
+                              guest_special_requirements: '',
+                              guest_notes: ''
+                            }])}
+                            disabled={isLoading}
+                          >
+                            Clear All
+                          </button>
+                        </div>
                       </div>
+
+                      {tableGuests.some(g => !g.guest_first_name || !g.guest_last_name) && (
+                        <div className="alert alert-warning mb-3">
+                          <FaInfoCircle className="me-2" />
+                          Please fill in at least first and last name for each guest.
+                        </div>
+                      )}
                       <div className="table-responsive">
-                        <table className="table table-bordered">
+                        <table className="table table-bordered table-hover">
                           <thead className="table-light">
                             <tr>
                               <th style={{minWidth: '120px'}}>First Name *</th>
@@ -637,36 +668,30 @@ const GuestCreate = () => {
                               <th style={{minWidth: '130px'}}>Phone</th>
                               <th style={{minWidth: '140px'}}>Guest Type</th>
                               <th style={{minWidth: '120px'}}>RSVP Status</th>
-                              <th style={{minWidth: '150px'}}>Address</th>
-                              <th style={{minWidth: '100px'}}>City</th>
-                              <th style={{minWidth: '100px'}}>Country</th>
-                              <th style={{minWidth: '150px'}}>Dietary Preferences</th>
-                              <th style={{minWidth: '150px'}}>Special Requirements</th>
-                              <th style={{minWidth: '150px'}}>Notes</th>
-                              <th style={{width: '50px'}}>Action</th>
+                              <th style={{width: '100px'}}>Actions</th>
                             </tr>
                           </thead>
                           <tbody>
                             {tableGuests.map((guest, index) => (
-                              <tr key={guest.id}>
+                              <tr key={guest.id} className={!guest.guest_first_name || !guest.guest_last_name ? 'table-warning' : ''}>
                                 <td>
                                   <input
                                     type="text"
-                                    className="form-control form-control-sm"
+                                    className={`form-control form-control-sm ${!guest.guest_first_name ? 'is-invalid' : ''}`}
                                     value={guest.guest_first_name}
                                     onChange={(e) => handleTableInputChange(index, 'guest_first_name', e.target.value)}
-                                    placeholder="First name"
                                     disabled={isLoading}
+                                    placeholder="First name"
                                   />
                                 </td>
                                 <td>
                                   <input
                                     type="text"
-                                    className="form-control form-control-sm"
+                                    className={`form-control form-control-sm ${!guest.guest_last_name ? 'is-invalid' : ''}`}
                                     value={guest.guest_last_name}
                                     onChange={(e) => handleTableInputChange(index, 'guest_last_name', e.target.value)}
-                                    placeholder="Last name"
                                     disabled={isLoading}
+                                    placeholder="Last name"
                                   />
                                 </td>
                                 <td>
@@ -675,8 +700,8 @@ const GuestCreate = () => {
                                     className="form-control form-control-sm"
                                     value={guest.guest_email}
                                     onChange={(e) => handleTableInputChange(index, 'guest_email', e.target.value)}
-                                    placeholder="Email"
                                     disabled={isLoading}
+                                    placeholder="email@example.com"
                                   />
                                 </td>
                                 <td>
@@ -685,8 +710,8 @@ const GuestCreate = () => {
                                     className="form-control form-control-sm"
                                     value={guest.guest_phone}
                                     onChange={(e) => handleTableInputChange(index, 'guest_phone', e.target.value)}
-                                    placeholder="Phone"
                                     disabled={isLoading}
+                                    placeholder="+1 (___) ___-____"
                                   />
                                 </td>
                                 <td>
@@ -713,73 +738,13 @@ const GuestCreate = () => {
                                     ))}
                                   </select>
                                 </td>
-                                <td>
-                                  <textarea
-                                    className="form-control form-control-sm"
-                                    value={guest.guest_address}
-                                    onChange={(e) => handleTableInputChange(index, 'guest_address', e.target.value)}
-                                    placeholder="Address"
-                                    rows="1"
-                                    disabled={isLoading}
-                                  />
-                                </td>
-                                <td>
-                                  <input
-                                    type="text"
-                                    className="form-control form-control-sm"
-                                    value={guest.guest_city}
-                                    onChange={(e) => handleTableInputChange(index, 'guest_city', e.target.value)}
-                                    placeholder="City"
-                                    disabled={isLoading}
-                                  />
-                                </td>
-                                <td>
-                                  <input
-                                    type="text"
-                                    className="form-control form-control-sm"
-                                    value={guest.guest_country}
-                                    onChange={(e) => handleTableInputChange(index, 'guest_country', e.target.value)}
-                                    placeholder="Country"
-                                    disabled={isLoading}
-                                  />
-                                </td>
-                                <td>
-                                  <textarea
-                                    className="form-control form-control-sm"
-                                    value={guest.guest_dietary_preferences}
-                                    onChange={(e) => handleTableInputChange(index, 'guest_dietary_preferences', e.target.value)}
-                                    placeholder="Dietary preferences"
-                                    rows="1"
-                                    disabled={isLoading}
-                                  />
-                                </td>
-                                <td>
-                                  <textarea
-                                    className="form-control form-control-sm"
-                                    value={guest.guest_special_requirements}
-                                    onChange={(e) => handleTableInputChange(index, 'guest_special_requirements', e.target.value)}
-                                    placeholder="Special requirements"
-                                    rows="1"
-                                    disabled={isLoading}
-                                  />
-                                </td>
-                                <td>
-                                  <textarea
-                                    className="form-control form-control-sm"
-                                    value={guest.guest_notes}
-                                    onChange={(e) => handleTableInputChange(index, 'guest_notes', e.target.value)}
-                                    placeholder="Notes"
-                                    rows="1"
-                                    disabled={isLoading}
-                                  />
-                                </td>
-                                <td>
+                                <td className="text-center">
                                   <button
                                     type="button"
-                                    className="btn btn-outline-danger btn-sm"
+                                    className="btn btn-sm btn-outline-danger"
                                     onClick={() => removeTableRow(index)}
-                                    disabled={isLoading || tableGuests.length === 1}
-                                    title="Remove row"
+                                    disabled={isLoading || tableGuests.length <= 1}
+                                    title="Remove guest"
                                   >
                                     <FaTimes />
                                   </button>
@@ -804,172 +769,6 @@ const GuestCreate = () => {
                               • Only rows with first and last names will be saved<br/>
                               • All guests will be assigned to the selected event
                             </small>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="row g-4">
-                      {/* Table View */}
-                      <div className="col-12">
-                        <div className="d-flex justify-content-between align-items-center mb-3">
-                          <h5 className="text-primary mb-0">
-                            <FaUsers className="me-2" />
-                            Guest Details
-                          </h5>
-                          <div className="d-flex gap-2">
-                            <button
-                              type="button"
-                              className="btn btn-outline-primary btn-sm glass-btn"
-                              onClick={addTableRow}
-                              disabled={isLoading}
-                            >
-                              + Add Row
-                            </button>
-                            <button
-                              type="button"
-                              className="btn btn-outline-secondary btn-sm glass-btn"
-                              onClick={() => setTableGuests([{
-                                id: Date.now(),
-                                guest_first_name: '',
-                                guest_last_name: '',
-                                guest_email: '',
-                                guest_phone: '',
-                                guest_type: 'Bride\'s Family',
-                                guest_rsvp_status: 'Pending',
-                                guest_address: '',
-                                guest_city: '',
-                                guest_country: '',
-                                guest_dietary_preferences: '',
-                                guest_special_requirements: '',
-                                guest_notes: ''
-                              }])}
-                              disabled={isLoading}
-                            >
-                              Clear All
-                            </button>
-                          </div>
-                        </div>
-                        
-                        {tableGuests.some(g => !g.guest_first_name || !g.guest_last_name) && (
-                          <div className="alert alert-warning mb-3">
-                            <FaInfoCircle className="me-2" />
-                            Please fill in at least first and last name for each guest.
-                          </div>
-                        )}
-                        
-                        <div className="table-responsive">
-                          <table className="table table-bordered table-hover">
-                            <thead className="table-light">
-                              <tr>
-                                <th style={{minWidth: '120px'}}>First Name *</th>
-                                <th style={{minWidth: '120px'}}>Last Name *</th>
-                                <th style={{minWidth: '180px'}}>Email</th>
-                                <th style={{minWidth: '130px'}}>Phone</th>
-                                <th style={{minWidth: '140px'}}>Guest Type</th>
-                                <th style={{minWidth: '120px'}}>RSVP Status</th>
-                                <th style={{width: '100px'}}>Actions</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {tableGuests.map((guest, index) => (
-                                <tr key={guest.id} className={!guest.guest_first_name || !guest.guest_last_name ? 'table-warning' : ''}>
-                                  <td>
-                                    <input
-                                      type="text"
-                                      className={`form-control form-control-sm ${!guest.guest_first_name ? 'is-invalid' : ''}`}
-                                      value={guest.guest_first_name}
-                                      onChange={(e) => handleTableInputChange(index, 'guest_first_name', e.target.value)}
-                                      disabled={isLoading}
-                                      placeholder="First name"
-                                    />
-                                  </td>
-                                  <td>
-                                    <input
-                                      type="text"
-                                      className={`form-control form-control-sm ${!guest.guest_last_name ? 'is-invalid' : ''}`}
-                                      value={guest.guest_last_name}
-                                      onChange={(e) => handleTableInputChange(index, 'guest_last_name', e.target.value)}
-                                      disabled={isLoading}
-                                      placeholder="Last name"
-                                    />
-                                  </td>
-                                  <td>
-                                    <input
-                                      type="email"
-                                      className="form-control form-control-sm"
-                                      value={guest.guest_email}
-                                      onChange={(e) => handleTableInputChange(index, 'guest_email', e.target.value)}
-                                      disabled={isLoading}
-                                      placeholder="email@example.com"
-                                    />
-                                  </td>
-                                  <td>
-                                    <input
-                                      type="tel"
-                                      className="form-control form-control-sm"
-                                      value={guest.guest_phone}
-                                      onChange={(e) => handleTableInputChange(index, 'guest_phone', e.target.value)}
-                                      disabled={isLoading}
-                                      placeholder="+1 (___) ___-____"
-                                    />
-                                  </td>
-                                  <td>
-                                    <select
-                                      className="form-select form-select-sm"
-                                      value={guest.guest_type}
-                                      onChange={(e) => handleTableInputChange(index, 'guest_type', e.target.value)}
-                                      disabled={isLoading}
-                                    >
-                                      {guestTypeOptions.map(type => (
-                                        <option key={type} value={type}>{type}</option>
-                                      ))}
-                                    </select>
-                                  </td>
-                                  <td>
-                                    <select
-                                      className="form-select form-select-sm"
-                                      value={guest.guest_rsvp_status}
-                                      onChange={(e) => handleTableInputChange(index, 'guest_rsvp_status', e.target.value)}
-                                      disabled={isLoading}
-                                    >
-                                      {rsvpStatusOptions.map(status => (
-                                        <option key={status} value={status}>{status}</option>
-                                      ))}
-                                    </select>
-                                  </td>
-                                  <td className="text-center">
-                                    <button
-                                      type="button"
-                                      className="btn btn-sm btn-outline-danger"
-                                      onClick={() => removeTableRow(index)}
-                                      disabled={isLoading || tableGuests.length <= 1}
-                                      title="Remove guest"
-                                    >
-                                      <FaTimes />
-                                    </button>
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-
-                        {/* Table Info */}
-                        <div className="mt-3 p-3 bg-light rounded glass-effect">
-                          <div className="d-flex align-items-start">
-                            <div className="flex-shrink-0">
-                              <FaInfoCircle className="text-primary" />
-                            </div>
-                            <div className="flex-grow-1 ms-3">
-                              <h6 className="mb-1">Table Mode Instructions</h6>
-                              <small className="text-muted">
-                                • First name and last name are required for each guest<br/>
-                                • Click "Add Row" to add more guests<br/>
-                                • Only rows with first and last names will be saved<br/>
-                                • All guests will be assigned to the selected event
-                              </small>
-                            </div>
                           </div>
                         </div>
                       </div>
