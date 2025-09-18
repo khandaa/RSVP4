@@ -111,7 +111,7 @@ const ClientCreate = () => {
       setSubmitting(true);
       const response = await clientAPI.createClient(formData);
       toast.success('Client created successfully!');
-      navigate(`/clients/${response.data.id}`);
+      navigate(`/clients/${response.data.client_id}`);
     } catch (error) {
       console.error('Error creating client:', error);
       
