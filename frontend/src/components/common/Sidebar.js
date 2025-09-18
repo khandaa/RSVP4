@@ -12,6 +12,7 @@ import { adminMenuItems } from '../sidebars/AdminSidebar';
 import { customerMenuItems } from '../sidebars/CustomerSidebar';
 import { clientMenuItems } from '../sidebars/ClientSidebar';
 import { rsvpMenuItems } from '../sidebars/RSVPSidebar';
+import axios from 'axios';
 
 const Sidebar = ({ collapsed }) => {
   const location = useLocation();
@@ -20,6 +21,7 @@ const Sidebar = ({ collapsed }) => {
   const [featureToggles, setFeatureToggles] = useState({});
   const [loading, setLoading] = useState(true);
   const [expandedMenus, setExpandedMenus] = useState({});
+  const [companyName, setCompanyName] = useState('EmployDEX');
   
   // Toggle submenu expansion
   const toggleSubmenu = (menuName) => {
@@ -62,6 +64,20 @@ const Sidebar = ({ collapsed }) => {
     
   
   useEffect(() => {
+    if (currentUser && currentUser.customer_id) {
+      axios.get(`/api/customers/${currentUser.customer_id}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      .then(response => {
+        setCompanyName(response.data.customer_name || 'EmployDEX');
+      })
+      .catch(error => {
+        console.error('Failed to fetch customer details:', error);
+      });
+    }
+  }, [currentUser, token]);
+
+  useEffect(() => {
     const getMenuItems = () => {
       let menuItems = [...baseMenuItems];
 
@@ -87,8 +103,8 @@ const Sidebar = ({ collapsed }) => {
   return (
     <div className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
       <div className="sidebar-brand">
-        {!collapsed && <h4 className="m-0">EmployDEX</h4>}
-        {collapsed && <h4 className="m-0">E</h4>}
+        {!collapsed && <h4 className="m-0">{companyName}</h4>}
+        {collapsed && <h4 className="m-0">{companyName.charAt(0)}</h4>}
       </div>
       <div className="sidebar-menu">
         {finalMenuItems

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { 
   FaPlus, 
@@ -427,10 +427,10 @@ const GuestList = () => {
                 <th 
                   scope="col" 
                   className="sortable" 
-                  onClick={() => handleSort('guest_id')}
+                  onClick={() => handleSort('event_name')}
                   style={{ cursor: 'pointer' }}
                 >
-                  ID {getSortIcon('guest_id')}
+                  Event {getSortIcon('event_name')}
                 </th>
                 <th 
                   scope="col" 
@@ -448,32 +448,6 @@ const GuestList = () => {
                 >
                   Contact {getSortIcon('guest_email')}
                 </th>
-                <th 
-                  scope="col" 
-                  className="sortable" 
-                  onClick={() => handleSort('guest_organization')}
-                  style={{ cursor: 'pointer' }}
-                >
-                  Organization {getSortIcon('guest_organization')}
-                </th>
-                <th 
-                  scope="col" 
-                  className="sortable" 
-                  onClick={() => handleSort('customer_name')}
-                  style={{ cursor: 'pointer' }}
-                >
-                  Customer {getSortIcon('customer_name')}
-                </th>
-                {!eventId && (
-                  <th 
-                    scope="col" 
-                    className="sortable" 
-                    onClick={() => handleSort('event_name')}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    Event {getSortIcon('event_name')}
-                  </th>
-                )}
                 <th 
                   scope="col" 
                   className="sortable" 
@@ -496,7 +470,7 @@ const GuestList = () => {
             <tbody>
               {filteredGuests.length === 0 ? (
                 <tr>
-                  <td colSpan={eventId ? "8" : "9"} className="text-center py-4">
+                  <td colSpan="6" className="text-center py-4">
                     <div className="text-muted">
                       {searchTerm || rsvpFilter !== 'all' || eventFilter !== 'all' || customerFilter !== 'all' || guestTypeFilter !== 'all'
                         ? 'No guests match your filters'
@@ -508,12 +482,20 @@ const GuestList = () => {
               ) : (
                 filteredGuests.map((guest) => (
                   <tr key={guest.guest_id}>
-                    <td>#{guest.guest_id}</td>
+                    <td>
+                      {guest.event_name ? (
+                        <span className="badge bg-primary glass-badge">
+                          {guest.event_name}
+                        </span>
+                      ) : (
+                        <span className="text-muted">-</span>
+                      )}
+                    </td>
                     <td className="fw-semibold">
                       <div className="d-flex align-items-center">
                         <FaUsers className="text-primary me-2" />
                         <div>
-                          <div>{guest.guest_first_name} {guest.guest_last_name}</div>
+                          <Link to={`/guests/${guest.guest_id}`}>{guest.guest_first_name} {guest.guest_last_name}</Link>
                           {guest.guest_designation && (
                             <small className="text-muted">{guest.guest_designation}</small>
                           )}
@@ -536,35 +518,6 @@ const GuestList = () => {
                         )}
                       </div>
                     </td>
-                    <td>
-                      {guest.guest_organization ? (
-                        <span className="badge bg-info glass-badge">
-                          {guest.guest_organization}
-                        </span>
-                      ) : (
-                        <span className="text-muted">-</span>
-                      )}
-                    </td>
-                    <td>
-                      {guest.customer_name ? (
-                        <span className="badge bg-secondary glass-badge">
-                          {guest.customer_name}
-                        </span>
-                      ) : (
-                        <span className="text-muted">-</span>
-                      )}
-                    </td>
-                    {!eventId && (
-                      <td>
-                        {guest.event_name ? (
-                          <span className="badge bg-primary glass-badge">
-                            {guest.event_name}
-                          </span>
-                        ) : (
-                          <span className="text-muted">-</span>
-                        )}
-                      </td>
-                    )}
                     <td>
                       <span className={`badge glass-badge ${getRSVPBadgeClass(guest.guest_rsvp_status)}`}>
                         {guest.guest_rsvp_status || 'Pending'}

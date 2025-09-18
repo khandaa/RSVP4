@@ -86,7 +86,7 @@ const ClientDetail = () => {
             <FaArrowLeft className="me-1" /> Back
           </Button>
           
-          {hasPermission(['client_edit']) && (
+          {hasPermission(['clients_update']) && (
             <Button 
               as={Link} 
               to={`/clients/edit/${id}`} 
@@ -97,7 +97,7 @@ const ClientDetail = () => {
             </Button>
           )}
           
-          {hasPermission(['client_delete']) && (
+          {hasPermission(['clients_delete']) && (
             <Button 
               variant="danger" 
               onClick={() => setShowDeleteModal(true)}

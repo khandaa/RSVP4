@@ -131,7 +131,7 @@ const ClientCreate = () => {
   };
   
   // Admin, full_access should always have access, otherwise check specific permission
-  if (!hasPermission(['client_create']) && !hasRole(['Admin', 'admin', 'full_access'])) {
+  if (!hasPermission(['clients_create']) && !hasRole(['Admin', 'admin', 'full_access'])) {
     return (
       <Container className="mt-4">
         <div className="alert alert-danger">

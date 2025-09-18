@@ -147,7 +147,7 @@ const ClientEdit = () => {
     }
   };
   
-  if (!hasPermission(['client_edit'])) {
+  if (!hasPermission(['clients_update'])) {
     return (
       <Container className="mt-4">
         <div className="alert alert-danger">

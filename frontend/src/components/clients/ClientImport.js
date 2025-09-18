@@ -105,7 +105,7 @@ const ClientImport = () => {
     }
   };
   
-  if (!hasPermission(['client_create'])) {
+  if (!hasPermission(['clients_create'])) {
     return (
       <Container className="mt-4">
         <div className="alert alert-danger">
