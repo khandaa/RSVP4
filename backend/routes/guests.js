@@ -30,6 +30,40 @@ router.get('/', authenticateToken, async (req, res) => {
   }
 });
 
+// GET /api/guests/template - Download CSV template for bulk import (must be before /:id route)
+router.get('/template', authenticateToken, async (req, res) => {
+  try {
+    const csvHeaders = [
+      'client_id',
+      'event_id',
+      'subevent_id',
+      'guest_first_name',
+      'guest_last_name',
+      'guest_email',
+      'guest_phone',
+      'guest_status'
+    ];
+
+    const sampleData = [
+      '1,1,,John,Doe,john.doe@example.com,+1234567890,Active',
+      '1,1,,Jane,Smith,jane.smith@example.com,+1234567891,Active'
+    ];
+
+    const csvContent = [
+      csvHeaders.join(','),
+      ...sampleData
+    ].join('\n');
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename=guest-import-template.csv');
+    res.send(csvContent);
+
+  } catch (error) {
+    console.error('Error generating template:', error);
+    res.status(500).json({ error: 'Failed to generate template' });
+  }
+});
+
 // GET /api/guests/:id - Get guest by ID
 router.get('/:id', authenticateToken, async (req, res) => {
   try {
@@ -214,6 +248,186 @@ router.delete('/:id', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Error deleting guest:', error);
     res.status(500).json({ error: 'Failed to delete guest' });
+  }
+});
+
+// POST /api/guests/bulk - Bulk import guests from CSV
+const multer = require('multer');
+const csv = require('csv-parser');
+const fs = require('fs');
+const path = require('path');
+
+// Configure multer for CSV upload
+const upload = multer({
+  dest: path.join(__dirname, '../uploads/temp'),
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === 'text/csv' || file.originalname.endsWith('.csv')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only CSV files are allowed'));
+    }
+  },
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB limit
+  }
+});
+
+router.post('/bulk', [authenticateToken, upload.single('file')], async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    const db = req.app.locals.db;
+    const results = [];
+    const errors = [];
+    let processed = 0;
+    let successful = 0;
+
+    // Parse CSV file
+    const csvData = [];
+
+    await new Promise((resolve, reject) => {
+      fs.createReadStream(req.file.path)
+        .pipe(csv())
+        .on('data', (data) => csvData.push(data))
+        .on('end', resolve)
+        .on('error', reject);
+    });
+
+    for (let i = 0; i < csvData.length; i++) {
+      const row = csvData[i];
+      processed++;
+
+      try {
+        // Validate required fields
+        if (!row.client_id || !row.event_id || !row.guest_first_name || !row.guest_last_name) {
+          errors.push({
+            row: i + 1,
+            error: 'Missing required fields: client_id, event_id, guest_first_name, guest_last_name'
+          });
+          continue;
+        }
+
+        // Convert string IDs to integers
+        const client_id = parseInt(row.client_id);
+        const event_id = parseInt(row.event_id);
+        const subevent_id = row.subevent_id ? parseInt(row.subevent_id) : null;
+
+        // Validate client exists
+        const client = await dbMethods.get(db, 'SELECT client_id FROM rsvp_master_clients WHERE client_id = ?', [client_id]);
+        if (!client) {
+          errors.push({
+            row: i + 1,
+            error: `Client ID ${client_id} not found`
+          });
+          continue;
+        }
+
+        // Validate event exists
+        const event = await dbMethods.get(db, 'SELECT event_id FROM rsvp_master_events WHERE event_id = ?', [event_id]);
+        if (!event) {
+          errors.push({
+            row: i + 1,
+            error: `Event ID ${event_id} not found`
+          });
+          continue;
+        }
+
+        // Validate email format if provided
+        if (row.guest_email && !row.guest_email.includes('@')) {
+          errors.push({
+            row: i + 1,
+            error: 'Invalid email format'
+          });
+          continue;
+        }
+
+        // Check if guest already exists (by email or combination of name+event)
+        let existingGuest = null;
+        if (row.guest_email) {
+          existingGuest = await dbMethods.get(db,
+            'SELECT guest_id FROM rsvp_master_guests WHERE guest_email = ? AND event_id = ?',
+            [row.guest_email, event_id]
+          );
+        }
+
+        if (!existingGuest) {
+          existingGuest = await dbMethods.get(db,
+            'SELECT guest_id FROM rsvp_master_guests WHERE guest_first_name = ? AND guest_last_name = ? AND event_id = ?',
+            [row.guest_first_name, row.guest_last_name, event_id]
+          );
+        }
+
+        if (existingGuest) {
+          errors.push({
+            row: i + 1,
+            error: 'Guest already exists in this event'
+          });
+          continue;
+        }
+
+        // Insert guest
+        const result = await dbMethods.run(db,
+          'INSERT INTO rsvp_master_guests (client_id, event_id, subevent_id, guest_first_name, guest_last_name, guest_email, guest_phone, guest_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+          [
+            client_id,
+            event_id,
+            subevent_id,
+            row.guest_first_name.trim(),
+            row.guest_last_name.trim(),
+            row.guest_email ? row.guest_email.trim() : null,
+            row.guest_phone ? row.guest_phone.trim() : null,
+            row.guest_status || 'Active'
+          ]
+        );
+
+        successful++;
+        results.push({
+          row: i + 1,
+          guest_id: result.lastID,
+          name: `${row.guest_first_name} ${row.guest_last_name}`,
+          status: 'success'
+        });
+
+      } catch (error) {
+        console.error(`Error processing row ${i + 1}:`, error);
+        errors.push({
+          row: i + 1,
+          error: error.message || 'Unknown error occurred'
+        });
+      }
+    }
+
+    // Clean up uploaded file
+    try {
+      fs.unlinkSync(req.file.path);
+    } catch (cleanupError) {
+      console.error('Error cleaning up file:', cleanupError);
+    }
+
+    res.json({
+      message: 'Bulk import completed',
+      total: processed,
+      successful: successful,
+      failed: errors.length,
+      results: results,
+      errors: errors
+    });
+
+  } catch (error) {
+    console.error('Error in bulk import:', error);
+
+    // Clean up uploaded file if it exists
+    if (req.file && req.file.path) {
+      try {
+        fs.unlinkSync(req.file.path);
+      } catch (cleanupError) {
+        console.error('Error cleaning up file:', cleanupError);
+      }
+    }
+
+    res.status(500).json({ error: 'Failed to process bulk import' });
   }
 });
 

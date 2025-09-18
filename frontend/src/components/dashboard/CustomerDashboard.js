@@ -25,15 +25,7 @@ const CustomerDashboard = () => {
       try {
         setLoading(true);
         
-        // Get the customer ID associated with this admin
-        const userResponse = await axios.get('/api/comprehensive-crud/users/profile');
-        const userDetails = userResponse.data;
-        
-        // Assuming customer_id is stored in user's metadata or can be derived from email domain
-        // This will depend on your implementation - you might need to modify this part
-        const customerEmail = userDetails.email;
-        const customerResponse = await axios.get(`/api/customers?email=${encodeURIComponent(customerEmail)}`);
-        const customerId = customerResponse.data[0]?.customer_id;
+        const customerId = currentUser.customer_id;
         
         if (!customerId) {
           console.error('Could not determine customer ID for this user');

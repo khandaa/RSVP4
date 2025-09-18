@@ -235,7 +235,8 @@ router.post('/login', [
               first_name: user.first_name,
               last_name: user.last_name,
               roles,
-              permissions
+              permissions,
+              customer_id: user.customer_id
             }
           });
         });

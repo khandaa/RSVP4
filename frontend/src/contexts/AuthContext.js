@@ -109,7 +109,8 @@ export const AuthProvider = ({ children }) => {
               id: decoded.user?.id,
               email: decoded.user?.email,
               firstName: decoded.user?.first_name,
-              lastName: decoded.user?.last_name
+              lastName: decoded.user?.last_name,
+              customer_id: decoded.user?.customer_id
             };
             setCurrentUser(decodedUser);
             try { localStorage.setItem('currentUser', JSON.stringify(decodedUser)); } catch (_) {}
@@ -169,7 +170,8 @@ export const AuthProvider = ({ children }) => {
         id: user.id || decoded.user?.id,
         email: user.email || decoded.user?.email,
         firstName: user.first_name || decoded.user?.first_name,
-        lastName: user.last_name || decoded.user?.last_name
+        lastName: user.last_name || decoded.user?.last_name,
+        customer_id: user.customer_id || decoded.user?.customer_id
       };
       setCurrentUser(hydratedUser);
       try { localStorage.setItem('currentUser', JSON.stringify(hydratedUser)); } catch (_) {}
