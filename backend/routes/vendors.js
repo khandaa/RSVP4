@@ -21,17 +21,12 @@ router.get('/', restrictToAdminAndCustomerAdmin, async (req, res) => {
   try {
     const db = req.app.locals.db;
     let query = `
-      SELECT v.*, c.customer_name 
-      FROM rsvp_master_vendors v 
-      LEFT JOIN master_customers c ON v.customer_id = c.customer_id 
+      SELECT v.*
+      FROM rsvp_master_vendors v
     `;
     
     // Apply filters if provided
     const params = [];
-    if (req.query.customer_id) {
-      query += ' WHERE v.customer_id = ?';
-      params.push(req.query.customer_id);
-    }
     
     if (req.query.vendor_type) {
       query += params.length ? ' AND v.vendor_type = ?' : ' WHERE v.vendor_type = ?';

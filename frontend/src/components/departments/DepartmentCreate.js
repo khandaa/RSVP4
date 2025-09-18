@@ -139,7 +139,11 @@ const DepartmentCreate = () => {
         await employeeAPI.updateDepartment(id, formData);
         toast.success('Department updated successfully!');
       } else {
-        await employeeAPI.createDepartment(formData);
+        const dataToSend = { ...formData };
+        if (!isAdmin) {
+          dataToSend.customer_id = currentUser.customer_id;
+        }
+        await employeeAPI.createDepartment(dataToSend);
         toast.success('Department created successfully!');
       }
       navigate('/departments/list');

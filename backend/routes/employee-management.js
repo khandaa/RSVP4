@@ -41,7 +41,6 @@ router.get('/departments', authenticateToken, async (req, res) => {
 router.post('/departments', [
   authenticateToken,
   checkPermissions('employee_management_create'),
-  authenticateToken,
   body('customer_id').isInt().withMessage('Customer ID is required and must be an integer'),
   body('department_name').notEmpty().withMessage('Department name is required')
 ], async (req, res) => {
@@ -215,6 +214,24 @@ router.get('/teams/:id', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Error fetching team:', error);
     res.status(500).json({ error: 'Failed to fetch team' });
+  }
+});
+
+// GET /api/employee-management/teams/:id/members
+router.get('/teams/:id/members', authenticateToken, async (req, res) => {
+  try {
+    const db = req.app.locals.db;
+    const members = await dbMethods.all(db, 
+      `SELECT e.* 
+       FROM rsvp_master_employees e 
+       WHERE e.team_id = ? 
+       ORDER BY e.first_name, e.last_name`, 
+      [req.params.id]
+    );
+    res.json(members);
+  } catch (error) {
+    console.error('Error fetching team members:', error);
+    res.status(500).json({ error: 'Failed to fetch team members' });
   }
 });
 
