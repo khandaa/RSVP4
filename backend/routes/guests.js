@@ -442,6 +442,34 @@ router.post('/bulk', [authenticateToken, upload.single('file')], async (req, res
           ]
         );
 
+        const guestId = result.lastID;
+
+        // Handle guest group
+        if (row.guest_group && row.guest_group.trim()) {
+          let groupId = null;
+          const groupName = row.guest_group.trim();
+
+          let existingGroup = await dbMethods.get(db,
+            'SELECT guest_group_id FROM rsvp_master_guest_groups WHERE group_name = ? AND client_id = ?',
+            [groupName, client_id]
+          );
+
+          if (existingGroup) {
+            groupId = existingGroup.guest_group_id;
+          } else {
+            const groupResult = await dbMethods.run(db,
+              'INSERT INTO rsvp_master_guest_groups (client_id, group_name) VALUES (?, ?)',
+              [client_id, groupName]
+            );
+            groupId = groupResult.lastID;
+          }
+
+          await dbMethods.run(db,
+            'INSERT INTO rsvp_guest_group_details (guest_group_id, guest_id) VALUES (?, ?)',
+            [groupId, guestId]
+          );
+        }
+
         successful++;
         results.push({
           row: i + 1,

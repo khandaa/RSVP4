@@ -96,6 +96,7 @@ const GuestImport = () => {
       'guest_phone',
       'guest_type',
       'guest_rsvp_status',
+      'guest_group',
       'guest_address',
       'guest_city',
       'guest_state',
@@ -113,6 +114,7 @@ const GuestImport = () => {
         '+1234567890',
         'Corporate',
         'Pending',
+        'Family',
         '123 Main Street',
         'New York',
         'NY',
@@ -128,6 +130,7 @@ const GuestImport = () => {
         '+1987654321',
         'VIP',
         'Confirmed',
+        'Friends',
         '456 Oak Avenue',
         'Los Angeles',
         'CA',
@@ -176,7 +179,7 @@ const GuestImport = () => {
         formData.append('customer_id', selectedCustomer);
       }
 
-      const response = await fetch('/api/guests/bulk-import', {
+      const response = await fetch('/api/guests/bulk', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -433,6 +436,7 @@ const GuestImport = () => {
                       <li><code>guest_phone</code> - Phone number</li>
                       <li><code>guest_type</code> - Individual, Family, Corporate, VIP, Media</li>
                       <li><code>guest_rsvp_status</code> - Pending, Confirmed, Declined, Tentative</li>
+                      <li><code>guest_group</code> - The name of the guest group</li>
                       <li><code>guest_address</code> - Full address</li>
                       <li><code>guest_city</code> - City</li>
                       <li><code>guest_state</code> - State/Province</li>

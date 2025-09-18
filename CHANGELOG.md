@@ -1,6 +1,7 @@
 ## [Unreleased]
 
 ### 2025-09-18
+- Enhanced guest import functionality to include `guest_group` in the CSV template and backend processing.
 - Fixed duplicate guest names on the Customer Dashboard by de-duplicating the guests list before rendering.
 - Fixed duplicate event names on the Customer Dashboard by de-duplicating the events list before rendering.
 - Fixed a recurring 'Cannot read properties of undefined (reading 'toLowerCase')' error in `GuestGroupTypeahead.js` by adding robust null checks to the data filtering and component logic, preventing crashes caused by invalid API data.
