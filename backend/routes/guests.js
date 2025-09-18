@@ -128,7 +128,7 @@ router.post('/', [
 
     const {
       client_id, event_id, subevent_id, guest_first_name, guest_last_name,
-      guest_email, guest_phone, guest_status, guest_group_id,
+      guest_email, guest_phone, guest_status, guest_group_id, guest_group_name,
       guest_type, guest_rsvp_status, guest_address, guest_city, guest_country,
       guest_dietary_preferences, guest_special_requirements, guest_notes
     } = req.body;
@@ -153,11 +153,34 @@ router.post('/', [
 
     const guestId = result.lastID;
 
-    // If guest_group_id is provided, create the relationship
-    if (guest_group_id) {
+    // Handle guest group assignment (either by ID or by name)
+    let finalGroupId = guest_group_id;
+
+    // If guest_group_name is provided, find or create the group
+    if (guest_group_name && guest_group_name.trim()) {
+      // First, try to find existing group by name
+      let existingGroup = await dbMethods.get(db,
+        'SELECT guest_group_id FROM rsvp_master_guest_groups WHERE group_name = ? AND client_id = ?',
+        [guest_group_name.trim(), client_id]
+      );
+
+      if (!existingGroup) {
+        // Create new group if it doesn't exist
+        const groupResult = await dbMethods.run(db,
+          'INSERT INTO rsvp_master_guest_groups (client_id, group_name, group_description) VALUES (?, ?, ?)',
+          [client_id, guest_group_name.trim(), `Guest group created: ${guest_group_name.trim()}`]
+        );
+        finalGroupId = groupResult.lastID;
+      } else {
+        finalGroupId = existingGroup.guest_group_id;
+      }
+    }
+
+    // If we have a group ID (either provided or created), create the relationship
+    if (finalGroupId) {
       await dbMethods.run(db,
         'INSERT INTO rsvp_guest_group_details (guest_group_id, guest_id, group_notes) VALUES (?, ?, ?)',
-        [guest_group_id, guestId, `Auto-assigned to group on ${new Date().toISOString()}`]
+        [finalGroupId, guestId, `Assigned to group on ${new Date().toISOString()}`]
       );
     }
 
@@ -193,7 +216,7 @@ router.put('/:id', [
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { client_id, event_id, subevent_id, guest_first_name, guest_last_name, guest_email, guest_phone, guest_status } = req.body;
+    const { client_id, event_id, subevent_id, guest_first_name, guest_last_name, guest_email, guest_phone, guest_status, guest_group_name } = req.body;
     const db = req.app.locals.db;
 
     const existingGuest = await dbMethods.get(db, 'SELECT * FROM rsvp_master_guests WHERE guest_id = ?', [req.params.id]);
@@ -217,13 +240,50 @@ router.put('/:id', [
       [client_id, event_id, subevent_id, guest_first_name, guest_last_name, guest_email, guest_phone, guest_status, req.params.id]
     );
 
-    const updatedGuest = await dbMethods.get(db, 
-      `SELECT g.*, c.client_name, e.event_name, s.subevent_name 
-       FROM rsvp_master_guests g 
-       LEFT JOIN rsvp_master_clients c ON g.client_id = c.client_id 
-       LEFT JOIN rsvp_master_events e ON g.event_id = e.event_id 
-       LEFT JOIN rsvp_master_subevents s ON g.subevent_id = s.subevent_id 
-       WHERE g.guest_id = ?`, 
+    // Handle guest group update
+    if (guest_group_name !== undefined) {
+      // First, remove any existing group associations for this guest
+      await dbMethods.run(db,
+        'DELETE FROM rsvp_guest_group_details WHERE guest_id = ?',
+        [req.params.id]
+      );
+
+      // If a group name is provided, find or create the group and associate it
+      if (guest_group_name && guest_group_name.trim()) {
+        let groupId = null;
+
+        // Try to find existing group by name
+        let existingGroup = await dbMethods.get(db,
+          'SELECT guest_group_id FROM rsvp_master_guest_groups WHERE group_name = ? AND client_id = ?',
+          [guest_group_name.trim(), client_id]
+        );
+
+        if (!existingGroup) {
+          // Create new group if it doesn't exist
+          const groupResult = await dbMethods.run(db,
+            'INSERT INTO rsvp_master_guest_groups (client_id, group_name, group_description) VALUES (?, ?, ?)',
+            [client_id, guest_group_name.trim(), `Guest group created: ${guest_group_name.trim()}`]
+          );
+          groupId = groupResult.lastID;
+        } else {
+          groupId = existingGroup.guest_group_id;
+        }
+
+        // Create the new association
+        await dbMethods.run(db,
+          'INSERT INTO rsvp_guest_group_details (guest_group_id, guest_id, group_notes) VALUES (?, ?, ?)',
+          [groupId, req.params.id, `Updated group assignment on ${new Date().toISOString()}`]
+        );
+      }
+    }
+
+    const updatedGuest = await dbMethods.get(db,
+      `SELECT g.*, c.client_name, e.event_name, s.subevent_name
+       FROM rsvp_master_guests g
+       LEFT JOIN rsvp_master_clients c ON g.client_id = c.client_id
+       LEFT JOIN rsvp_master_events e ON g.event_id = e.event_id
+       LEFT JOIN rsvp_master_subevents s ON g.subevent_id = s.subevent_id
+       WHERE g.guest_id = ?`,
       [req.params.id]
     );
     res.json(updatedGuest);

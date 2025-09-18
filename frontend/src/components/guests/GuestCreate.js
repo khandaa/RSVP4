@@ -16,6 +16,7 @@ import {
   FaInfoCircle
 } from 'react-icons/fa';
 import { guestGroupAPI, eventAPI, customerAPI, guestAPI } from '../../services/api';
+import GuestGroupTypeahead from '../common/GuestGroupTypeahead';
 
 const GuestCreate = () => {
   const navigate = useNavigate();
@@ -27,7 +28,6 @@ const GuestCreate = () => {
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [events, setEvents] = useState([]);
   const [customers, setCustomers] = useState([]);
-  const [guestGroups, setGuestGroups] = useState([]);
   const [viewMode, setViewMode] = useState('form'); // 'form' or 'table'
   const [tableGuests, setTableGuests] = useState([
     {
@@ -38,6 +38,7 @@ const GuestCreate = () => {
       guest_phone: '',
       guest_type: 'Bride\'s Family',
       guest_rsvp_status: 'Pending',
+      guest_group_name: '',
       guest_address: '',
       guest_city: '',
       guest_country: '',
@@ -56,7 +57,7 @@ const GuestCreate = () => {
     guest_phone: '',
     guest_type: 'Bride\'s Family',
     guest_rsvp_status: 'Pending',
-    guest_group_id: '',
+    guest_group_name: '',
     guest_address: '',
     guest_city: '',
     guest_country: '',
@@ -74,40 +75,16 @@ const GuestCreate = () => {
     fetchData();
   }, []);
 
-  const createDefaultGuestGroup = async (clientId) => {
-    try {
-      const groupData = {
-        client_id: clientId,
-        group_name: 'Default Group',
-        group_description: 'Default guest group for all guests'
-      };
-
-      const result = await guestGroupAPI.createGuestGroup(groupData);
-      return result;
-    } catch (error) {
-      console.error('Error creating default guest group:', error);
-      return null;
-    }
-  };
-
   const fetchData = async () => {
     try {
       setIsLoadingData(true);
-      const [eventsResponse, customersResponse, groupsResponse] = await Promise.all([
+      const [eventsResponse, customersResponse] = await Promise.all([
         eventAPI.getEvents(),
-        customerAPI.getCustomers(),
-        guestGroupAPI.getGuestGroups().catch(() => ({ data: [] }))
+        customerAPI.getCustomers()
       ]);
-      
+
       setEvents(eventsResponse.data || eventsResponse || []);
       setCustomers(customersResponse.data || customersResponse || []);
-
-      let finalGuestGroups = groupsResponse.data || groupsResponse || [];
-
-      // Guest groups are optional - load them if they exist
-      // Don't automatically create guest groups to avoid foreign key issues
-
-      setGuestGroups(finalGuestGroups);
 
       // Auto-select customer for Customer Admin or Client Admin users
       if (currentUser && (hasRole('Customer Admin') || hasRole('Client Admin'))) {
@@ -173,10 +150,7 @@ const GuestCreate = () => {
       newErrors.guest_phone = 'Please enter a valid phone number (at least 10 digits)';
     }
     
-    // Validate guest group if provided
-    if (formData.guest_group_id && isNaN(parseInt(formData.guest_group_id))) {
-      newErrors.guest_group_id = 'Please select a valid guest group';
-    }
+    // Guest group validation is handled by the typeahead component
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -207,10 +181,11 @@ const GuestCreate = () => {
           guest_last_name: formData.guest_last_name?.trim() || '',
           guest_email: formData.guest_email?.trim() || null,
           guest_phone: formData.guest_phone?.trim() || null,
+          guest_group_name: formData.guest_group_name?.trim() || null,
           guest_status: 'Active' // Default status
         };
 
-        const result = await guestAPI.createGuest(submitData);
+        await guestAPI.createGuest(submitData);
 
         toast.success('Guest created successfully');
         
@@ -242,11 +217,12 @@ const GuestCreate = () => {
       }
     } else {
       // Handle table mode submission
-      handleTableSubmit();
+      handleTableSubmit(e);
     }
   };
 
-  const handleTableSubmit = async () => {
+  const handleTableSubmit = async (e) => {
+    e.preventDefault();
     // Validate table data
     const validGuests = tableGuests.filter(guest => 
       guest.guest_first_name.trim() && guest.guest_last_name.trim()
@@ -265,63 +241,29 @@ const GuestCreate = () => {
     setIsLoading(true);
 
     try {
-      // Find or create default group for guests without a group
-      let defaultGroupId = null;
       const selectedEvent = events.find(event => event.event_id === parseInt(formData.event_id));
-
-      if (selectedEvent && selectedEvent.client_id) {
-        // Look for an existing default group for this client
-        let defaultGroup = guestGroups.find(group =>
-          group.client_id === selectedEvent.client_id &&
-          group.group_name === 'Default Group'
-        );
-
-        // If no default group exists, create one
-        if (!defaultGroup) {
-          defaultGroup = await createDefaultGuestGroup(selectedEvent.client_id);
-          if (defaultGroup) {
-            setGuestGroups(prev => [...prev, defaultGroup]);
-          }
-        }
-
-        if (defaultGroup) {
-          defaultGroupId = defaultGroup.guest_group_id;
-        }
-      }
 
       const guestsToSubmit = validGuests.map(guest => ({
         ...guest,
         client_id: selectedEvent?.client_id || null,
         customer_id: formData.customer_id ? parseInt(formData.customer_id) : null,
         event_id: parseInt(formData.event_id),
-        guest_group_id: guest.guest_group_id ? parseInt(guest.guest_group_id) : defaultGroupId
+        guest_group_name: guest.guest_group_name || ''
       }));
 
       // Submit all guests
-      const promises = guestsToSubmit.map(guestData => 
-        fetch('/api/guests', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          },
-          body: JSON.stringify(guestData)
-        })
-      );
-
-      const responses = await Promise.all(promises);
-      const failedCount = responses.filter(response => !response.ok).length;
+      const results = await Promise.allSettled(guestsToSubmit.map(guestAPI.createGuest));
+      const failedCount = results.filter(result => result.status === 'rejected' || !result.value.success).length;
       
       if (failedCount === 0) {
         toast.success(`Successfully created ${validGuests.length} guests`);
+        if (eventId) {
+          navigate(`/guests?eventId=${eventId}`);
+        } else {
+          navigate('/guests');
+        }
       } else {
-        toast.warning(`Created ${validGuests.length - failedCount} guests, ${failedCount} failed`);
-      }
-      
-      if (eventId) {
-        navigate(`/guests?eventId=${eventId}`);
-      } else {
-        navigate('/guests');
+        toast.warning(`Created ${validGuests.length - failedCount} guests, but ${failedCount} failed. Please review the table for errors.`);
       }
     } catch (error) {
       console.error('Error creating guests:', error);
@@ -347,6 +289,7 @@ const GuestCreate = () => {
       guest_phone: '',
       guest_type: 'Bride\'s Family',
       guest_rsvp_status: 'Pending',
+      guest_group_name: '',
       guest_address: '',
       guest_city: '',
       guest_country: '',
@@ -641,20 +584,18 @@ const GuestCreate = () => {
                               <FaUsers className="me-2 text-primary" />
                               Guest Group (Optional)
                             </label>
-                            <select
-                              name="guest_group_id"
-                              className="form-select glass-input"
-                              value={formData.guest_group_id}
-                              onChange={handleInputChange}
+                            <GuestGroupTypeahead
+                              value={formData.guest_group_name}
+                              onChange={(value) => setFormData(prev => ({
+                                ...prev,
+                                guest_group_name: value
+                              }))}
+                              clientId={events.find(e => e.event_id === parseInt(formData.event_id))?.client_id}
+                              eventId={formData.event_id}
                               disabled={isLoading}
-                            >
-                              <option value="">No group</option>
-                              {guestGroups.map(group => (
-                                <option key={group.guest_group_id} value={group.guest_group_id}>
-                                  {group.guest_group_name}
-                                </option>
-                              ))}
-                            </select>
+                              placeholder="Type to search or create new group..."
+                              error={errors.guest_group_name}
+                            />
                           </div>
                         </div>
                       </div>
@@ -686,6 +627,7 @@ const GuestCreate = () => {
                               guest_phone: '',
                               guest_type: 'Bride\'s Family',
                               guest_rsvp_status: 'Pending',
+                              guest_group_name: '',
                               guest_address: '',
                               guest_city: '',
                               guest_country: '',
@@ -788,19 +730,15 @@ const GuestCreate = () => {
                                   </select>
                                 </td>
                                 <td>
-                                  <select
-                                    className="form-select form-select-sm"
-                                    value={guest.guest_group_id || ''}
-                                    onChange={(e) => handleTableInputChange(index, 'guest_group_id', e.target.value)}
+                                  <GuestGroupTypeahead
+                                    value={guest.guest_group_name || ''}
+                                    onChange={(value) => handleTableInputChange(index, 'guest_group_name', value)}
+                                    clientId={events.find(e => e.event_id === parseInt(formData.event_id))?.client_id}
+                                    eventId={formData.event_id}
                                     disabled={isLoading}
-                                  >
-                                    <option value="">No group</option>
-                                    {guestGroups.map(group => (
-                                      <option key={group.guest_group_id} value={group.guest_group_id}>
-                                        {group.guest_group_name}
-                                      </option>
-                                    ))}
-                                  </select>
+                                    placeholder="Type group name..."
+                                    className="form-control-sm"
+                                  />
                                 </td>
                                 <td className="text-center">
                                   <button

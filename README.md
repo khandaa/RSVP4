@@ -89,6 +89,11 @@ base_v1/
 - **2025-07-10:** Fixed JSX syntax errors in `frontend/src/components/roles/RoleList.js` (missing/mismatched `<tr>` closing tag and action button structure) that caused rendering issues on the Roles List page.
 - **2025-07-10:** Improved the Role Management table UI for clarity and modern appearance (better alignment, action buttons, permission badges, and custom styles).
 
+- **2025-09-18:** Fixed a silent failure when creating guests from the table view in `GuestCreate.js` by refactoring to use the authenticated `api` service, ensuring proper error handling and redirection only upon complete success.
+- **2025-09-18:** Fixed a 404 error on the guest detail page by refactoring `GuestDetail.js` to use the `api` service, correcting API endpoints, and updating response handling for `axios`.
+- **2025-09-18:** Fixed a 500 Internal Server Error when creating a sub-event by correcting the API endpoint in `api.js` and fixing data handling in `SubeventCreate.js`.
+- **2025-09-18:** Fixed various 404 and 401 errors in the Customer Dashboard by refactoring API calls to use the authenticated `api` instance and correcting endpoints.
+
 
 - User registration and authentication with JWT
 - Role-based access control (RBAC) system
