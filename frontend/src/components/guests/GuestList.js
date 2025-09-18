@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import api from '../../services/api';
 import { 
   FaPlus, 
   FaEdit, 
@@ -27,6 +28,8 @@ const GuestList = () => {
   const [events, setEvents] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [clients, setClients] = useState([]);
+  const [accommodations, setAccommodations] = useState([]);
+  const [travels, setTravels] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const [rsvpFilter, setRsvpFilter] = useState('all');
@@ -49,7 +52,7 @@ const GuestList = () => {
 
   useEffect(() => {
     fetchData();
-  }, [eventId, subeventId]);
+  }, [eventId, subeventId, eventFilter]);
 
   useEffect(() => {
     filterAndSortGuests();
@@ -69,25 +72,29 @@ const GuestList = () => {
         guestsUrl += `?${params.toString()}`;
       }
 
-      const [guestsResponse, eventsResponse, customersResponse, clientsResponse] = await Promise.all([
-        fetch(guestsUrl, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-        }).then(res => res.json()),
-        fetch('/api/events', {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-        }).then(res => res.json()),
-        fetch('/api/customers', {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-        }).then(res => res.json()),
-        fetch('/api/clients', {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-        }).then(res => res.json())
-      ]);
+      const promises = [
+        fetch(guestsUrl, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } }).then(res => res.json()),
+        fetch('/api/events', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } }).then(res => res.json()),
+        fetch('/api/customers', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } }).then(res => res.json()),
+        fetch('/api/clients', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } }).then(res => res.json())
+      ];
+
+      if (eventFilter !== 'all') {
+        promises.push(api.get(`/comprehensive-crud/guest-accommodation?event_id=${eventFilter}`).then(res => res.data).catch(() => []));
+        promises.push(api.get(`/comprehensive-crud/guest-travel?event_id=${eventFilter}`).then(res => res.data).catch(() => []));
+      } else {
+        setAccommodations([]);
+        setTravels([]);
+      }
+
+      const [guestsResponse, eventsResponse, customersResponse, clientsResponse, accommodationResponse, travelResponse] = await Promise.all(promises);
       
       setGuests(guestsResponse.data || guestsResponse || []);
       setEvents(eventsResponse.data || eventsResponse || []);
       setCustomers(customersResponse.data || customersResponse || []);
       setClients(clientsResponse.data || clientsResponse || []);
+      if (accommodationResponse) setAccommodations(accommodationResponse || []);
+      if (travelResponse) setTravels(travelResponse || []);
     } catch (error) {
       console.error('Error fetching guests data:', error);
       toast.error('Failed to fetch guests data');
@@ -464,6 +471,14 @@ const GuestList = () => {
                 >
                   Type {getSortIcon('guest_type')}
                 </th>
+                <th scope="col">Additional Guests</th>
+                <th scope="col">Special Requirements</th>
+                {eventFilter !== 'all' && (
+                  <>
+                    <th>Travel Date</th>
+                    <th>Accommodation</th>
+                  </>
+                )}
                 <th scope="col">Actions</th>
               </tr>
             </thead>
@@ -532,6 +547,20 @@ const GuestList = () => {
                         <span className="text-muted">-</span>
                       )}
                     </td>
+                    <td>{guest.additional_guests || 0}</td>
+                    <td>{guest.guest_special_requirements || '-'}</td>
+                    {eventFilter !== 'all' && (
+                      <>
+                        <td>
+                          {travels.find(t => t.guest_id === guest.guest_id)?.travel_datetime || '-'}
+                        </td>
+                        <td>
+                          {accommodations.find(a => a.guest_id === guest.guest_id)?.hotel_name || '-'}
+                          <br />
+                          <small>{accommodations.find(a => a.guest_id === guest.guest_id)?.room_number || ''}</small>
+                        </td>
+                      </>
+                    )}
                     <td>
                       <div className="btn-group" role="group">
                         <button

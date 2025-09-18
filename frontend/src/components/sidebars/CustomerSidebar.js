@@ -14,7 +14,8 @@ import {
   FaPlane,
   FaBed,
   FaCar,
-  FaList
+  FaList,
+  FaWhatsapp
 } from 'react-icons/fa';
 
 export const customerMenuItems = [
@@ -58,6 +59,12 @@ export const customerMenuItems = [
         permission: null
       },
       
+      {
+        name: 'WhatsApp Invites',
+        path: '/invites',
+        icon: <FaWhatsapp />,
+        permission: null
+      },
       {
         name: 'RSVPs',
         path: '/rsvps/dashboard',

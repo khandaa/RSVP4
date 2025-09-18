@@ -88,6 +88,13 @@ import RSVPList from './components/rsvp/RSVPForm';
 // import RSVPCalendar from './components/rsvp/RSVPCalendar';
 import RSVPBulkManagement from './components/rsvp/RSVPBulkManagement';
 import RSVPDashboard from './components/rsvp/RSVPDashboard';
+// Invite Management Components
+import InviteList from './components/invites/InviteList';
+import InviteCreate from './components/invites/InviteCreate';
+import InviteSend from './components/invites/InviteSend';
+import InviteAnalytics from './components/invites/InviteAnalytics';
+import SendInvite from './components/invites/SendInvite';
+import RSVPConfirmation from './components/invites/RSVPConfirmation';
 
 // Team Management Components
 import TeamList from './components/teams/TeamList';
@@ -260,6 +267,16 @@ function App() {
             <Route path="groups" element={<GuestGroupManagement />} />
           </Route>
 
+          {/* Invite Routes */}
+          <Route path="invites">
+            <Route index element={<InviteList />} />
+            <Route path="create" element={<InviteCreate />} />
+            <Route path=":id/view" element={<InviteList />} />
+            <Route path=":id/edit" element={<InviteCreate />} />
+            <Route path=":versionId/send" element={<InviteSend />} />
+            <Route path=":versionId/analytics" element={<InviteAnalytics />} />
+          </Route>
+
           {/* RSVPs Routes */}
           <Route path="rsvps">
             <Route index element={<Navigate to="/rsvps/dashboard" />} />
@@ -267,7 +284,11 @@ function App() {
             <Route path="form" element={<RSVPForm />} />
             <Route path="bulk" element={<RSVPBulkManagement />} />
             <Route path="dashboard" element={<RSVPDashboard />} />
+            <Route path="send" element={<SendInvite />} />
           </Route>
+
+          {/* Public RSVP Confirmation Route */}
+          <Route path="/rsvp/confirm/:token" element={<RSVPConfirmation />} />
 
           {/* Logistics Routes */}
           <Route path="logistics">

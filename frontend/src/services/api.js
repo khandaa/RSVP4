@@ -671,4 +671,50 @@ export const dashboardAPI = {
   getStats: () => api.get('/dashboard/stats'),
 };
 
+// Invite API
+export const inviteAPI = {
+  // Get invites by event
+  getInvitesByEvent: (eventId) => api.get(`/invites/by-event/${eventId}`),
+
+  // Get invite details
+  getInvite: (id) => api.get(`/invites/${id}`),
+  getInviteVersions: (inviteId) => api.get(`/invites/${inviteId}/versions`),
+
+  // Create invites
+  createInvite: (inviteData) => api.post('/invites', inviteData),
+  createInviteVersion: (inviteId, versionData) => api.post(`/invites/${inviteId}/versions`, versionData),
+
+  // Update invites
+  updateInvite: (id, inviteData) => api.put(`/invites/${id}`, inviteData),
+
+  // Delete invites
+  deleteInvite: (id) => api.delete(`/invites/${id}`),
+
+  // Media upload
+  uploadMedia: (formData) => {
+    const token = localStorage.getItem('token');
+    return api.post('/invites/upload-media', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'Authorization': `Bearer ${token}`
+      }
+    });
+  },
+
+  // Send invites
+  sendPreview: (data) => api.post('/invites/send-preview', data),
+  sendInvites: (versionId, guestIds) => api.post(`/invites/${versionId}/send`, { guest_ids: guestIds }),
+
+  // Analytics
+  getAnalytics: (versionId) => api.get(`/invites/${versionId}/analytics`),
+
+  // WhatsApp webhook
+  webhookVerify: (params) => api.get('/invites/webhook', { params }),
+  webhookProcess: (data) => api.post('/invites/webhook', data),
+
+  // RSVP confirmation
+  verifyRsvpToken: (token) => api.get(`/invites/rsvp/verify/${token}`),
+  submitRsvpResponse: (token, data) => api.post(`/invites/rsvp/respond/${token}`, data)
+};
+
 export default api;

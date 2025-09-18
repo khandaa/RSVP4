@@ -475,6 +475,12 @@ router.use('/guest-communication', createCRUDRoutes('rsvp_guest_communication', 
 router.use('/guest-rsvp', createCRUDRoutes('rsvp_guest_rsvp', 'rsvp_id'));
 router.use('/notification-templates', createCRUDRoutes('rsvp_notification_templates', 'notification_template_id'));
 
+// ========================= INVITE MANAGEMENT TABLES =========================
+router.use('/invites', createCRUDRoutes('rsvp_master_invites', 'invite_id'));
+router.use('/invite-versions', createCRUDRoutes('rsvp_invite_versions', 'invite_version_id'));
+router.use('/invite-distributions', createCRUDRoutes('rsvp_invite_distributions', 'distribution_id'));
+router.use('/invite-analytics', createCRUDRoutes('rsvp_invite_analytics', 'analytics_id'));
+
 // ========================= TASK MANAGEMENT TABLES =========================
 router.use('/task-assignment-details', createCRUDRoutes('rsvp_task_assignment_details', 'task_detail_id'));
 router.use('/task-event-subevent-mapping', createCRUDRoutes('rsvp_task_event_subevent_mapping', 'task_event_subevent_id'));

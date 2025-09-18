@@ -11,7 +11,7 @@ import {
   FaCalendarAlt,
   FaSync
 } from 'react-icons/fa';
-import { rsvpAPI, eventAPI } from '../../services/api';
+import { rsvpAPI, eventAPI, guestAPI } from '../../services/api';
 
 const RSVPDashboard = () => {
   const navigate = useNavigate();
@@ -26,8 +26,10 @@ const RSVPDashboard = () => {
     total: 0
   });
   const [recentResponses, setRecentResponses] = useState([]);
+  const [guests, setGuests] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedGuests, setSelectedGuests] = useState([]);
   
   // Fetch events from API
   const fetchEvents = useCallback(async () => {
@@ -62,7 +64,7 @@ const RSVPDashboard = () => {
     
     try {
       setIsLoading(true);
-      const response = await rsvpAPI.getRsvpStats(selectedEvent);
+      const response = await rsvpAPI.getRsvpStatsByEvent({ event_id: selectedEvent });
       
       if (response && response.data) {
         setRsvpStats({
@@ -82,6 +84,19 @@ const RSVPDashboard = () => {
   }, [selectedEvent]);
   
   // Fetch recent RSVP responses
+  const fetchGuests = useCallback(async () => {
+    if (!selectedEvent) return;
+    try {
+      const response = await guestAPI.getGuests({ event_id: selectedEvent });
+      if (response && response.data) {
+        setGuests(response.data);
+      }
+    } catch (error) {
+      console.error('Error fetching guests:', error);
+      toast.error('Failed to load guests for the event.');
+    }
+  }, [selectedEvent]);
+
   const fetchRecentResponses = useCallback(async () => {
     if (!selectedEvent) return;
     
@@ -106,8 +121,9 @@ const RSVPDashboard = () => {
     if (selectedEvent) {
       fetchRsvpStats();
       fetchRecentResponses();
+      fetchGuests();
     }
-  }, [selectedEvent, fetchRsvpStats, fetchRecentResponses]); 
+  }, [selectedEvent, fetchRsvpStats, fetchRecentResponses, fetchGuests]); 
   
   // Handle event change
   const handleEventChange = (e) => {
@@ -118,7 +134,39 @@ const RSVPDashboard = () => {
   const handleRefresh = () => {
     fetchRsvpStats();
     fetchRecentResponses();
+    fetchGuests();
     toast.info('Dashboard refreshed!');
+  };
+
+  const handleGuestSelection = (guestId) => {
+    setSelectedGuests(prev => 
+      prev.includes(guestId) 
+        ? prev.filter(id => id !== guestId) 
+        : [...prev, guestId]
+    );
+  };
+
+  const handleSelectAllGuests = () => {
+    if (selectedGuests.length === guests.length) {
+      setSelectedGuests([]);
+    } else {
+      setSelectedGuests(guests.map(g => g.guest_id));
+    }
+  };
+
+  const sendInvites = async () => {
+    if (selectedGuests.length === 0) {
+      toast.warn('Please select at least one guest to send an invite.');
+      return;
+    }
+    try {
+      await rsvpAPI.sendRsvpReminders(selectedGuests);
+      toast.success(`Invites sent to ${selectedGuests.length} guests.`);
+      setSelectedGuests([]);
+    } catch (error) {
+      console.error('Error sending invites:', error);
+      toast.error('Failed to send invites.');
+    }
   };
   
   
@@ -426,6 +474,64 @@ const RSVPDashboard = () => {
           <p className="text-muted">
             Select an event from the dropdown above to view RSVP statistics and manage guest responses.
           </p>
+        </div>
+      )}
+
+      {selectedEvent && (
+        <div className="card glass-card mt-4">
+          <div className="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
+            <h5 className="mb-0">Guests</h5>
+            <button 
+              className="btn btn-primary" 
+              onClick={sendInvites} 
+              disabled={selectedGuests.length === 0}
+            >
+              Send Invite ({selectedGuests.length})
+            </button>
+          </div>
+          <div className="card-body">
+            <div className="table-responsive">
+              <table className="table table-hover">
+                <thead>
+                  <tr>
+                    <th>
+                      <input 
+                        type="checkbox" 
+                        onChange={handleSelectAllGuests}
+                        checked={selectedGuests.length === guests.length && guests.length > 0}
+                      />
+                    </th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>RSVP Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {guests.map(guest => (
+                    <tr key={guest.guest_id}>
+                      <td>
+                        <input 
+                          type="checkbox" 
+                          checked={selectedGuests.includes(guest.guest_id)}
+                          onChange={() => handleGuestSelection(guest.guest_id)}
+                        />
+                      </td>
+                      <td>{guest.guest_first_name} {guest.guest_last_name}</td>
+                      <td>{guest.guest_email}</td>
+                      <td>
+                        <span className={`badge ${
+                          guest.guest_rsvp_status === 'Confirmed' ? 'bg-success' : 
+                          guest.guest_rsvp_status === 'Declined' ? 'bg-danger' : 'bg-warning'
+                        }`}>
+                          {guest.guest_rsvp_status || 'Pending'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       )}
     </div>

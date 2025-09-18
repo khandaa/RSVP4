@@ -202,6 +202,10 @@ app.use('/api/employee-management', employeeManagementRoutes);
 const comprehensiveCrudRoutes = require('./routes/comprehensive-crud');
 app.use('/api/comprehensive-crud', comprehensiveCrudRoutes);
 
+// Register invite routes
+const inviteRoutes = require('./routes/invites');
+app.use('/api/invites', inviteRoutes);
+
 
 // Error handling middleware
 app.use((err, req, res, next) => {
