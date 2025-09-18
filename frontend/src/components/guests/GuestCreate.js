@@ -202,12 +202,12 @@ const GuestCreate = () => {
         const submitData = {
           client_id: selectedEvent?.client_id || null,
           event_id: parseInt(formData.event_id),
-          subevent_id: formData.subevent_id ? parseInt(formData.subevent_id) : null,
+          subevent_id: null, // No subevent selection in this form
           guest_first_name: formData.guest_first_name?.trim() || '',
           guest_last_name: formData.guest_last_name?.trim() || '',
           guest_email: formData.guest_email?.trim() || null,
           guest_phone: formData.guest_phone?.trim() || null,
-          guest_status: formData.guest_status || 'Active'
+          guest_status: 'Active' // Default status
         };
 
         const result = await guestAPI.createGuest(submitData);

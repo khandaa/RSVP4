@@ -196,7 +196,7 @@ export const AuthProvider = ({ children }) => {
       console.error('Login error:', error);
       return {
         success: false,
-        message: error.response?.data?.error || 'Login failed. Please check your credentials.'
+        message: (typeof error.response?.data?.error === 'object' ? error.response.data.error.message : error.response?.data?.error) || 'Login failed. Please check your credentials.'
       };
     }
   };

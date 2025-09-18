@@ -12,7 +12,6 @@ const { dbMethods } = require('../../database/backend');
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
-const { v4: uuidv4 } = require('uuid');
 
 // Register module events
 const registerModuleEvents = (eventBus) => {
@@ -82,17 +81,6 @@ const checkPaymentFeatureEnabled = async (req, res, next) => {
   }
 };
 
-// Initialize the module
-const init = (app) => {
-  if (app.locals.eventBus) {
-    registerModuleEvents(app.locals.eventBus);
-  }
-  
-  // Initialize database tables
-  if (app.locals.db) {
-    initializeDatabase(app.locals.db);
-  }
-};
 
 // Create necessary database tables if they don't exist
 const initializeDatabase = async (db) => {
@@ -897,5 +885,20 @@ router.post('/transactions', [
   }
 });
 
-module.exports = router;
-module.exports.init = init;
+const init = async (app) => {
+  // const { v4: uuidv4 } = await import('uuid');
+
+  if (app.locals.eventBus) {
+    registerModuleEvents(app.locals.eventBus);
+  }
+
+  if (app.locals.db) {
+    await initializeDatabase(app.locals.db);
+  }
+
+  // All routes that need uuidv4 should be defined within this async context
+
+  return router;
+};
+
+module.exports = init;

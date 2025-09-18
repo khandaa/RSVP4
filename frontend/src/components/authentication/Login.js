@@ -37,7 +37,7 @@ const Login = () => {
         setLoginError(result.message || 'Login failed. Please check your credentials.');
       }
     } catch (error) {
-      setLoginError('An unexpected error occurred. Please try again.');
+      setLoginError(error.message || 'An unexpected error occurred. Please try again.');
       console.error('Login error:', error);
     } finally {
       setLoading(false);
