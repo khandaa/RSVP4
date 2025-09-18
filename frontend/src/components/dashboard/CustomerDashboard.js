@@ -74,9 +74,12 @@ const CustomerDashboard = () => {
           console.warn('Could not fetch employees:', error);
         }
         
+        // De-duplicate events to prevent rendering issues
+        const uniqueEvents = Array.from(new Map(allEvents.map(event => [event.event_id, event])).values());
+
         // Fetch guests for all events of this customer
         let allGuests = [];
-        for (const event of allEvents) {
+        for (const event of uniqueEvents) {
           try {
             const guestsResponse = await api.get(`/guests?event_id=${event.event_id}`);
             const eventGuests = guestsResponse.data.map(guest => ({...guest, event_name: event.event_name}));
@@ -88,7 +91,7 @@ const CustomerDashboard = () => {
         
         // Fetch logistics data (accommodation and travel) for this customer's events
         let logisticsData = [];
-        for (const event of allEvents) {
+        for (const event of uniqueEvents) {
           try {
             // Fetch accommodation data
             const accommodationResponse = await api.get(`/logistics/accommodations?event_id=${event.event_id}`);
@@ -104,12 +107,15 @@ const CustomerDashboard = () => {
           }
         }
         
+        // De-duplicate guests to prevent rendering issues
+        const uniqueGuests = Array.from(new Map(allGuests.map(guest => [guest.guest_id, guest])).values());
+
         setDashboardData({
           clients: clientsResponse.data || [],
-          events: allEvents || [],
+          events: uniqueEvents || [],
           teams: teamsData || [],
           employees: employeesData || [],
-          guests: allGuests || [],
+          guests: uniqueGuests || [],
           logistics: logisticsData || []
         });
         
