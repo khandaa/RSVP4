@@ -548,7 +548,7 @@ router.get('/event-schedule/:eventId', authenticateToken, async (req, res) => {
           e.event_name,
           v.venue_name,
           r.room_name,
-          r.capacity
+          r.room_capacity as capacity
         FROM rsvp_master_subevents s
         LEFT JOIN rsvp_master_events e ON s.event_id = e.event_id
         LEFT JOIN rsvp_event_room_allocation era ON s.subevent_id = era.subevent_id
@@ -580,7 +580,7 @@ router.get('/event-schedule/:eventId', authenticateToken, async (req, res) => {
         e.event_name,
         v.venue_name,
         r.room_name,
-        r.capacity,
+        r.room_capacity as capacity,
         COUNT(gea.guest_id) as guest_count
       FROM rsvp_master_subevents s
       LEFT JOIN rsvp_master_events e ON s.event_id = e.event_id

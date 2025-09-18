@@ -166,7 +166,7 @@ const SubeventCreate = () => {
       const result = await subeventAPI.createSubevent(subeventData);
 
       // If venue or room was selected, create the allocations
-      const newSubeventId = result.subevent_id;
+      const newSubeventId = result.data.subevent_id;
 
       // Create room allocation if room was selected
       if (formData.room_id && newSubeventId) {

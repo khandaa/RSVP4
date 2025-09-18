@@ -3,7 +3,7 @@ import { Container, Row, Col, Card, Button, Spinner, Table } from 'react-bootstr
 import { FaUserTie, FaCalendarAlt, FaUsers, FaUserFriends, FaUserCheck, FaTruck } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import axios from 'axios';
+import api from '../../services/api';
 
 const CustomerDashboard = () => {
   const { currentUser } = useAuth();
@@ -33,19 +33,20 @@ const CustomerDashboard = () => {
           return;
         }
         
+        
         // Fetch clients associated with this customer
-        const clientsResponse = await axios.get(`/api/clients?customer_id=${customerId}`);
+        const clientsResponse = await api.get(`/clients?customer_id=${customerId}`);
         
         // Fetch in-progress and planned events for this customer's clients
         let allEvents = [];
         for (const client of clientsResponse.data || []) {
           try {
             // Fetch In Progress events
-            const inProgressResponse = await axios.get(`/api/events?client_id=${client.client_id}&status=In Progress`);
+            const inProgressResponse = await api.get(`/events?client_id=${client.client_id}&status=In Progress`);
             const inProgressEvents = inProgressResponse.data.map(event => ({...event, client_name: client.client_name}));
             
             // Fetch Planned events
-            const plannedResponse = await axios.get(`/api/events?client_id=${client.client_id}&status=Planned`);
+            const plannedResponse = await api.get(`/events?client_id=${client.client_id}&status=Planned`);
             const plannedEvents = plannedResponse.data.map(event => ({...event, client_name: client.client_name}));
             
             // Combine both event types
@@ -58,7 +59,7 @@ const CustomerDashboard = () => {
         // Fetch teams associated with this customer
         let teamsData = [];
         try {
-          const teamsResponse = await axios.get(`/api/teams?customer_id=${customerId}`);
+          const teamsResponse = await api.get(`/employee-management/teams?customer_id=${customerId}`);
           teamsData = teamsResponse.data || [];
         } catch (error) {
           console.warn('Could not fetch teams:', error);
@@ -67,7 +68,7 @@ const CustomerDashboard = () => {
         // Fetch employees (users) associated with this customer
         let employeesData = [];
         try {
-          const employeesResponse = await axios.get(`/api/comprehensive-crud/users?customer_id=${customerId}`);
+          const employeesResponse = await api.get(`/comprehensive-crud/users?customer_id=${customerId}`);
           employeesData = employeesResponse.data || [];
         } catch (error) {
           console.warn('Could not fetch employees:', error);
@@ -77,7 +78,7 @@ const CustomerDashboard = () => {
         let allGuests = [];
         for (const event of allEvents) {
           try {
-            const guestsResponse = await axios.get(`/api/guests?event_id=${event.event_id}`);
+            const guestsResponse = await api.get(`/guests?event_id=${event.event_id}`);
             const eventGuests = guestsResponse.data.map(guest => ({...guest, event_name: event.event_name}));
             allGuests = [...allGuests, ...eventGuests];
           } catch (error) {
@@ -90,11 +91,11 @@ const CustomerDashboard = () => {
         for (const event of allEvents) {
           try {
             // Fetch accommodation data
-            const accommodationResponse = await axios.get(`/api/logistics/accommodation?event_id=${event.event_id}`);
+            const accommodationResponse = await api.get(`/logistics/accommodations?event_id=${event.event_id}`);
             const accommodations = accommodationResponse.data.map(acc => ({...acc, type: 'Accommodation', event_name: event.event_name}));
             
             // Fetch travel data
-            const travelResponse = await axios.get(`/api/logistics/travel?event_id=${event.event_id}`);
+            const travelResponse = await api.get(`/logistics/travel-arrangements?event_id=${event.event_id}`);
             const travels = travelResponse.data.map(travel => ({...travel, type: 'Travel', event_name: event.event_name}));
             
             logisticsData = [...logisticsData, ...accommodations, ...travels];
@@ -394,7 +395,7 @@ const CustomerDashboard = () => {
                         .sort((a, b) => new Date(b.updated_at || b.logistics_updated_at || b.created_at || b.logistics_created_at) - new Date(a.updated_at || a.logistics_updated_at || a.created_at || a.logistics_created_at))
                         .slice(0, 5)
                         .map((item, index) => (
-                        <tr key={`${item.type}-${index}`}>
+                        <tr key={`${item.type}-${item.id || index}`}>
                           <td>
                             <span className={`badge ${
                               item.type === 'Accommodation' ? 'bg-info' : 'bg-warning'

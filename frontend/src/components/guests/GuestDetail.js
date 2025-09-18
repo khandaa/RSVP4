@@ -22,7 +22,7 @@ import {
   FaPlus
 } from 'react-icons/fa';
 import { FaEye } from 'react-icons/fa';
-
+import api from '../../services/api';
 const GuestDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -43,25 +43,13 @@ const GuestDetail = () => {
       setIsLoading(true);
       
       // Fetch guest details
-      const guestResponse = await fetch(`/api/guests/${id}`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-      });
-      
-      if (!guestResponse.ok) {
-        throw new Error('Failed to fetch guest');
-      }
-      
-      const guestData = await guestResponse.json();
-      setGuest(guestData);
+      const guestResponse = await api.get(`/guests/${id}`);
+      setGuest(guestResponse.data);
 
       // Fetch related data
       const [subeventResponse, rsvpResponse] = await Promise.all([
-        fetch(`/api/crud/guest-subevent-allocation?guest_id=${id}`, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-        }).then(res => res.json()).catch(() => []),
-        fetch(`/api/crud/rsvp-responses?guest_id=${id}`, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-        }).then(res => res.json()).catch(() => [])
+        api.get(`/comprehensive-crud/guest-event-allocation?guest_id=${id}`).then(res => res.data).catch(() => []),
+        api.get(`/comprehensive-crud/guest-rsvp?guest_id=${id}`).then(res => res.data).catch(() => [])
       ]);
 
       setGuestSubevents(subeventResponse || []);
@@ -78,16 +66,7 @@ const GuestDetail = () => {
 
   const handleDelete = async () => {
     try {
-      const response = await fetch(`/api/guests/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete guest');
-      }
+      await api.delete(`/guests/${id}`);
 
       toast.success('Guest deleted successfully');
       navigate('/guests');
