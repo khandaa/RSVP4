@@ -132,6 +132,11 @@ const GuestList = () => {
       filtered = filtered.filter(guest => guest.customer_id === parseInt(customerFilter));
     }
 
+    // Apply client filter
+    if (clientFilter !== 'all') {
+      filtered = filtered.filter(guest => guest.client_id === parseInt(clientFilter));
+    }
+
     // Apply guest type filter
     if (guestTypeFilter !== 'all') {
       filtered = filtered.filter(guest => guest.guest_type === guestTypeFilter);

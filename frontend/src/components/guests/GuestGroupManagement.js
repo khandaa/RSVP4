@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { 
   FaPlus, 
@@ -187,7 +187,7 @@ const GuestGroupManagement = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({ group_name: formData.group_name, group_description: formData.group_description })
       });
 
       if (!response.ok) {
@@ -357,7 +357,7 @@ const GuestGroupManagement = () => {
                     <td className="fw-semibold">
                       <div className="d-flex align-items-center">
                         <FaUserFriends className="text-primary me-2" />
-                        {group.group_name}
+                        <Link to={`/guests/groups/${group.guest_group_id}`}>{group.group_name}</Link>
                       </div>
                     </td>
                     <td>
