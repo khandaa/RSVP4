@@ -22,6 +22,8 @@ const GuestGroupManagement = () => {
   const [filteredGroups, setFilteredGroups] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+  const [clientFilter, setClientFilter] = useState('all');
+  const [clients, setClients] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -37,7 +39,7 @@ const GuestGroupManagement = () => {
 
   useEffect(() => {
     fetchGroups();
-  }, []);
+  }, [clientFilter]);
 
   useEffect(() => {
     filterAndSortGroups();
@@ -46,20 +48,35 @@ const GuestGroupManagement = () => {
   const fetchGroups = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('/api/comprehensive-crud/guest-groups', {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
+      let url = '/api/comprehensive-crud/guest-groups';
+      if (clientFilter !== 'all') {
+        url += `?client_id=${clientFilter}`;
+      }
+      const [groupsResponse, clientsResponse] = await Promise.all([
+        fetch(url, {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        }),
+        fetch('/api/clients', {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        })
+      ]);
+
+      if (groupsResponse.ok) {
+        const data = await groupsResponse.json();
         setGroups(data || []);
       } else {
         setGroups([]);
       }
+
+      if (clientsResponse.ok) {
+        const data = await clientsResponse.json();
+        setClients(data.data || data || []);
+      }
     } catch (error) {
-      console.error('Error fetching guest groups:', error);
-      toast.error('Failed to fetch guest groups');
+      console.error('Error fetching data:', error);
+      toast.error('Failed to fetch data');
       setGroups([]);
+      setClients([]);
     } finally {
       setIsLoading(false);
     }
@@ -248,7 +265,7 @@ const GuestGroupManagement = () => {
         <div className="card glass-card mb-4">
           <div className="card-body">
             <div className="row g-3 align-items-center">
-              <div className="col-md-6">
+              <div className="col-md-4">
                 <div className="input-group">
                   <span className="input-group-text glass-input">
                     <FaSearch />
@@ -262,7 +279,21 @@ const GuestGroupManagement = () => {
                   />
                 </div>
               </div>
-              <div className="col-md-6 text-end">
+              <div className="col-md-4">
+                <select
+                  className="form-select glass-input"
+                  value={clientFilter}
+                  onChange={(e) => setClientFilter(e.target.value)}
+                >
+                  <option value="all">All Clients</option>
+                  {clients.map(client => (
+                    <option key={client.client_id} value={client.client_id}>
+                      {client.client_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="col-md-4 text-end">
                 <div className="text-muted small">
                   <FaUsers className="me-1" />
                   {filteredGroups.length} of {groups.length} groups

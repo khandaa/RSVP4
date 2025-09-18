@@ -26,11 +26,13 @@ const GuestList = () => {
   const [filteredGuests, setFilteredGuests] = useState([]);
   const [events, setEvents] = useState([]);
   const [customers, setCustomers] = useState([]);
+  const [clients, setClients] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const [rsvpFilter, setRsvpFilter] = useState('all');
   const [eventFilter, setEventFilter] = useState('all');
   const [customerFilter, setCustomerFilter] = useState('all');
+  const [clientFilter, setClientFilter] = useState('all');
   const [guestTypeFilter, setGuestTypeFilter] = useState('all');
   const [isLoading, setIsLoading] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -51,7 +53,7 @@ const GuestList = () => {
 
   useEffect(() => {
     filterAndSortGuests();
-  }, [guests, searchTerm, sortConfig, rsvpFilter, eventFilter, customerFilter, guestTypeFilter]);
+  }, [guests, searchTerm, sortConfig, rsvpFilter, eventFilter, customerFilter, clientFilter, guestTypeFilter]);
 
   const fetchData = useCallback(async () => {
     try {
@@ -59,13 +61,15 @@ const GuestList = () => {
       let guestsUrl = '/api/guests';
       
       // Filter by event or subevent if specified
-      if (eventId) {
-        guestsUrl += `?event_id=${eventId}`;
-      } else if (subeventId) {
-        guestsUrl += `?subevent_id=${subeventId}`;
+      const params = new URLSearchParams();
+      if (eventId) params.append('event_id', eventId);
+      if (subeventId) params.append('subevent_id', subeventId);
+      if (clientFilter !== 'all') params.append('client_id', clientFilter);
+      if (params.toString()) {
+        guestsUrl += `?${params.toString()}`;
       }
 
-      const [guestsResponse, eventsResponse, customersResponse] = await Promise.all([
+      const [guestsResponse, eventsResponse, customersResponse, clientsResponse] = await Promise.all([
         fetch(guestsUrl, {
           headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         }).then(res => res.json()),
@@ -74,12 +78,16 @@ const GuestList = () => {
         }).then(res => res.json()),
         fetch('/api/customers', {
           headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        }).then(res => res.json()),
+        fetch('/api/clients', {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         }).then(res => res.json())
       ]);
       
       setGuests(guestsResponse.data || guestsResponse || []);
       setEvents(eventsResponse.data || eventsResponse || []);
       setCustomers(customersResponse.data || customersResponse || []);
+      setClients(clientsResponse.data || clientsResponse || []);
     } catch (error) {
       console.error('Error fetching guests data:', error);
       toast.error('Failed to fetch guests data');
@@ -371,6 +379,20 @@ const GuestList = () => {
                   {customers.map(customer => (
                     <option key={customer.customer_id} value={customer.customer_id}>
                       {customer.customer_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="col-lg-2">
+                <select
+                  className="form-select glass-input"
+                  value={clientFilter}
+                  onChange={(e) => setClientFilter(e.target.value)}
+                >
+                  <option value="all">All Clients</option>
+                  {clients.map(client => (
+                    <option key={client.client_id} value={client.client_id}>
+                      {client.client_name}
                     </option>
                   ))}
                 </select>
