@@ -52,8 +52,8 @@ export const customerMenuItems = [
         permission: null
       },
       {
-        name: 'Guests Gropus',
-        path: '/guests/groupManagement',
+        name: 'Guest Groups',
+        path: '/guests/groups',
         icon: <FaUserCheck />,
         permission: null
       },

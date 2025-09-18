@@ -79,7 +79,7 @@ import SubeventAllocation from './components/subevents/SubeventAllocation';
 import SubeventTimeline from './components/subevents/SubeventTimeline';
 
 import GuestList from './components/guests/GuestList';
-// import GuestGroupManagement from './components/guests/GuestGroupManagement';
+import GuestGroupManagement from './components/guests/GuestGroupManagement';
 import GuestCreate from './components/guests/GuestCreate';
 import GuestDetail from './components/guests/GuestDetail';
 import GuestImport from './components/guests/GuestImport';
@@ -257,6 +257,7 @@ function App() {
             <Route path="import" element={<GuestImport />} />
             <Route path=":id" element={<GuestDetail />} />
             <Route path=":id/edit" element={<GuestCreate />} />
+            <Route path="groups" element={<GuestGroupManagement />} />
           </Route>
 
           {/* RSVPs Routes */}
