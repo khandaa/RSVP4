@@ -94,11 +94,11 @@ const CustomerDashboard = () => {
         for (const event of uniqueEvents) {
           try {
             // Fetch accommodation data
-            const accommodationResponse = await api.get(`/logistics/accommodations?event_id=${event.event_id}`);
+            const accommodationResponse = await api.get(`/comprehensive-crud/guest-accommodation?event_id=${event.event_id}`);
             const accommodations = accommodationResponse.data.map(acc => ({...acc, type: 'Accommodation', event_name: event.event_name}));
             
             // Fetch travel data
-            const travelResponse = await api.get(`/logistics/travel-arrangements?event_id=${event.event_id}`);
+            const travelResponse = await api.get(`/comprehensive-crud/guest-travel?event_id=${event.event_id}`);
             const travels = travelResponse.data.map(travel => ({...travel, type: 'Travel', event_name: event.event_name}));
             
             logisticsData = [...logisticsData, ...accommodations, ...travels];

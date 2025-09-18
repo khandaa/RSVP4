@@ -49,7 +49,7 @@ const GuestGroupTypeahead = ({
     if (value !== inputValue) {
       setInputValue(value || '');
     }
-  }, [value]);
+  }, [value, inputValue]);
 
   // Filter suggestions based on input
   useEffect(() => {
@@ -109,6 +109,8 @@ const GuestGroupTypeahead = ({
       case 'Escape':
         setShowSuggestions(false);
         setActiveSuggestion(-1);
+        break;
+      default:
         break;
     }
   };

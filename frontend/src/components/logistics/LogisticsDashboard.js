@@ -97,7 +97,7 @@ const LogisticsDashboard = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [selectedDate, selectedEvent, timeFilter]);
+  }, [selectedDate, selectedEvent, timeFilter, generateUpcomingSchedule, getDateRange]);
 
   // Ensure callbacks are defined before using them
   useEffect(() => {
