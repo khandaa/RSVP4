@@ -14,7 +14,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
-import { loggingAPI, userAPI, roleAPI, permissionAPI } from '../../services/api';
+import { loggingAPI, permissionAPI, dashboardAPI } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 import FileUploadWidget from '../fileupload/FileUploadWidget';
 
@@ -54,11 +54,7 @@ const Dashboard = () => {
       try {
         setLoading(true);
         
-        // Fetch user count
-        const userResponse = await userAPI.getUsers({ limit: 1 });
-        
-        // Fetch role count
-        const roleResponse = await roleAPI.getRoles();
+        const dashboardStatsResponse = await dashboardAPI.getStats();
         
         // Fetch permission count
         const permissionResponse = await permissionAPI.getPermissions();
@@ -68,16 +64,14 @@ const Dashboard = () => {
         const statsResponse = await loggingAPI.getStats();
         
         console.log('Dashboard data responses:', {
-          userResponse: userResponse.data,
-          roleResponse: roleResponse.data,
           permissionResponse: permissionResponse.data,
           statsResponse: statsResponse.data
         });
         
         // Set stats with proper data access
         setStats({
-          userCount: userResponse.data?.total || 0,
-          roleCount: roleResponse.data?.count || (roleResponse.data?.roles ? roleResponse.data.roles.length : 0),
+          userCount: dashboardStatsResponse.data?.userCount || 0,
+          roleCount: dashboardStatsResponse.data?.roleCount || 0,
           permissionCount: permissionResponse.data?.count || 
                          (permissionResponse.data?.permissions ? permissionResponse.data.permissions.length : 0),
           activityCount: statsResponse.data?.total_logs || 0

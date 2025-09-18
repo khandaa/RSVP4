@@ -658,4 +658,9 @@ export const venueAPI = {
   getCustomers: () => api.get('/customers')
 };
 
+// Dashboard API
+export const dashboardAPI = {
+  getStats: () => api.get('/dashboard/stats'),
+};
+
 export default api;

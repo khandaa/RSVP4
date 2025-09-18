@@ -27,23 +27,32 @@ const corsOptions = {
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
-    
+
+    // In development mode, be more permissive
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('CORS: Request from origin:', origin);
+      callback(null, true);
+      return;
+    }
+
     const allowedOrigins = [
       'http://localhost:3000',
       'http://localhost:3001',
       'http://localhost:5000',
+      'http://localhost:5001',
       process.env.FRONTEND_URL
     ].filter(Boolean);
-    
+
     if (allowedOrigins.includes(origin) || allowedOrigins.some(allowed => origin.startsWith(allowed))) {
       callback(null, true);
     } else {
+      console.log('CORS: Blocked origin:', origin);
       callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true,
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH']
 };
 
 // Middleware
@@ -125,7 +134,8 @@ const moduleNames = [
   'permission_management', 
   'logging',
   'database',
-  'payment'
+  'payment',
+  'dashboard'
 ];
 
 // Register each module's backend routes
