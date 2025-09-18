@@ -52,13 +52,16 @@ const EventCreate = () => {
       ]);
       
       setClients(clientsResponse.data || []);
+      let types = [];
       if (Array.isArray(eventTypesResponse)) {
-        setEventTypes(eventTypesResponse);
+        types = eventTypesResponse;
       } else if (eventTypesResponse && Array.isArray(eventTypesResponse.data)) {
-        setEventTypes(eventTypesResponse.data);
-      } else {
-        setEventTypes([]);
+        types = eventTypesResponse.data;
       }
+
+      // Remove duplicates
+      const uniqueTypes = Array.from(new Map(types.map(item => [item.event_type_id, item])).values());
+      setEventTypes(uniqueTypes);
     } catch (error) {
       console.error('Error fetching data:', error);
       toast.error('Failed to load form data');
