@@ -502,7 +502,7 @@ export const rsvpAPI = {
   deleteRsvp: (id) => api.delete(`/comprehensive-crud/guest-rsvp/${id}`),
   
   // RSVP statistics
-  getRsvpStats: (eventId) => api.get(`/comprehensive-crud/guest-rsvp?event_id=${eventId}`),
+  getRsvpStats: (eventId) => api.get(`/rsvps/stats/${eventId}`),
   getRsvpStatsByEvent: () => api.get('/comprehensive-crud/guest-rsvp'),
   getGuestsByRsvpStatus: (eventId, status) => api.get(`/rsvp/guests/${eventId}?status=${status}`),
   

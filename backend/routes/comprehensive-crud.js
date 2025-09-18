@@ -417,6 +417,28 @@ router.use('/activity-logs', createCRUDRoutes('activity_logs_tx', 'activity_log_
 
 // ========================= RSVP MASTER TABLES =========================
 router.use('/subevents', createCRUDRoutes('rsvp_master_subevents', 'subevent_id'));
+// Custom endpoint for guest groups with member count
+router.get('/guest-groups', authenticateToken, async (req, res) => {
+  try {
+    const db = req.app.locals.db;
+    const query = `
+      SELECT
+        g.*,
+        COUNT(gd.guest_id) as member_count
+      FROM rsvp_master_guest_groups g
+      LEFT JOIN rsvp_guest_group_details gd ON g.guest_group_id = gd.guest_group_id
+      GROUP BY g.guest_group_id
+      ORDER BY g.created_at DESC
+    `;
+    const groups = await dbMethods.all(db, query, []);
+    res.json(groups);
+  } catch (error) {
+    console.error('Error fetching guest groups with member count:', error);
+    res.status(500).json({ error: 'Failed to fetch guest groups' });
+  }
+});
+
+// Regular CRUD operations for guest groups (POST, PUT, DELETE)
 router.use('/guest-groups', createCRUDRoutes('rsvp_master_guest_groups', 'guest_group_id'));
 router.use('/vendors', createCRUDRoutes('rsvp_master_vendors', 'vendor_id'));
 router.use('/rooms', createCRUDRoutes('rsvp_master_rooms', 'room_id'));

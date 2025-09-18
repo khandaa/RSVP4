@@ -133,6 +133,15 @@ const CustomerDashboard = () => {
     navigate(path);
   };
 
+  const formatDate = (dateString) => {
+    if (!dateString) return 'No Date';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      return 'Invalid Date';
+    }
+    return date.toLocaleDateString();
+  };
+
   if (loading) {
     return (
       <Container className="my-4 text-center">
@@ -252,7 +261,7 @@ const CustomerDashboard = () => {
                               {event.event_status}
                             </span>
                           </td>
-                          <td>{new Date(event.event_date).toLocaleDateString()}</td>
+                          <td>{formatDate(event.event_date)}</td>
                           <td>
                             <Button 
                               size="sm" 

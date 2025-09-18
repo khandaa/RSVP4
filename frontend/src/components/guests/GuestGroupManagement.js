@@ -29,13 +29,11 @@ const GuestGroupManagement = () => {
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [formData, setFormData] = useState({
     group_name: '',
-    group_description: '',
-    group_type: 'General'
+    group_description: ''
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const groupTypes = ['General', 'Family', 'Corporate', 'VIP', 'Media', 'Staff', 'Vendor'];
 
   useEffect(() => {
     fetchGroups();
@@ -48,7 +46,7 @@ const GuestGroupManagement = () => {
   const fetchGroups = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('/api/crud/guest-groups', {
+      const response = await fetch('/api/comprehensive-crud/guest-groups', {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       });
       
@@ -74,8 +72,7 @@ const GuestGroupManagement = () => {
     if (searchTerm) {
       filtered = filtered.filter(group =>
         group.group_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        group.group_description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        group.group_type?.toLowerCase().includes(searchTerm.toLowerCase())
+        group.group_description?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -116,8 +113,7 @@ const GuestGroupManagement = () => {
   const resetForm = () => {
     setFormData({
       group_name: '',
-      group_description: '',
-      group_type: 'General'
+      group_description: ''
     });
     setErrors({});
   };
@@ -131,8 +127,7 @@ const GuestGroupManagement = () => {
     setSelectedGroup(group);
     setFormData({
       group_name: group.group_name || '',
-      group_description: group.group_description || '',
-      group_type: group.group_type || 'General'
+      group_description: group.group_description || ''
     });
     setErrors({});
     setShowEditModal(true);
@@ -164,8 +159,8 @@ const GuestGroupManagement = () => {
 
     try {
       const url = isEdit 
-        ? `/api/crud/guest-groups/${selectedGroup.group_id}`
-        : '/api/crud/guest-groups';
+        ? `/api/comprehensive-crud/guest-groups/${selectedGroup.guest_group_id}`
+        : '/api/comprehensive-crud/guest-groups';
       
       const method = isEdit ? 'PUT' : 'POST';
 
@@ -197,7 +192,7 @@ const GuestGroupManagement = () => {
 
   const confirmDelete = async () => {
     try {
-      const response = await fetch(`/api/crud/guest-groups/${selectedGroup.group_id}`, {
+      const response = await fetch(`/api/comprehensive-crud/guest-groups/${selectedGroup.guest_group_id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -218,17 +213,6 @@ const GuestGroupManagement = () => {
     }
   };
 
-  const getGroupTypeBadgeClass = (type) => {
-    switch (type) {
-      case 'VIP': return 'bg-warning';
-      case 'Corporate': return 'bg-info';
-      case 'Family': return 'bg-success';
-      case 'Media': return 'bg-primary';
-      case 'Staff': return 'bg-secondary';
-      case 'Vendor': return 'bg-dark';
-      default: return 'bg-light text-dark';
-    }
-  };
 
   if (isLoading) {
     return (
@@ -296,10 +280,10 @@ const GuestGroupManagement = () => {
                 <th 
                   scope="col" 
                   className="sortable" 
-                  onClick={() => handleSort('group_id')}
+                  onClick={() => handleSort('guest_group_id')}
                   style={{ cursor: 'pointer' }}
                 >
-                  ID {getSortIcon('group_id')}
+                  ID {getSortIcon('guest_group_id')}
                 </th>
                 <th 
                   scope="col" 
@@ -309,22 +293,16 @@ const GuestGroupManagement = () => {
                 >
                   Group Name {getSortIcon('group_name')}
                 </th>
-                <th 
-                  scope="col" 
-                  className="sortable" 
-                  onClick={() => handleSort('group_type')}
-                  style={{ cursor: 'pointer' }}
-                >
-                  Type {getSortIcon('group_type')}
+                <th scope="col">Description
                 </th>
-                <th scope="col">Description</th>
-                <th 
-                  scope="col" 
-                  className="sortable" 
-                  onClick={() => handleSort('member_count')}
+                <th scope="col">Members</th>
+                <th
+                  scope="col"
+                  className="sortable"
+                  onClick={() => handleSort('created_at')}
                   style={{ cursor: 'pointer' }}
                 >
-                  Members {getSortIcon('member_count')}
+                  Created {getSortIcon('created_at')}
                 </th>
                 <th scope="col">Actions</th>
               </tr>
@@ -343,8 +321,8 @@ const GuestGroupManagement = () => {
                 </tr>
               ) : (
                 filteredGroups.map((group) => (
-                  <tr key={group.group_id}>
-                    <td>#{group.group_id}</td>
+                  <tr key={group.guest_group_id}>
+                    <td>#{group.guest_group_id}</td>
                     <td className="fw-semibold">
                       <div className="d-flex align-items-center">
                         <FaUserFriends className="text-primary me-2" />
@@ -352,14 +330,9 @@ const GuestGroupManagement = () => {
                       </div>
                     </td>
                     <td>
-                      <span className={`badge glass-badge ${getGroupTypeBadgeClass(group.group_type)}`}>
-                        {group.group_type}
-                      </span>
-                    </td>
-                    <td>
                       <div style={{ maxWidth: '200px' }}>
                         {group.group_description ? (
-                          group.group_description.length > 50 
+                          group.group_description.length > 50
                             ? `${group.group_description.substring(0, 50)}...`
                             : group.group_description
                         ) : (
@@ -371,6 +344,11 @@ const GuestGroupManagement = () => {
                       <span className="badge bg-info glass-badge">
                         {group.member_count || 0} members
                       </span>
+                    </td>
+                    <td>
+                      <small className="text-muted">
+                        {group.created_at ? new Date(group.created_at).toLocaleDateString() : '-'}
+                      </small>
                     </td>
                     <td>
                       <div className="btn-group" role="group">
@@ -442,20 +420,6 @@ const GuestGroupManagement = () => {
                         {errors.group_name && (
                           <div className="invalid-feedback">{errors.group_name}</div>
                         )}
-                      </div>
-                      <div className="mb-3">
-                        <label className="form-label fw-semibold">
-                          Group Type
-                        </label>
-                        <select
-                          className="form-select glass-input"
-                          value={formData.group_type}
-                          onChange={(e) => setFormData(prev => ({ ...prev, group_type: e.target.value }))}
-                        >
-                          {groupTypes.map(type => (
-                            <option key={type} value={type}>{type}</option>
-                          ))}
-                        </select>
                       </div>
                       <div className="mb-3">
                         <label className="form-label fw-semibold">
@@ -544,20 +508,6 @@ const GuestGroupManagement = () => {
                         {errors.group_name && (
                           <div className="invalid-feedback">{errors.group_name}</div>
                         )}
-                      </div>
-                      <div className="mb-3">
-                        <label className="form-label fw-semibold">
-                          Group Type
-                        </label>
-                        <select
-                          className="form-select glass-input"
-                          value={formData.group_type}
-                          onChange={(e) => setFormData(prev => ({ ...prev, group_type: e.target.value }))}
-                        >
-                          {groupTypes.map(type => (
-                            <option key={type} value={type}>{type}</option>
-                          ))}
-                        </select>
                       </div>
                       <div className="mb-3">
                         <label className="form-label fw-semibold">

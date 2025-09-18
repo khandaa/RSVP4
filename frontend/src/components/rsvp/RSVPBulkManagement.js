@@ -39,7 +39,7 @@ const RSVPBulkManagement = () => {
   const fetchRsvps = useCallback(async () => {
     try {
       setIsLoading(true);
-      const response = await axios.get(`/api/rsvp/event/${selectedEvent}`);
+      const response = await axios.get(`/api/rsvps/event/${selectedEvent}`);
       setRsvps(response.data);
       setFilteredRsvps(response.data);
       setSelectedRsvps([]);
