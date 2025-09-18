@@ -55,13 +55,13 @@ const GuestLogisticsProfile = () => {
         fetch(`/api/guests/${guestId}`, {
           headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         }),
-        fetch(`/api/crud/travel-information?guest_id=${guestId}${selectedEvent ? `&event_id=${selectedEvent}` : ''}`, {
+        fetch(`/api/comprehensive-crud/guest-travel?guest_id=${guestId}${selectedEvent ? `&event_id=${selectedEvent}` : ''}`, {
           headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         }),
-        fetch(`/api/crud/accommodation-assignments?guest_id=${guestId}${selectedEvent ? `&event_id=${selectedEvent}` : ''}`, {
+        fetch(`/api/comprehensive-crud/guest-accommodation?guest_id=${guestId}${selectedEvent ? `&event_id=${selectedEvent}` : ''}`, {
           headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         }),
-        fetch(`/api/crud/vehicle-allocations?guest_id=${guestId}${selectedEvent ? `&event_id=${selectedEvent}` : ''}`, {
+        fetch(`/api/comprehensive-crud/guest-vehicle-allocation?guest_id=${guestId}${selectedEvent ? `&event_id=${selectedEvent}` : ''}`, {
           headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         })
       ]);

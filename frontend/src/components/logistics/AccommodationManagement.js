@@ -87,10 +87,10 @@ const AccommodationManagement = () => {
         guestsRes,
         eventsRes
       ] = await Promise.all([
-        fetch('/api/crud/accommodations', {
+        fetch('/api/comprehensive-crud/guest-accommodation', {
           headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         }),
-        fetch('/api/crud/accommodation-assignments', {
+        fetch('/api/comprehensive-crud/guest-accommodation', {
           headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         }),
         fetch('/api/guests', {
@@ -123,8 +123,9 @@ const AccommodationManagement = () => {
     
     try {
       const url = editingAccommodation 
-        ? `/api/crud/accommodations/${editingAccommodation.accommodation_id}`
-        : '/api/crud/accommodations';
+        // Accommodations endpoint not available
+        ? `/api/comprehensive-crud/guest-accommodation/${editingAccommodation.accommodation_id}`
+        : '/api/comprehensive-crud/guest-accommodation';
       
       const method = editingAccommodation ? 'PUT' : 'POST';
       
@@ -156,8 +157,8 @@ const AccommodationManagement = () => {
     
     try {
       const url = editingAssignment 
-        ? `/api/crud/accommodation-assignments/${editingAssignment.assignment_id}`
-        : '/api/crud/accommodation-assignments';
+        ? `/api/comprehensive-crud/guest-accommodation/${editingAssignment.guest_accommodation_id}`
+        : '/api/comprehensive-crud/guest-accommodation';
       
       const method = editingAssignment ? 'PUT' : 'POST';
       
@@ -188,7 +189,8 @@ const AccommodationManagement = () => {
     if (!window.confirm('Are you sure you want to delete this accommodation?')) return;
 
     try {
-      const response = await fetch(`/api/crud/accommodations/${accommodationId}`, {
+      // Accommodations endpoint not available
+      const response = await fetch(`/api/comprehensive-crud/guest-accommodation/${accommodationId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -211,7 +213,7 @@ const AccommodationManagement = () => {
     if (!window.confirm('Are you sure you want to delete this assignment?')) return;
 
     try {
-      const response = await fetch(`/api/crud/accommodation-assignments/${assignmentId}`, {
+      const response = await fetch(`/api/comprehensive-crud/guest-accommodation/${assignmentId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`

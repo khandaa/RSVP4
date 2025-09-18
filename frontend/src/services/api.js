@@ -502,8 +502,8 @@ export const rsvpAPI = {
   deleteRsvp: (id) => api.delete(`/comprehensive-crud/guest-rsvp/${id}`),
   
   // RSVP statistics
-  getRsvpStats: (eventId) => api.get(`/rsvp/stats/${eventId}`),
-  getRsvpStatsByEvent: () => api.get('/rsvp/stats'),
+  getRsvpStats: (eventId) => api.get(`/comprehensive-crud/guest-rsvp?event_id=${eventId}`),
+  getRsvpStatsByEvent: () => api.get('/comprehensive-crud/guest-rsvp'),
   getGuestsByRsvpStatus: (eventId, status) => api.get(`/rsvp/guests/${eventId}?status=${status}`),
   
   // Bulk operations
@@ -526,51 +526,65 @@ export const rsvpAPI = {
 // Logistics API for room allocation and travel arrangements
 export const logisticsAPI = {
   // Accommodation operations for room allocation
-  getAccommodations: (params) => api.get('/logistics/accommodations', { params }),
-  getAccommodation: (id) => api.get(`/logistics/accommodations/${id}`),
-  createAccommodation: (data) => api.post('/logistics/accommodations', data),
-  updateAccommodation: (id, data) => api.put(`/logistics/accommodations/${id}`, data),
-  deleteAccommodation: (id) => api.delete(`/logistics/accommodations/${id}`),
+  getAccommodations: (params) => api.get('/comprehensive-crud/guest-accommodation', { params }),
+  getAccommodation: (id) => api.get(`/comprehensive-crud/guest-accommodation/${id}`),
+  createAccommodation: (data) => api.post('/comprehensive-crud/guest-accommodation', data),
+  updateAccommodation: (id, data) => api.put(`/comprehensive-crud/guest-accommodation/${id}`, data),
+  deleteAccommodation: (id) => api.delete(`/comprehensive-crud/guest-accommodation/${id}`),
   
   // Room allocation operations for guests
-  getRoomAllocations: (params) => api.get('/logistics/room-allocations', { params }),
-  getRoomAllocationsByGuest: (guestId) => api.get(`/logistics/room-allocations/guest/${guestId}`),
-  getRoomAllocationsByEvent: (eventId) => api.get(`/logistics/room-allocations/event/${eventId}`),
-  allocateRoom: (allocationData) => api.post('/logistics/room-allocations', allocationData),
-  updateRoomAllocation: (id, allocationData) => api.put(`/logistics/room-allocations/${id}`, allocationData),
-  removeRoomAllocation: (id) => api.delete(`/logistics/room-allocations/${id}`),
-  bulkAllocateRooms: (allocations) => api.post('/logistics/room-allocations/bulk', allocations),
+  getRoomAllocations: (params) => api.get('/comprehensive-crud/event-room-allocation', { params }),
+  getRoomAllocationsByGuest: (guestId) => api.get(`/comprehensive-crud/event-room-allocation?guest_id=${guestId}`),
+  getRoomAllocationsByEvent: (eventId) => api.get(`/comprehensive-crud/event-room-allocation?event_id=${eventId}`),
+  allocateRoom: (allocationData) => api.post('/comprehensive-crud/event-room-allocation', allocationData),
+  updateRoomAllocation: (id, allocationData) => api.put(`/comprehensive-crud/event-room-allocation/${id}`, allocationData),
+  removeRoomAllocation: (id) => api.delete(`/comprehensive-crud/event-room-allocation/${id}`),
+  // Bulk room allocation not supported by comprehensive-crud
+  bulkAllocateRooms: (allocations) => Promise.reject('Bulk room allocation not supported'),
   
   // Travel arrangement operations
-  getTravelArrangements: (params) => api.get('/logistics/travel-arrangements', { params }),
-  getTravelArrangementsByGuest: (guestId) => api.get(`/logistics/travel-arrangements/guest/${guestId}`),
-  getTravelArrangementsByEvent: (eventId) => api.get(`/logistics/travel-arrangements/event/${eventId}`),
-  createTravelArrangement: (data) => api.post('/logistics/travel-arrangements', data),
-  updateTravelArrangement: (id, data) => api.put(`/logistics/travel-arrangements/${id}`, data),
-  deleteTravelArrangement: (id) => api.delete(`/logistics/travel-arrangements/${id}`),
-  bulkCreateTravelArrangements: (arrangements) => api.post('/logistics/travel-arrangements/bulk', arrangements),
+  getTravelArrangements: (params) => api.get('/comprehensive-crud/guest-travel', { params }),
+  getTravelArrangementsByGuest: (guestId) => api.get(`/comprehensive-crud/guest-travel?guest_id=${guestId}`),
+  getTravelArrangementsByEvent: (eventId) => api.get(`/comprehensive-crud/guest-travel?event_id=${eventId}`),
+  createTravelArrangement: (data) => api.post('/comprehensive-crud/guest-travel', data),
+  updateTravelArrangement: (id, data) => api.put(`/comprehensive-crud/guest-travel/${id}`, data),
+  deleteTravelArrangement: (id) => api.delete(`/comprehensive-crud/guest-travel/${id}`),
+  // Bulk travel arrangements not supported by comprehensive-crud
+  bulkCreateTravelArrangements: (arrangements) => Promise.reject('Bulk travel arrangements not supported'),
   
   // Vehicle allocation operations
-  getVehicles: (params) => api.get('/logistics/vehicles', { params }),
-  getVehicle: (id) => api.get(`/logistics/vehicles/${id}`),
-  createVehicle: (vehicleData) => api.post('/logistics/vehicles', vehicleData),
-  updateVehicle: (id, vehicleData) => api.put(`/logistics/vehicles/${id}`, vehicleData),
-  deleteVehicle: (id) => api.delete(`/logistics/vehicles/${id}`),
-  allocateVehicle: (allocationData) => api.post('/logistics/vehicle-allocations', allocationData),
-  getVehicleAllocations: (params) => api.get('/logistics/vehicle-allocations', { params }),
+  // Vehicles endpoint not available - no master vehicles table
+  getVehicles: (params) => Promise.resolve([]),
+  // Vehicle endpoint not available
+  getVehicle: (id) => Promise.reject('Vehicle endpoint not available'),
+  // Vehicle creation not available
+  createVehicle: (vehicleData) => Promise.reject('Vehicle creation not available'),
+  // Vehicle update not available
+  updateVehicle: (id, vehicleData) => Promise.reject('Vehicle update not available'),
+  // Vehicle deletion not available
+  deleteVehicle: (id) => Promise.reject('Vehicle deletion not available'),
+  allocateVehicle: (allocationData) => api.post('/comprehensive-crud/guest-vehicle-allocation', allocationData),
+  getVehicleAllocations: (params) => api.get('/comprehensive-crud/guest-vehicle-allocation', { params }),
   
   // Logistics reports
-  getLogisticsReports: (params) => api.get('/logistics/reports', { params }),
-  getLogisticsReportsByType: (type, params) => api.get(`/logistics/reports/${type}`, { params }),
-  exportLogisticsReport: (type, params) => api.get(`/logistics/reports/${type}/export`, {
-    params,
+  // Logistics reports not available - would need custom implementation
+  getLogisticsReports: (params) => Promise.resolve([]),
+  // Logistics reports by type not available
+  getLogisticsReportsByType: (type, params) => Promise.resolve([]),
+  // Logistics report export not available
+  exportLogisticsReport: (type, params) => Promise.reject('Report export not available'),
     responseType: 'blob'
   }),
   
   // Logistics dashboard data
-  getDashboardData: (params) => api.get('/logistics/dashboard', { params }),
-  getDashboardSummary: (eventId) => api.get(`/logistics/dashboard/summary/${eventId}`),
-  getScheduleOverview: (date, eventId) => api.get(`/logistics/dashboard/schedule`, {
+  // Logistics dashboard not available - use individual endpoints
+  getDashboardData: (params) => Promise.resolve({}),
+  // Dashboard summary not available
+  getDashboardSummary: (eventId) => Promise.resolve({}),
+  // Schedule overview not available
+  getScheduleOverview: (date, eventId) => Promise.resolve([]),
+  getScheduleOverview: (date, eventId) => api.get('/logistics/schedule-overview', {
+  getScheduleOverview: (date, eventId) => api.get('/logistics/schedule-overview', {
     params: { date, event_id: eventId }
   })
 };

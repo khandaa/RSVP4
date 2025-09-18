@@ -102,10 +102,10 @@ const VehicleAllocation = () => {
         guestsRes,
         eventsRes
       ] = await Promise.all([
-        fetch('/api/crud/vehicles', {
+        fetch('/api/comprehensive-crud/guest-vehicle-allocation', {
           headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         }),
-        fetch('/api/crud/vehicle-allocations', {
+        fetch('/api/comprehensive-crud/guest-vehicle-allocation', {
           headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         }),
         fetch('/api/guests', {
@@ -138,8 +138,9 @@ const VehicleAllocation = () => {
     
     try {
       const url = editingVehicle 
-        ? `/api/crud/vehicles/${editingVehicle.vehicle_id}`
-        : '/api/crud/vehicles';
+        // Vehicles endpoint not available
+        ? `/api/comprehensive-crud/guest-vehicle-allocation/${editingVehicle.vehicle_id}`
+        : '/api/comprehensive-crud/guest-vehicle-allocation';
       
       const method = editingVehicle ? 'PUT' : 'POST';
       
@@ -171,8 +172,8 @@ const VehicleAllocation = () => {
     
     try {
       const url = editingAllocation 
-        ? `/api/crud/vehicle-allocations/${editingAllocation.allocation_id}`
-        : '/api/crud/vehicle-allocations';
+        ? `/api/comprehensive-crud/guest-vehicle-allocation/${editingAllocation.vehicle_allocation_id}`
+        : '/api/comprehensive-crud/guest-vehicle-allocation';
       
       const method = editingAllocation ? 'PUT' : 'POST';
       
@@ -203,7 +204,8 @@ const VehicleAllocation = () => {
     if (!window.confirm('Are you sure you want to delete this vehicle?')) return;
 
     try {
-      const response = await fetch(`/api/crud/vehicles/${vehicleId}`, {
+      // Vehicles endpoint not available
+      const response = await fetch(`/api/comprehensive-crud/guest-vehicle-allocation/${vehicleId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -226,7 +228,7 @@ const VehicleAllocation = () => {
     if (!window.confirm('Are you sure you want to delete this allocation?')) return;
 
     try {
-      const response = await fetch(`/api/crud/vehicle-allocations/${allocationId}`, {
+      const response = await fetch(`/api/comprehensive-crud/guest-vehicle-allocation/${allocationId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`

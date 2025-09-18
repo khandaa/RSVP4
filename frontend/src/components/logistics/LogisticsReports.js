@@ -71,13 +71,13 @@ const LogisticsReports = () => {
         accommodationRes,
         vehicleRes
       ] = await Promise.all([
-        fetch(`/api/crud/travel-information?start_date=${dateRange.start}&end_date=${dateRange.end}${selectedEvent ? `&event_id=${selectedEvent}` : ''}`, {
+        fetch(`/api/comprehensive-crud/guest-travel?start_date=${dateRange.start}&end_date=${dateRange.end}${selectedEvent ? `&event_id=${selectedEvent}` : ''}`, {
           headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         }),
-        fetch(`/api/crud/accommodation-assignments?start_date=${dateRange.start}&end_date=${dateRange.end}${selectedEvent ? `&event_id=${selectedEvent}` : ''}`, {
+        fetch(`/api/comprehensive-crud/guest-accommodation?start_date=${dateRange.start}&end_date=${dateRange.end}${selectedEvent ? `&event_id=${selectedEvent}` : ''}`, {
           headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         }),
-        fetch(`/api/crud/vehicle-allocations?start_date=${dateRange.start}&end_date=${dateRange.end}${selectedEvent ? `&event_id=${selectedEvent}` : ''}`, {
+        fetch(`/api/comprehensive-crud/guest-vehicle-allocation?start_date=${dateRange.start}&end_date=${dateRange.end}${selectedEvent ? `&event_id=${selectedEvent}` : ''}`, {
           headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         })
       ]);
