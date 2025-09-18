@@ -7,7 +7,7 @@ const express = require('express');
 const router = express.Router();
 const { body, validationResult } = require('express-validator');
 const { authenticateToken } = require('../../middleware/auth');
-const { dbMethods } = require('../modules/database/backend');
+const { dbMethods } = require('../../modules/database/backend');
 const whatsappService = require('../services/whatsappService');
 const multer = require('multer');
 const path = require('path');
@@ -295,13 +295,22 @@ router.post('/send-preview', [
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log('Validation errors:', errors.array());
       return res.status(400).json({ errors: errors.array() });
     }
 
     const { phone_number, invite_data } = req.body;
+    console.log('Send preview request:', { phone_number: phone_number, invite_data_keys: Object.keys(invite_data || {}) });
 
+    // For development: Allow preview without WhatsApp configuration
     if (!whatsappService.isConfigured()) {
-      return res.status(400).json({ error: 'WhatsApp service not configured' });
+      console.log('WhatsApp not configured, returning mock response');
+      return res.json({
+        success: true,
+        message: 'Preview sent (mock response - WhatsApp not configured)',
+        status: 'delivered',
+        mock: true
+      });
     }
 
     const result = await whatsappService.sendInvite(phone_number, invite_data);

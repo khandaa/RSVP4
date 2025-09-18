@@ -36,6 +36,7 @@
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.2",
     "uuid": "^13.0.0",
+    "whatsapp": "^0.0.5-Alpha",
     "xlsx": "^0.18.5"
   }
 }
