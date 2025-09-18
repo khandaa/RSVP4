@@ -1,6 +1,7 @@
 ## [Unreleased]
 
 ### 2025-09-18
+- Fixed a recurring 'Cannot read properties of undefined (reading 'toLowerCase')' error in `GuestGroupTypeahead.js` by adding robust null checks to the data filtering and component logic, preventing crashes caused by invalid API data.
 - Fixed silent failure when creating guests from table view in `GuestCreate.js` by refactoring to use the authenticated `api` service, ensuring proper error handling and redirection only upon complete success.
 - Fixed 404 error on the guest detail page by refactoring `GuestDetail.js` to use the `api` service, correcting API endpoints, and updating response handling for `axios`.
 - Fixed 500 Internal Server Error when creating a sub-event by correcting the API endpoint in `api.js` and fixing data handling in `SubeventCreate.js`.

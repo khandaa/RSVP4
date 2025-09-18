@@ -33,7 +33,7 @@ const GuestGroupTypeahead = ({
         setIsLoading(true);
         const response = await guestGroupAPI.getGuestGroups();
         const groups = response.data || response || [];
-        setAllGuestGroups(groups.filter(g => g && g.guest_group_name));
+        setAllGuestGroups(groups.filter(g => g && g.group_name));
       } catch (error) {
         console.error('Error fetching guest groups:', error);
       } finally {
@@ -59,7 +59,7 @@ const GuestGroupTypeahead = ({
     }
 
     const filtered = allGuestGroups.filter(group =>
-      group.guest_group_name.toLowerCase().includes(inputValue.toLowerCase())
+      group.group_name.toLowerCase().includes(inputValue.toLowerCase())
     );
 
     setSuggestions(filtered);
@@ -76,10 +76,10 @@ const GuestGroupTypeahead = ({
   };
 
   const handleSuggestionClick = (suggestion) => {
-    setInputValue(suggestion.guest_group_name);
+    setInputValue(suggestion.group_name);
     setShowSuggestions(false);
     setActiveSuggestion(-1);
-    onChange(suggestion.guest_group_name);
+    onChange(suggestion.group_name);
     inputRef.current?.focus();
   };
 
@@ -121,7 +121,7 @@ const GuestGroupTypeahead = ({
 
     // Check if group already exists
     const existingGroup = allGuestGroups.find(
-      group => group && group.guest_group_name && group.guest_group_name.toLowerCase() === inputValue.toLowerCase()
+      group => group && group.group_name && group.group_name.toLowerCase() === inputValue.toLowerCase()
     );
 
     if (existingGroup) {
@@ -150,7 +150,7 @@ const GuestGroupTypeahead = ({
 
       // Prepare group data
       const groupData = {
-        guest_group_name: newGroupName.trim(),
+        group_name: newGroupName.trim(),
         group_description: `Guest group created for: ${newGroupName}`,
         client_id: clientId,
         event_id: eventId
@@ -163,13 +163,13 @@ const GuestGroupTypeahead = ({
       setAllGuestGroups(prev => [...prev, newGroup]);
 
       // Set as selected value
-      setInputValue(newGroup.guest_group_name);
-      onChange(newGroup.guest_group_name);
+      setInputValue(newGroup.group_name);
+      onChange(newGroup.group_name);
 
       setShowCreateModal(false);
       setNewGroupName('');
 
-      toast.success(`Guest group "${newGroup.guest_group_name}" created successfully!`);
+      toast.success(`Guest group "${newGroup.group_name}" created successfully!`);
 
     } catch (error) {
       console.error('Error creating guest group:', error);
@@ -212,7 +212,7 @@ const GuestGroupTypeahead = ({
   const showCreateButton = inputValue.trim() &&
     suggestions.length === 0 &&
     !allGuestGroups.some(group =>
-      group && group.guest_group_name && group.guest_group_name.toLowerCase() === inputValue.toLowerCase()
+      group && group.group_name && group.group_name.toLowerCase() === inputValue.toLowerCase()
     );
 
   return (
@@ -275,7 +275,7 @@ const GuestGroupTypeahead = ({
                   <div className="d-flex align-items-center">
                     <FaUsers className="me-2 text-muted" size={12} />
                     <div className="flex-grow-1">
-                      <div className="fw-medium">{suggestion.guest_group_name}</div>
+                      <div className="fw-medium">{suggestion.group_name}</div>
                       {suggestion.group_description && (
                         <small className="text-muted">
                           {suggestion.group_description.length > 50
