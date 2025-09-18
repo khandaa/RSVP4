@@ -28,6 +28,36 @@ router.get('/', authenticateToken, async (req, res) => {
   }
 });
 
+// GET /api/venues/customer/:customerId - Get venues by customer ID
+router.get('/customer/:customerId', authenticateToken, async (req, res) => {
+  try {
+    const db = req.app.locals.db;
+    const { customerId } = req.params;
+    const { sortField = 'venue_name', sortOrder = 'asc', sortDirection = 'asc' } = req.query;
+
+    // Validate sortOrder (support both sortOrder and sortDirection)
+    const sortParam = sortOrder || sortDirection;
+    const order = sortParam && sortParam.toLowerCase() === 'desc' ? 'DESC' : 'ASC';
+
+    // Validate sortField (prevent SQL injection)
+    const allowedSortFields = ['venue_name', 'venue_city', 'venue_capacity', 'created_at'];
+    const validSortField = allowedSortFields.includes(sortField) ? sortField : 'venue_name';
+
+    const venues = await dbMethods.all(db,
+      `SELECT v.*, c.customer_name
+       FROM rsvp_master_venues v
+       LEFT JOIN master_customers c ON v.customer_id = c.customer_id
+       WHERE v.customer_id = ?
+       ORDER BY v.${validSortField} ${order}`,
+      [customerId]
+    );
+    res.json(venues);
+  } catch (error) {
+    console.error('Error fetching venues by customer:', error);
+    res.status(500).json({ error: 'Failed to fetch venues' });
+  }
+});
+
 // GET /api/venues/:id - Get venue by ID
 router.get('/:id', authenticateToken, async (req, res) => {
   try {

@@ -14,15 +14,22 @@ const { dbMethods } = require('../../modules/database/backend');
 router.get('/', authenticateToken, async (req, res) => {
   try {
     const db = req.app.locals.db;
-    const guests = await dbMethods.all(db, 
-      `SELECT g.*, c.client_name, e.event_name, s.subevent_name 
-       FROM rsvp_master_guests g 
-       LEFT JOIN rsvp_master_clients c ON g.client_id = c.client_id 
-       LEFT JOIN rsvp_master_events e ON g.event_id = e.event_id 
-       LEFT JOIN rsvp_master_subevents s ON g.subevent_id = s.subevent_id 
-       ORDER BY g.created_at DESC`, 
-      []
-    );
+    const { event_id } = req.query;
+    let query = `SELECT g.*, c.client_name, e.event_name, s.subevent_name 
+                 FROM rsvp_master_guests g 
+                 LEFT JOIN rsvp_master_clients c ON g.client_id = c.client_id 
+                 LEFT JOIN rsvp_master_events e ON g.event_id = e.event_id 
+                 LEFT JOIN rsvp_master_subevents s ON g.subevent_id = s.subevent_id`;
+    const params = [];
+
+    if (event_id) {
+      query += ' WHERE g.event_id = ?';
+      params.push(event_id);
+    }
+
+    query += ' ORDER BY g.created_at DESC';
+
+    const guests = await dbMethods.all(db, query, params);
     res.json(guests);
   } catch (error) {
     console.error('Error fetching guests:', error);

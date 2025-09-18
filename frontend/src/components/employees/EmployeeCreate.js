@@ -23,15 +23,7 @@ const EmployeeCreate = () => {
     customer_id: currentUser?.customer_id || '',
     department_id: '',
     team_id: '',
-    position: '',
-    status: 'Active',
-    address: '',
-    city: '',
-    state: '',
-    postal_code: '',
-    country: '',
-    employment_date: '',
-    notes: ''
+    status: 'Active'
   });
 
   // Loading states
@@ -90,15 +82,7 @@ const EmployeeCreate = () => {
             customer_id: employeeData.customer_id || currentUser?.customer_id || '',
             department_id: employeeData.department_id || '',
             team_id: employeeData.team_id || '',
-            position: employeeData.position || '',
-            status: employeeData.status || 'Active',
-            address: employeeData.address || '',
-            city: employeeData.city || '',
-            state: employeeData.state || '',
-            postal_code: employeeData.postal_code || '',
-            country: employeeData.country || '',
-            employment_date: employeeData.employment_date ? employeeData.employment_date.split('T')[0] : '',
-            notes: employeeData.notes || ''
+            status: employeeData.status || 'Active'
           });
         }
       } catch (error) {
@@ -319,17 +303,6 @@ const EmployeeCreate = () => {
             <Row className="mb-3">
               <Col md={6}>
                 <Form.Group className="mb-3">
-                  <Form.Label>Position</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="position"
-                    value={formData.position}
-                    onChange={handleChange}
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={6}>
-                <Form.Group className="mb-3">
                   <Form.Label>Status</Form.Label>
                   <Form.Select
                     name="status"
@@ -342,83 +315,7 @@ const EmployeeCreate = () => {
                   </Form.Select>
                 </Form.Group>
               </Col>
-            </Row>
-
-            <Row className="mb-3">
-              <Col md={12}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Address</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="address"
-                    value={formData.address}
-                    onChange={handleChange}
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-
-            <Row className="mb-3">
-              <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>City</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="city"
-                    value={formData.city}
-                    onChange={handleChange}
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>State/Province</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="state"
-                    value={formData.state}
-                    onChange={handleChange}
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-
-            <Row className="mb-3">
-              <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Postal Code</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="postal_code"
-                    value={formData.postal_code}
-                    onChange={handleChange}
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Country</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="country"
-                    value={formData.country}
-                    onChange={handleChange}
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-
-            <Row className="mb-3">
-              <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Employment Date</Form.Label>
-                  <Form.Control
-                    type="date"
-                    name="employment_date"
-                    value={formData.employment_date}
-                    onChange={handleChange}
-                  />
-                </Form.Group>
+            </Row>roup>
               </Col>
             </Row>
 

@@ -9,9 +9,8 @@ import '../../styles/CommonList.css';
 
 const VendorList = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const isAdmin = user && (user.roles.includes('admin') || user.roles.includes('Admin'));
-  const isCustomerAdmin = user && user.roles.includes('Customer Admin');
+  const { user, hasRole } = useAuth();
+  const canAddVendor = hasRole(['Admin', 'admin', 'Customer Admin']);
   
   const [vendors, setVendors] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -105,7 +104,7 @@ const VendorList = () => {
       <Card className="shadow-sm">
         <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center">
           <h5 className="mb-0">Vendors</h5>
-          {(isAdmin || isCustomerAdmin) && (
+          {canAddVendor && (
             <Button
               variant="light"
               size="sm"
@@ -187,7 +186,7 @@ const VendorList = () => {
                         >
                           <FaEye />
                         </Button>
-                        {(isAdmin || isCustomerAdmin) && (
+                        {canAddVendor && (
                           <>
                             <Button
                               variant="outline-primary"

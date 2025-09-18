@@ -78,6 +78,7 @@ const GuestGroupDetail = () => {
                   <th>Name</th>
                   <th>Email</th>
                   <th>Phone</th>
+                  <th>RSVP Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -86,6 +87,11 @@ const GuestGroupDetail = () => {
                     <td><Link to={`/guests/${member.guest_id}`}>{member.guest_first_name} {member.guest_last_name}</Link></td>
                     <td>{member.guest_email}</td>
                     <td>{member.guest_phone}</td>
+                    <td>
+                      <span className={`badge ${member.guest_rsvp_status === 'Confirmed' ? 'bg-success' : member.guest_rsvp_status === 'Declined' ? 'bg-danger' : 'bg-warning'}`}>
+                        {member.guest_rsvp_status || 'Pending'}
+                      </span>
+                    </td>
                   </tr>
                 ))}
               </tbody>

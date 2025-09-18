@@ -73,10 +73,10 @@ const VenueList = () => {
   };
 
   const filteredVenues = venues.filter(venue =>
-    venue.venue_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    venue.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    venue.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    venue.contact_person.toLowerCase().includes(searchTerm.toLowerCase())
+    venue.venue_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    venue.venue_address?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    venue.venue_city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    venue.venue_contact_person?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleDeleteClick = (venue) => {
@@ -88,7 +88,7 @@ const VenueList = () => {
     if (!venueToDelete) return;
     
     try {
-      await venueAPI.deleteVenue(venueToDelete.id);
+      await venueAPI.deleteVenue(venueToDelete.venue_id);
       toast.success("Venue deleted successfully");
       setShowDeleteModal(false);
       fetchVenues();
@@ -178,27 +178,27 @@ const VenueList = () => {
                 </thead>
                 <tbody>
                   {filteredVenues.map((venue) => (
-                    <tr key={venue.id}>
+                    <tr key={venue.venue_id}>
                       <td>{venue.venue_name}</td>
-                      <td>{venue.city}</td>
-                      <td>{venue.capacity} people</td>
-                      <td>${venue.cost_per_day.toFixed(2)}</td>
+                      <td>{venue.venue_city || 'N/A'}</td>
+                      <td>{venue.venue_capacity ? `${venue.venue_capacity} people` : 'N/A'}</td>
+                      <td>N/A</td>
                       <td>
-                        <Badge bg={venue.status === 'active' ? 'success' : 'danger'} pill>
-                          {venue.status === 'active' ? 'Active' : 'Inactive'}
+                        <Badge bg={venue.venue_status === 'Active' ? 'success' : 'danger'} pill>
+                          {venue.venue_status || 'Unknown'}
                         </Badge>
                       </td>
                       <td className="text-center">
                         <div className="action-buttons">
-                          <Link to={`/venues/${venue.id}`}>
+                          <Link to={`/venues/${venue.venue_id}`}>
                             <Button variant="outline-info" size="sm" className="me-1">
                               <FaEye /> View
                             </Button>
                           </Link>
-                          
+
                           {(isAdmin || isCustomerAdmin) && (
                             <>
-                              <Link to={`/venues/${venue.id}/edit`}>
+                              <Link to={`/venues/${venue.venue_id}/edit`}>
                                 <Button variant="outline-primary" size="sm" className="me-1">
                                   <FaEdit /> Edit
                                 </Button>

@@ -25,7 +25,6 @@ const RSVPDashboard = () => {
     pending: 0,
     total: 0
   });
-  const [recentResponses, setRecentResponses] = useState([]);
   const [guests, setGuests] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -97,33 +96,14 @@ const RSVPDashboard = () => {
     }
   }, [selectedEvent]);
 
-  const fetchRecentResponses = useCallback(async () => {
-    if (!selectedEvent) return;
-    
-    try {
-      const response = await rsvpAPI.getRsvps({ 
-        event_id: selectedEvent,
-        limit: 5,
-        sort: 'rsvp_date',
-        order: 'desc'
-      });
-      
-      if (response && response.data) {
-        setRecentResponses(response.data);
-      }
-    } catch (error) {
-      console.error('Error fetching recent RSVP responses:', error);
-    }
-  }, [selectedEvent]);
 
   // Fetch RSVP stats when an event is selected
   useEffect(() => {
     if (selectedEvent) {
       fetchRsvpStats();
-      fetchRecentResponses();
       fetchGuests();
     }
-  }, [selectedEvent, fetchRsvpStats, fetchRecentResponses, fetchGuests]); 
+  }, [selectedEvent, fetchRsvpStats, fetchGuests]); 
   
   // Handle event change
   const handleEventChange = (e) => {
@@ -133,7 +113,6 @@ const RSVPDashboard = () => {
   // Handle refresh
   const handleRefresh = () => {
     fetchRsvpStats();
-    fetchRecentResponses();
     fetchGuests();
     toast.info('Dashboard refreshed!');
   };
@@ -410,60 +389,6 @@ const RSVPDashboard = () => {
             </div>
           </div>
           
-          {/* Recent Responses */}
-          <div className="card glass-card">
-            <div className="card-header bg-transparent border-0">
-              <h5 className="mb-0">Recent Responses</h5>
-            </div>
-            <div className="card-body">
-              {recentResponses.length > 0 ? (
-                <div className="table-responsive">
-                  <table className="table table-hover">
-                    <thead>
-                      <tr>
-                        <th>Guest</th>
-                        <th>Status</th>
-                        <th>Response Date</th>
-                        <th>Notes</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {recentResponses.map(response => (
-                        <tr key={response.rsvp_id}>
-                          <td>{response.guest_name || 'Guest ' + response.guest_id}</td>
-                          <td>
-                            {response.rsvp_status === 'attending' && (
-                              <span className="badge bg-success">Attending</span>
-                            )}
-                            {response.rsvp_status === 'declined' && (
-                              <span className="badge bg-danger">Declined</span>
-                            )}
-                            {response.rsvp_status === 'pending' && (
-                              <span className="badge bg-warning">Pending</span>
-                            )}
-                          </td>
-                          <td>{new Date(response.rsvp_date).toLocaleDateString()}</td>
-                          <td>{response.notes || '-'}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              ) : (
-                <div className="text-center py-4">
-                  <p className="text-muted">No recent RSVP responses found</p>
-                </div>
-              )}
-            </div>
-            <div className="card-footer bg-transparent text-end">
-              <button 
-                className="btn btn-primary"
-                onClick={() => navigate(`/rsvps/bulk?event=${selectedEvent}`)}
-              >
-                View All Responses
-              </button>
-            </div>
-          </div>
         </>
       ) : (
         <div className="text-center my-5">
