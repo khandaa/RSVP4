@@ -87,9 +87,11 @@ const AccommodationManagement = () => {
         guestsRes,
         eventsRes
       ] = await Promise.all([
+        // Get guest accommodations data
         fetch('/api/comprehensive-crud/guest-accommodation', {
           headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         }),
+        // Get accommodation assignments data (using same endpoint for now)
         fetch('/api/comprehensive-crud/guest-accommodation', {
           headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         }),

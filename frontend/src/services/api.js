@@ -573,20 +573,14 @@ export const logisticsAPI = {
   getLogisticsReportsByType: (type, params) => Promise.resolve([]),
   // Logistics report export not available
   exportLogisticsReport: (type, params) => Promise.reject('Report export not available'),
-    responseType: 'blob'
-  }),
-  
+
   // Logistics dashboard data
   // Logistics dashboard not available - use individual endpoints
   getDashboardData: (params) => Promise.resolve({}),
   // Dashboard summary not available
   getDashboardSummary: (eventId) => Promise.resolve({}),
   // Schedule overview not available
-  getScheduleOverview: (date, eventId) => Promise.resolve([]),
-  getScheduleOverview: (date, eventId) => api.get('/logistics/schedule-overview', {
-  getScheduleOverview: (date, eventId) => api.get('/logistics/schedule-overview', {
-    params: { date, event_id: eventId }
-  })
+  getScheduleOverview: (date, eventId) => Promise.resolve([])
 };
 
 // Room Management API
