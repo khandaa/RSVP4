@@ -10,6 +10,7 @@ import '../../styles/CommonList.css';
 const VendorList = () => {
   const navigate = useNavigate();
   const { user, hasRole } = useAuth();
+  const isCustomerAdmin = hasRole(['Customer Admin']);
   const canAddVendor = hasRole(['Admin', 'admin', 'Customer Admin']);
   
   const [vendors, setVendors] = useState([]);

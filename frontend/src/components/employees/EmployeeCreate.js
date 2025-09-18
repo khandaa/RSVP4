@@ -10,7 +10,6 @@ const EmployeeCreate = () => {
   const navigate = useNavigate();
   const { hasRole, currentUser } = useAuth();
   const isAdmin = hasRole(['Admin', 'admin', 'full_access']);
-  const isCustomerAdmin = hasRole(['Customer Admin']);
   const isEditing = !!id;
   const title = isEditing ? 'Edit Employee' : 'Create Employee';
 
@@ -34,6 +33,7 @@ const EmployeeCreate = () => {
   const [customers, setCustomers] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [teams, setTeams] = useState([]);
+  const [teamMembers, setTeamMembers] = useState([]);
 
   // Validation state
   const [validated, setValidated] = useState(false);
