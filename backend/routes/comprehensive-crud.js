@@ -59,18 +59,40 @@ const createCRUDRoutes = (tableName, primaryKey, requiredFields = [], joins = []
 
   // POST new record
   routes.post('/', authenticateToken, async (req, res) => {
+    const db = req.app.locals.db;
+    await dbMethods.beginTransaction(db);
     try {
-      const db = req.app.locals.db;
-      const fields = Object.keys(req.body).filter(key => key !== primaryKey);
-      const values = fields.map(field => req.body[field]);
-      const placeholders = fields.map(() => '?').join(', ');
-      
-      const query = `INSERT INTO ${tableName} (${fields.join(', ')}) VALUES (${placeholders})`;
-      const result = await dbMethods.run(db, query, values);
-      
-      const newRecord = await dbMethods.get(db, `SELECT * FROM ${tableName} WHERE ${primaryKey} = ?`, [result.lastID]);
+      let newRecord;
+      if (tableName === 'roles_master') {
+        const { permission_ids, ...roleData } = req.body;
+        const fields = Object.keys(roleData);
+        const values = fields.map(field => roleData[field]);
+        const placeholders = fields.map(() => '?').join(', ');
+
+        const query = `INSERT INTO ${tableName} (${fields.join(', ')}) VALUES (${placeholders})`;
+        const result = await dbMethods.run(db, query, values);
+        const newRoleId = result.lastID;
+
+        if (permission_ids && permission_ids.length > 0) {
+          for (const permissionId of permission_ids) {
+            await dbMethods.run(db, 'INSERT INTO role_permissions_tx (role_id, permission_id) VALUES (?, ?)', [newRoleId, permissionId]);
+          }
+        }
+        newRecord = await dbMethods.get(db, `SELECT * FROM ${tableName} WHERE ${primaryKey} = ?`, [newRoleId]);
+      } else {
+        const fields = Object.keys(req.body).filter(key => key !== primaryKey);
+        const values = fields.map(field => req.body[field]);
+        const placeholders = fields.map(() => '?').join(', ');
+        
+        const query = `INSERT INTO ${tableName} (${fields.join(', ')}) VALUES (${placeholders})`;
+        const result = await dbMethods.run(db, query, values);
+        
+        newRecord = await dbMethods.get(db, `SELECT * FROM ${tableName} WHERE ${primaryKey} = ?`, [result.lastID]);
+      }
+      await dbMethods.commit(db);
       res.status(201).json(newRecord);
     } catch (error) {
+      await dbMethods.rollback(db);
       console.error(`Error creating ${tableName} record:`, error);
       console.error(`Query was: INSERT INTO ${tableName} (${Object.keys(req.body).filter(key => key !== primaryKey).join(', ')}) VALUES (${Object.keys(req.body).filter(key => key !== primaryKey).map(() => '?').join(', ')})`);
       console.error(`Values were:`, Object.keys(req.body).filter(key => key !== primaryKey).map(field => req.body[field]));
