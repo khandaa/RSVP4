@@ -97,14 +97,14 @@ router.post('/', [
       // 2. Create a user account for the client admin if email is provided
       if (client_email) {
         try {
-          // Generate a default password (Admin@123)
+          // Generate a default password (<firstname>@123)
           const bcrypt = require('bcryptjs');
           const salt = await bcrypt.genSalt(10);
-          const defaultPassword = 'Admin@123';
+          const firstName = client_name.split(' ')[0] || client_name;
+          const defaultPassword = `${firstName}@123`;
           const hashedPassword = await bcrypt.hash(defaultPassword, salt);
           
           // Generate user details from client data
-          const firstName = client_name.split(' ')[0] || client_name;
           const lastName = client_name.split(' ').slice(1).join(' ') || 'Admin';
           
           // Check if user with this email already exists

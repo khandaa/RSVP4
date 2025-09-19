@@ -30,7 +30,7 @@ const init = (app) => {
  * @description Get all permissions
  * @access Private - Requires permission_view permission
  */
-router.get('/permissions', authenticateToken, checkPermissions(['permission_view']), async (req, res) => {
+router.get('/permissions', authenticateToken, checkPermissions(['permission_view', 'role_create']), async (req, res) => {
   try {
     const db = req.app.locals.db;
     const eventBus = req.app.locals.eventBus;

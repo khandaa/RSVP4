@@ -33,7 +33,7 @@ const Navbar = ({ toggleSidebar, collapsed }) => {
               title={
                 <div className="d-inline">
                   <FaUserCircle className="me-1" />
-                  {currentUser?.firstName} {currentUser?.lastName}
+                  {currentUser?.firstName} ({currentUser?.roles?.join(', ')})
                 </div>
               } 
               id="user-dropdown"

@@ -122,6 +122,48 @@ const db = new sqlite3.Database(dbPath, (err) => {
 app.locals.db = db;
 app.locals.eventBus = eventBus;
 
+// Run migrations
+const runMigrations = async () => {
+  try {
+    const clientAdminRole = await new Promise((resolve, reject) => {
+      db.get('SELECT role_id FROM roles_master WHERE name = ?', ['Client Admin'], (err, row) => {
+        if (err) reject(err);
+        resolve(row);
+      });
+    });
+
+    const roleCreatePermission = await new Promise((resolve, reject) => {
+      db.get('SELECT permission_id FROM permissions_master WHERE name = ?', ['role_create'], (err, row) => {
+        if (err) reject(err);
+        resolve(row);
+      });
+    });
+
+    if (clientAdminRole && roleCreatePermission) {
+      const existing = await new Promise((resolve, reject) => {
+        db.get('SELECT * FROM role_permissions_tx WHERE role_id = ? AND permission_id = ?', [clientAdminRole.role_id, roleCreatePermission.permission_id], (err, row) => {
+          if (err) reject(err);
+          resolve(row);
+        });
+      });
+
+      if (!existing) {
+        await new Promise((resolve, reject) => {
+          db.run('INSERT INTO role_permissions_tx (role_id, permission_id) VALUES (?, ?)', [clientAdminRole.role_id, roleCreatePermission.permission_id], (err) => {
+            if (err) reject(err);
+            console.log('Granted role_create permission to Client Admin');
+            resolve();
+          });
+        });
+      }
+    }
+  } catch (error) {
+    console.error('Error running migrations:', error);
+  }
+};
+
+runMigrations();
+
 // Register module routers
 // Load and register all modules from the modules directory
 const modulesPath = path.join(__dirname, '..', 'modules');

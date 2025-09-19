@@ -83,14 +83,14 @@ router.post('/', [
       // 2. Create a user account for the customer admin if email is provided
       if (customer_email) {
         try {
-          // Generate a default password (Admin@123)
+          // Generate a default password (<firstname>@123)
           const bcrypt = require('bcryptjs');
           const salt = await bcrypt.genSalt(10);
-          const defaultPassword = 'Admin@123';
+          const firstName = customer_name.split(' ')[0] || customer_name;
+          const defaultPassword = `${firstName}@123`;
           const hashedPassword = await bcrypt.hash(defaultPassword, salt);
           
           // Generate username from customer name
-          const firstName = customer_name.split(' ')[0] || customer_name;
           const lastName = customer_name.split(' ').slice(1).join(' ') || 'Admin';
           
           // Check if user with this email already exists
@@ -182,13 +182,34 @@ router.put('/:id', [
       return res.status(404).json({ error: 'Customer not found' });
     }
 
-    await dbMethods.run(db,
-      'UPDATE master_customers SET customer_name = ?, customer_email = ?, customer_phone = ?, customer_address = ?, customer_city = ?, customer_status = ?, updated_at = CURRENT_TIMESTAMP WHERE customer_id = ?',
-      [customer_name, customer_email, customer_phone, customer_address, customer_city, customer_status, req.params.id]
-    );
+    // Begin transaction
+    await dbMethods.run(db, 'BEGIN TRANSACTION');
 
-    const updatedCustomer = await dbMethods.get(db, 'SELECT * FROM master_customers WHERE customer_id = ?', [req.params.id]);
-    res.json(updatedCustomer);
+    try {
+      // Update customer
+      await dbMethods.run(db,
+        'UPDATE master_customers SET customer_name = ?, customer_email = ?, customer_phone = ?, customer_address = ?, customer_city = ?, customer_status = ?, updated_at = CURRENT_TIMESTAMP WHERE customer_id = ?',
+        [customer_name, customer_email, customer_phone, customer_address, customer_city, customer_status, req.params.id]
+      );
+
+      // If email was changed, update the corresponding user in users_master
+      if (customer_email && existingCustomer.customer_email !== customer_email) {
+        const user = await dbMethods.get(db, 'SELECT * FROM users_master WHERE email = ?', [existingCustomer.customer_email]);
+        if (user) {
+          await dbMethods.run(db, 'UPDATE users_master SET email = ? WHERE user_id = ?', [customer_email, user.user_id]);
+        }
+      }
+
+      // Commit transaction
+      await dbMethods.run(db, 'COMMIT');
+
+      const updatedCustomer = await dbMethods.get(db, 'SELECT * FROM master_customers WHERE customer_id = ?', [req.params.id]);
+      res.json(updatedCustomer);
+    } catch (error) {
+      // Rollback on error
+      await dbMethods.run(db, 'ROLLBACK');
+      throw error;
+    }
   } catch (error) {
     console.error('Error updating customer:', error);
     res.status(500).json({ error: 'Failed to update customer' });
@@ -282,14 +303,14 @@ router.post('/bulk-import', [authenticateToken, upload.single('file')], async (r
               // Create Customer Admin user if email is provided
               if (customerData.customer_email) {
                 try {
-                  // Generate a default password (Admin@123)
+                  // Generate a default password (<firstname>@123)
                   const bcrypt = require('bcryptjs');
                   const salt = await bcrypt.genSalt(10);
-                  const defaultPassword = 'Admin@123';
+                  const firstName = customerData.customer_name.split(' ')[0] || customerData.customer_name;
+                  const defaultPassword = `${firstName}@123`;
                   const hashedPassword = await bcrypt.hash(defaultPassword, salt);
                   
                   // Generate user details from customer data
-                  const firstName = customerData.customer_name.split(' ')[0] || customerData.customer_name;
                   const lastName = customerData.customer_name.split(' ').slice(1).join(' ') || 'Admin';
                   
                   // Check if user with this email already exists

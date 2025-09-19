@@ -22,7 +22,13 @@ router.get('/', authenticateToken, async (req, res) => {
                  LEFT JOIN rsvp_master_event_types et ON e.event_type_id = et.event_type_id`;
     const params = [];
 
-    if (roles && roles.includes('Customer Admin') && customer_id) {
+    if (roles && (roles.includes('Client Admin') || roles.includes('Client Team'))) {
+      const client = await dbMethods.get(db, 'SELECT client_id FROM rsvp_master_clients WHERE client_email = ?', [req.user.email]);
+      if (client && client.client_id) {
+        query += ' WHERE e.client_id = ?';
+        params.push(client.client_id);
+      }
+    } else if (roles && roles.includes('Customer Admin') && customer_id) {
       query += ' WHERE c.customer_id = ?';
       params.push(customer_id);
     }

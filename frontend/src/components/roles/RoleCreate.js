@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
+import { Container, Row, Col, Card, Form, Button, Alert, Table } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -35,13 +35,17 @@ const RoleCreate = () => {
     fetchPermissions();
   }, []);
 
-  // Group permissions by category
+  // Group permissions by category and action
   const groupedPermissions = Array.isArray(permissions) ? permissions.reduce((acc, permission) => {
-    const category = permission.name.split('_')[0]; // Assuming permissions are named like "user_create"
+    const [category, ...actionParts] = permission.name.split('_');
+    const action = actionParts.join('_');
+
     if (!acc[category]) {
-      acc[category] = [];
+      acc[category] = {};
     }
-    acc[category].push(permission);
+    if (!acc[category][action]) {
+      acc[category][action] = permission.permission_id;
+    }
     return acc;
   }, {}) : {};
 
@@ -156,73 +160,56 @@ const RoleCreate = () => {
                       </Alert>
                     )}
                     
-                    {Object.keys(groupedPermissions).length > 0 ? (
-                      <div className="mb-4">
-                        {Object.entries(groupedPermissions).map(([category, categoryPermissions]) => (
-                          <div key={category} className="mb-4">
-                            <h6 className="text-capitalize mb-3">{category} Permissions</h6>
-                            <div className="d-flex flex-wrap mb-2">
-                              <Button
-                                variant="outline-secondary"
-                                size="sm"
-                                className="me-2 mb-2"
-                                onClick={() => {
-                                  const categoryIds = categoryPermissions.map(p => p.permission_id);
-                                  const allSelected = categoryPermissions.every(p => 
-                                    values.permissionIds.includes(p.permission_id)
-                                  );
-                                  
-                                  if (allSelected) {
-                                    // If all already selected, deselect all in category
-                                    setFieldValue(
-                                      'permissionIds',
-                                      values.permissionIds.filter(id => !categoryIds.includes(id))
-                                    );
-                                  } else {
-                                    // Otherwise, select all in category
-                                    const newIds = [...values.permissionIds];
-                                    categoryPermissions.forEach(p => {
-                                      if (!newIds.includes(p.permission_id)) {
-                                        newIds.push(p.permission_id);
-                                      }
-                                    });
-                                    setFieldValue('permissionIds', newIds);
-                                  }
-                                }}
-                              >
-                                {categoryPermissions.every(p => values.permissionIds.includes(p.permission_id))
-                                  ? 'Deselect All'
-                                  : 'Select All'}
-                              </Button>
-                            </div>
-                            <div className="d-flex flex-wrap">
-                              {categoryPermissions.map(permission => (
-                                <div key={permission.permission_id} className="me-3 mb-3">
+                    <Table bordered>
+                      <thead>
+                        <tr>
+                          <th>Permission Category</th>
+                          <th>Create</th>
+                          <th>Read</th>
+                          <th>Update</th>
+                          <th>Delete</th>
+                          <th>Select All</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {Object.entries(groupedPermissions).map(([category, actions]) => (
+                          <tr key={category}>
+                            <td className="text-capitalize">{category.replace(/_/g, ' ')}</td>
+                            {['create', 'read', 'update', 'delete'].map(action => (
+                              <td key={action}>
+                                {actions[action] && (
                                   <Form.Check
                                     type="checkbox"
-                                    id={`permission-${permission.permission_id}`}
-                                    label={<>
-                                      <FaShieldAlt className="me-1" /> 
-                                      <span className="text-capitalize">{permission.name.replace(`${category}_`, '')}</span>
-                                    </>}
-                                    checked={values.permissionIds.includes(permission.permission_id)}
-                                    onChange={(e) => {
+                                    id={`permission-${actions[action]}`}
+                                    checked={values.permissionIds.includes(actions[action])}
+                                    onChange={e => {
                                       if (e.target.checked) {
-                                        setFieldValue('permissionIds', [...values.permissionIds, permission.permission_id]);
+                                        setFieldValue('permissionIds', [...values.permissionIds, actions[action]]);
                                       } else {
-                                        setFieldValue(
-                                          'permissionIds',
-                                          values.permissionIds.filter(id => id !== permission.permission_id)
-                                        );
+                                        setFieldValue('permissionIds', values.permissionIds.filter(id => id !== actions[action]));
                                       }
                                     }}
                                   />
-                                </div>
-                              ))}
-                            </div>
-                          </div>
+                                )}
+                              </td>
+                            ))}
+                            <td>
+                              <Form.Check
+                                type="checkbox"
+                                onChange={e => {
+                                  const categoryPermissionIds = Object.values(actions);
+                                  if (e.target.checked) {
+                                    setFieldValue('permissionIds', [...new Set([...values.permissionIds, ...categoryPermissionIds])]);
+                                  } else {
+                                    setFieldValue('permissionIds', values.permissionIds.filter(id => !categoryPermissionIds.includes(id)));
+                                  }
+                                }}
+                              />
+                            </td>
+                          </tr>
                         ))}
-                      </div>
+                      </tbody>
+                    </Table>
                     ) : (
                       <Alert variant="info">Loading permissions...</Alert>
                     )}

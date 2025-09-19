@@ -323,7 +323,7 @@ const CustomerList = () => {
                         </button>
                         <button
                           className="btn btn-sm btn-outline-primary glass-btn"
-                          onClick={() => navigate(`/customers/${customer.customer_id}/edit`)}
+                          onClick={() => navigate(`/customers/edit/${customer.customer_id}`)}
                           title="Edit Customer"
                         >
                           <FaEdit />
