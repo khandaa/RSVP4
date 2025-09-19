@@ -45,8 +45,17 @@ const VendorCreate = () => {
 
   const fetchVendorTypes = useCallback(async () => {
     try {
-      const response = await vendorAPI.getVendorTypes();
-      setVendorTypes(response.data);
+      const response = await fetch('/api/master-data/vendor-types', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setVendorTypes(data);
+      } else {
+        throw new Error('Failed to fetch vendor types');
+      }
     } catch (error) {
       console.error('Error fetching vendor types:', error);
       toast.error('Failed to load vendor types');
@@ -220,9 +229,9 @@ const VendorCreate = () => {
                     onChange={handleInputChange}
                   >
                     <option value="">Select Type</option>
-                    {vendorTypes.map((type, index) => (
-                      <option key={index} value={type}>
-                        {type}
+                    {vendorTypes.map((type) => (
+                      <option key={type.vendor_type_id} value={type.vendor_type_name}>
+                        {type.vendor_type_name}
                       </option>
                     ))}
                   </Form.Select>

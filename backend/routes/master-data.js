@@ -188,6 +188,19 @@ router.delete('/tasks/:id', authenticateToken, async (req, res) => {
   }
 });
 
+// ========================= VENDOR TYPES =========================
+// GET /api/master-data/vendor-types
+router.get('/vendor-types', authenticateToken, async (req, res) => {
+  try {
+    const db = req.app.locals.db;
+    const vendorTypes = await dbMethods.all(db, 'SELECT * FROM rsvp_vendor_types ORDER BY vendor_type_name', []);
+    res.json(vendorTypes);
+  } catch (error) {
+    console.error('Error fetching vendor types:', error);
+    res.status(500).json({ error: 'Failed to fetch vendor types' });
+  }
+});
+
 // ========================= NOTIFICATION TYPES =========================
 // GET /api/master-data/notification-types
 router.get('/notification-types', authenticateToken, async (req, res) => {
