@@ -4,7 +4,7 @@ const path = require('path');
 const csv = require('csv-parser');
 
 // Configuration
-const BASE_URL = 'http://localhost:3000/login';
+const BASE_URL = 'http://localhost:3001/login';
 const TIMEOUT = 10000;
 const CREDENTIALS_FILE = path.join(__dirname, 'user-credentials.csv');
 const RESULTS_FILE = path.join(__dirname, 'login-test-results.md');
@@ -104,7 +104,7 @@ async function testUserLogin(browser, page, user) {
     });
     
     // Always navigate directly to login page instead of homepage
-    await page.goto('http://localhost:3000/login', { waitUntil: 'networkidle0', timeout: TIMEOUT });
+    await page.goto('http://localhost:3001/login', { waitUntil: 'networkidle0', timeout: TIMEOUT });
     
     // Add a small delay to ensure the page is fully loaded
     await new Promise(resolve => setTimeout(resolve, 1000));
