@@ -40,6 +40,7 @@ const corsOptions = {
       'http://localhost:3001',
       'http://localhost:5000',
       'http://localhost:5001',
+      'https://rsvp.hiringtests.in',
       process.env.FRONTEND_URL
     ].filter(Boolean);
 
