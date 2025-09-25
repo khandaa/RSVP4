@@ -39,73 +39,28 @@ const LogisticsDashboard = () => {
   const [activeView, setActiveView] = useState('overview');
   const [timeFilter, setTimeFilter] = useState('today');
 
-  const fetchEvents = useCallback(async () => {
-    try {
-      const response = await fetch('/api/events', {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setEvents(data);
-      }
-    } catch (error) {
-      console.error('Error fetching events:', error);
+  const getTravelIcon = (mode) => {
+    switch (mode) {
+      case 'Flight': return FaPlane;
+      case 'Train': return FaTrain;
+      case 'Car': return FaCar;
+      case 'Bus': return FaBus;
+      case 'Ship': return FaShip;
+      default: return FaCar;
     }
-  }, []);
+  };
 
-  const fetchDashboardData = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      
-      // Get date range based on filter
-      const dateRange = getDateRange();
-      
-      const [
-        travelRes,
-        accommodationRes,
-        vehicleRes
-      ] = await Promise.all([
-        fetch(`/api/comprehensive-crud/guest-travel?start_date=${dateRange.start}&end_date=${dateRange.end}${selectedEvent ? `&event_id=${selectedEvent}` : ''}`, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-        }),
-        fetch(`/api/comprehensive-crud/guest-accommodation?start_date=${dateRange.start}&end_date=${dateRange.end}${selectedEvent ? `&event_id=${selectedEvent}` : ''}`, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-        }),
-        fetch(`/api/comprehensive-crud/guest-vehicle-allocation?start_date=${dateRange.start}&end_date=${dateRange.end}${selectedEvent ? `&event_id=${selectedEvent}` : ''}`, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-        })
-      ]);
+  const getPriorityLevel = (datetime) => {
+    const now = new Date();
+    const itemTime = new Date(datetime);
+    const diffHours = (itemTime - now) / (1000 * 60 * 60);
 
-      const travelData = travelRes.ok ? await travelRes.json() : [];
-      const accommodationData = accommodationRes.ok ? await accommodationRes.json() : [];
-      const vehicleData = vehicleRes.ok ? await vehicleRes.json() : [];
+    if (diffHours < 2) return 'high';
+    if (diffHours < 24) return 'medium';
+    return 'low';
+  };
 
-      // Process data for dashboard
-      const processedData = {
-        travelArrivals: travelData.filter(t => t.arrival_datetime),
-        travelDepartures: travelData.filter(t => t.departure_datetime),
-        accommodationCheckins: accommodationData.filter(a => a.check_in_date),
-        accommodationCheckouts: accommodationData.filter(a => a.check_out_date),
-        vehicleAllocations: vehicleData.filter(v => v.pickup_datetime),
-        upcomingSchedule: generateUpcomingSchedule(travelData, accommodationData, vehicleData)
-      };
-
-      setDashboardData(processedData);
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error);
-      toast.error('Failed to load logistics dashboard data');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [selectedDate, selectedEvent, timeFilter, generateUpcomingSchedule, getDateRange]);
-
-  // Ensure callbacks are defined before using them
-  useEffect(() => {
-    fetchDashboardData();
-    fetchEvents();
-  }, [fetchDashboardData, fetchEvents]);
-
-  const getDateRange = () => {
+  const getDateRange = useCallback(() => {
     const today = new Date();
     let start, end;
 
@@ -138,9 +93,9 @@ const LogisticsDashboard = () => {
     }
 
     return { start, end };
-  };
+  }, [timeFilter, selectedDate]);
 
-  const generateUpcomingSchedule = (travel, accommodation, vehicle) => {
+  const generateUpcomingSchedule = useCallback((travel, accommodation, vehicle) => {
     const schedule = [];
     
     // Add travel arrivals
@@ -215,28 +170,73 @@ const LogisticsDashboard = () => {
 
     // Sort by time and return
     return schedule.sort((a, b) => new Date(a.time) - new Date(b.time));
-  };
+  }, []);
 
-  const getTravelIcon = (mode) => {
-    switch (mode) {
-      case 'Flight': return FaPlane;
-      case 'Train': return FaTrain;
-      case 'Car': return FaCar;
-      case 'Bus': return FaBus;
-      case 'Ship': return FaShip;
-      default: return FaCar;
+  const fetchEvents = useCallback(async () => {
+    try {
+      const response = await fetch('/api/events', {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setEvents(data);
+      }
+    } catch (error) {
+      console.error('Error fetching events:', error);
     }
-  };
+  }, []);
 
-  const getPriorityLevel = (datetime) => {
-    const now = new Date();
-    const itemTime = new Date(datetime);
-    const diffHours = (itemTime - now) / (1000 * 60 * 60);
+  const fetchDashboardData = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      
+      // Get date range based on filter
+      const dateRange = getDateRange();
+      
+      const [
+        travelRes,
+        accommodationRes,
+        vehicleRes
+      ] = await Promise.all([
+        fetch(`/api/comprehensive-crud/guest-travel?start_date=${dateRange.start}&end_date=${dateRange.end}${selectedEvent ? `&event_id=${selectedEvent}` : ''}`, {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        }),
+        fetch(`/api/comprehensive-crud/guest-accommodation?start_date=${dateRange.start}&end_date=${dateRange.end}${selectedEvent ? `&event_id=${selectedEvent}` : ''}`, {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        }),
+        fetch(`/api/comprehensive-crud/guest-vehicle-allocation?start_date=${dateRange.start}&end_date=${dateRange.end}${selectedEvent ? `&event_id=${selectedEvent}` : ''}`, {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        })
+      ]);
 
-    if (diffHours < 2) return 'high';
-    if (diffHours < 24) return 'medium';
-    return 'low';
-  };
+      const travelData = travelRes.ok ? await travelRes.json() : [];
+      const accommodationData = accommodationRes.ok ? await accommodationRes.json() : [];
+      const vehicleData = vehicleRes.ok ? await vehicleRes.json() : [];
+
+      // Process data for dashboard
+      const processedData = {
+        travelArrivals: travelData.filter(t => t.arrival_datetime),
+        travelDepartures: travelData.filter(t => t.departure_datetime),
+        accommodationCheckins: accommodationData.filter(a => a.check_in_date),
+        accommodationCheckouts: accommodationData.filter(a => a.check_out_date),
+        vehicleAllocations: vehicleData.filter(v => v.pickup_datetime),
+        upcomingSchedule: generateUpcomingSchedule(travelData, accommodationData, vehicleData)
+      };
+
+      setDashboardData(processedData);
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+      toast.error('Failed to load logistics dashboard data');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [selectedEvent, timeFilter, generateUpcomingSchedule, getDateRange, selectedDate]);
+
+  // Ensure callbacks are defined before using them
+  useEffect(() => {
+    fetchDashboardData();
+    fetchEvents();
+  }, [fetchDashboardData, fetchEvents]);
 
   const getStatusBadgeClass = (status) => {
     switch (status) {
