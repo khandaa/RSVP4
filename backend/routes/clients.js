@@ -73,7 +73,7 @@ router.post('/', [
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { customer_id, client_name, client_email, client_phone, client_address, client_city, client_status } = req.body;
+    const { customer_id, client_name, email: client_email, phone: client_phone, address: client_address, city: client_city, status: client_status, website, industry, state, postal_code, country, notes } = req.body;
     const db = req.app.locals.db;
 
     // Check if customer exists
@@ -88,8 +88,8 @@ router.post('/', [
     try {
       // 1. Insert client record
       const result = await dbMethods.run(db, 
-        'INSERT INTO rsvp_master_clients (customer_id, client_name, client_email, client_phone, client_address, client_city, client_status) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        [customer_id, client_name, client_email, client_phone, client_address, client_city, client_status || 'Active']
+        'INSERT INTO rsvp_master_clients (customer_id, client_name, client_email, client_phone, client_website, client_industry, client_address, client_city, client_state, client_postal_code, client_country, client_notes, client_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [customer_id, client_name, client_email, client_phone, website, industry, client_address, client_city, state, postal_code, country, notes, client_status || 'Active']
       );
       
       const clientId = result.lastID;
@@ -197,7 +197,7 @@ router.put('/:id', [
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { customer_id, client_name, client_email, client_phone, client_address, client_city, client_status } = req.body;
+    const { customer_id, client_name, email: client_email, phone: client_phone, address: client_address, city: client_city, status: client_status, website, industry, state, postal_code, country, notes } = req.body;
     const db = req.app.locals.db;
 
     const existingClient = await dbMethods.get(db, 'SELECT * FROM rsvp_master_clients WHERE client_id = ?', [req.params.id]);
@@ -212,8 +212,8 @@ router.put('/:id', [
     }
 
     await dbMethods.run(db,
-      'UPDATE rsvp_master_clients SET customer_id = ?, client_name = ?, client_email = ?, client_phone = ?, client_address = ?, client_city = ?, client_status = ?, updated_at = CURRENT_TIMESTAMP WHERE client_id = ?',
-      [customer_id, client_name, client_email, client_phone, client_address, client_city, client_status, req.params.id]
+      'UPDATE rsvp_master_clients SET customer_id = ?, client_name = ?, client_email = ?, client_phone = ?, client_website = ?, client_industry = ?, client_address = ?, client_city = ?, client_state = ?, client_postal_code = ?, client_country = ?, client_notes = ?, client_status = ?, updated_at = CURRENT_TIMESTAMP WHERE client_id = ?',
+      [customer_id, client_name, client_email, client_phone, website, industry, client_address, client_city, state, postal_code, country, notes, client_status, req.params.id]
     );
 
     const updatedClient = await dbMethods.get(db, 
