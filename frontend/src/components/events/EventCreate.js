@@ -8,7 +8,6 @@ import {
   FaUser, 
   FaFileAlt, 
   FaClock, 
-  FaMapMarkerAlt,
   FaTags
 } from 'react-icons/fa';
 import api, { eventAPI, clientAPI } from '../../services/api';

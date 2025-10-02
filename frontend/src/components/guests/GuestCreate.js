@@ -15,7 +15,7 @@ import {
   FaArrowLeft,
   FaInfoCircle
 } from 'react-icons/fa';
-import { guestGroupAPI, eventAPI, customerAPI, guestAPI } from '../../services/api';
+import { eventAPI, customerAPI, guestAPI } from '../../services/api';
 import GuestGroupTypeahead from '../common/GuestGroupTypeahead';
 
 const GuestCreate = () => {
@@ -73,7 +73,7 @@ const GuestCreate = () => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   const fetchData = async () => {
     try {

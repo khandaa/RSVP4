@@ -13,6 +13,7 @@ import {
   FaLink,
   FaMapMarkerAlt
 } from 'react-icons/fa';
+import { Modal, Button } from 'react-bootstrap';
 import { eventAPI, subeventAPI, venueAPI, roomAPI } from '../../services/api';
 import VenueCreateModal from '../venues/VenueCreateModal';
 
@@ -44,8 +45,6 @@ const SubeventCreate = () => {
     subevent_end_datetime: '',
     venue_id: '',
     room_id: ''
-  });
-
   });
   const [errors, setErrors] = useState({});
 
@@ -208,15 +207,15 @@ const SubeventCreate = () => {
     }
   };
 
-  if (isLoadingData) {
-    const handleVenueCreated = (newVenue) => {
+  const handleVenueCreated = (newVenue) => {
     setVenues(prev => [...prev, newVenue]);
     setFormData(prev => ({ ...prev, venue_id: newVenue.venue_id }));
     setShowVenueModal(false);
     toast.success('New venue created and selected!');
   };
 
-  return (
+  if (isLoadingData) {
+    return (
       <div className="glass-bg min-vh-100 d-flex justify-content-center align-items-center">
         <div className="text-center">
           <div className="spinner-border text-primary mb-3" role="status">
@@ -229,7 +228,8 @@ const SubeventCreate = () => {
   }
 
   return (
-    <div className="glass-bg min-vh-100 p-4">
+    <>
+      <div className="glass-bg min-vh-100 p-4" style={{minHeight: '100vh'}}>
       <div className="container-fluid">
         {/* Header */}
         <div className="d-flex justify-content-between align-items-center mb-4">
@@ -600,6 +600,7 @@ const SubeventCreate = () => {
     onHide={() => setShowVenueModal(false)} 
     onVenueCreated={handleVenueCreated} 
 />
+    </>
   );
 };
 
