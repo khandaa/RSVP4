@@ -24,7 +24,9 @@ const SubeventCreate = () => {
   
   // Get eventId from URL params or search params
   const eventId = params.eventId || searchParams.get('eventId');
-  
+  const { id } = useParams(); // For edit mode
+  const isEditMode = !!id;
+
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [events, setEvents] = useState([]);
@@ -81,7 +83,22 @@ const SubeventCreate = () => {
 
   useEffect(() => {
     fetchData();
-  }, [eventId, fetchData]);
+    if (isEditMode) {
+      subeventAPI.getSubevent(id).then(res => {
+        const subevent = res.data;
+        setFormData({
+          event_id: subevent.event_id,
+          subevent_name: subevent.subevent_name,
+          subevent_description: subevent.subevent_description,
+          subevent_status: subevent.subevent_status,
+          subevent_start_datetime: subevent.subevent_start_datetime ? new Date(subevent.subevent_start_datetime).toISOString().slice(0, 16) : '',
+          subevent_end_datetime: subevent.subevent_end_datetime ? new Date(subevent.subevent_end_datetime).toISOString().slice(0, 16) : '',
+          venue_id: subevent.venue_id || '',
+          room_id: subevent.room_id || ''
+        });
+      });
+    }
+  }, [id, isEditMode, fetchData]);
 
   useEffect(() => {
     // Filter rooms based on selected venue
@@ -168,8 +185,13 @@ const SubeventCreate = () => {
         subevent_status: formData.subevent_status
       };
 
-      // Use the subeventAPI to create the subevent
-      const result = await subeventAPI.createSubevent(subeventData);
+      let result;
+      if (isEditMode) {
+        result = await subeventAPI.updateSubevent(id, subeventData);
+      } else {
+        result = await subeventAPI.createSubevent(subeventData);
+      }
+
 
       // If venue or room was selected, create the allocations
       const newSubeventId = result.data.subevent_id;
@@ -191,8 +213,12 @@ const SubeventCreate = () => {
         }
       }
       
-      toast.success('Sub event created successfully');
-      setShowSuccessModal(true);
+      toast.success(`Sub event ${isEditMode ? 'updated' : 'created'} successfully`);
+      if (isEditMode) {
+        navigate(`/subevents/${id}`);
+      } else {
+        setShowSuccessModal(true);
+      }
     } catch (error) {
       console.error('Error creating subevent:', error);
       toast.error('Failed to create sub event: ' + (error.response?.data?.error || error.message));

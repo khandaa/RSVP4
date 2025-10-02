@@ -17,6 +17,7 @@ import {
 } from 'react-icons/fa';
 import { eventAPI, customerAPI, guestAPI } from '../../services/api';
 import GuestGroupTypeahead from '../common/GuestGroupTypeahead';
+import GuestFields from './GuestFields';
 
 const GuestCreate = () => {
   const navigate = useNavigate();
@@ -70,13 +71,8 @@ const GuestCreate = () => {
   });
   const [errors, setErrors] = useState({});
 
-  // Guest type and RSVP status options
   const guestTypeOptions = ['Bride\'s Family', 'Groom\'s Family', 'Bride\'s Friends', 'Groom\'s Friends'];
   const rsvpStatusOptions = ['Pending', 'Confirmed', 'Declined', 'Tentative'];
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
 
   const fetchData = useCallback(async () => {
     try {
@@ -89,9 +85,7 @@ const GuestCreate = () => {
       setEvents(eventsResponse.data || eventsResponse || []);
       setCustomers(customersResponse.data || customersResponse || []);
 
-      // Auto-select customer for Customer Admin or Client Admin users
       if (currentUser && (hasRole('Customer Admin') || hasRole('Client Admin'))) {
-        // Find customer by matching current user's email
         const userCustomer = (customersResponse.data || customersResponse || []).find(
           customer => customer.customer_email === currentUser.email
         );
@@ -112,6 +106,10 @@ const GuestCreate = () => {
   }, [currentUser, hasRole]);
 
   useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  useEffect(() => {
     if (formData.event_id) {
       const event = events.find(e => e.event_id === parseInt(formData.event_id));
       setSelectedEvent(event);
@@ -127,7 +125,6 @@ const GuestCreate = () => {
       [name]: value
     }));
     
-    // Clear specific error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -138,105 +135,27 @@ const GuestCreate = () => {
 
   const validateForm = () => {
     const newErrors = {};
-
-    // Required fields validation
     if (!formData.guest_first_name?.trim()) {
       newErrors.guest_first_name = 'First name is required';
     }
-
     if (!formData.guest_last_name?.trim()) {
       newErrors.guest_last_name = 'Last name is required';
     }
-
     if (!formData.event_id) {
       newErrors.event_id = 'Event is required';
     }
-
-    // Email validation
     if (formData.guest_email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.guest_email)) {
       newErrors.guest_email = 'Please enter a valid email address';
     }
-
-    // Phone validation (basic)
     if (formData.guest_phone && formData.guest_phone.replace(/\D/g, '').length !== 10) {
       newErrors.guest_phone = 'Phone number must be exactly 10 digits';
     }
-    
-    // Guest group validation is handled by the typeahead component
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (viewMode === 'form') {
-      if (!validateForm()) {
-        toast.error('Please fix the form errors before submitting');
-        return;
-      }
-
-      setIsLoading(true);
-
-      try {
-        // Guest groups are managed separately from individual guests
-
-        const selectedEvent = events.find(event => event.event_id === parseInt(formData.event_id));
-
-        // Only send fields that exist in the database table
-        const submitData = {
-          client_id: selectedEvent?.client_id || null,
-          customer_id: formData.customer_id ? parseInt(formData.customer_id) : null,
-          event_id: parseInt(formData.event_id),
-          subevent_id: null, // No subevent selection in this form
-          guest_first_name: formData.guest_first_name?.trim() || '',
-          guest_last_name: formData.guest_last_name?.trim() || '',
-          guest_email: formData.guest_email?.trim() || null,
-          guest_phone: formData.guest_phone_country_code + (formData.guest_phone?.trim() || ''),
-          guest_group_name: formData.guest_group_name?.trim() || null,
-          guest_status: 'Active' // Default status
-        };
-
-        await guestAPI.createGuest(submitData);
-
-        toast.success('Guest created successfully');
-        
-        if (eventId) {
-          navigate(`/guests?eventId=${eventId}`);
-        } else {
-          navigate('/guests');
-        }
-      } catch (error) {
-        console.error('Error creating guest:', error);
-        
-        if (error.response?.data?.errors) {
-          // Handle validation errors from backend
-          const backendErrors = {};
-          error.response.data.errors.forEach(err => {
-            const fieldName = err.param || err.field || 'general';
-            backendErrors[fieldName] = err.msg || err.message || 'Validation error';
-          });
-          setErrors(backendErrors);
-          toast.error('Please fix the form errors');
-        } else if (error.response?.data?.message) {
-          // Handle other error messages from backend
-          toast.error(error.response.data.message);
-        } else {
-          toast.error(error.message || 'Failed to create guest');
-        }
-      } finally {
-        setIsLoading(false);
-      }
-    } else {
-      // Handle table mode submission
-      handleTableSubmit(e);
-    }
-  };
-
   const handleTableSubmit = async (e) => {
     e.preventDefault();
-    // Validate table data
     const validGuests = [];
     const tableErrors = [];
     tableGuests.forEach((guest, index) => {
@@ -253,12 +172,10 @@ const GuestCreate = () => {
       toast.error(tableErrors.join(', '));
       return;
     }
-
     if (validGuests.length === 0) {
       toast.error('Please add at least one guest with first and last name');
       return;
     }
-
     if (!formData.event_id) {
       toast.error('Please select an event');
       return;
@@ -268,7 +185,6 @@ const GuestCreate = () => {
 
     try {
       const selectedEvent = events.find(event => event.event_id === parseInt(formData.event_id));
-
       const guestsToSubmit = validGuests.map(guest => ({
         guest_first_name: guest.guest_first_name?.trim() || '',
         guest_last_name: guest.guest_last_name?.trim() || '',
@@ -281,27 +197,96 @@ const GuestCreate = () => {
         event_id: parseInt(formData.event_id)
       }));
 
-      // Submit all guests
       const results = await Promise.allSettled(guestsToSubmit.map(guestAPI.createGuest));
-
       const successfulCreations = results.filter(r => r.status === 'fulfilled').map(r => r.value);
       const failedCreations = results.filter(r => r.status === 'rejected');
 
       if (failedCreations.length > 0) {
-        failedCreations.forEach(fail => {
-          console.error('Guest creation failed:', fail.reason);
-        });
+        failedCreations.forEach(fail => console.error('Guest creation failed:', fail.reason));
         toast.error(`${failedCreations.length} guest(s) could not be created. Please check the console for details.`);
       }
-
       if (successfulCreations.length > 0) {
         toast.success(`Successfully created ${successfulCreations.length} guest(s).`);
       }
 
       if (successfulCreations.length > 0 && failedCreations.length === 0) {
-      const mapHeaders = ({ header, index }) => header.toLowerCase().trim();
+        if (eventId) {
+          navigate(`/guests?eventId=${eventId}`);
+        } else {
+          navigate('/guests');
+        }
+      }
+    } catch (error) {
+      console.error('Error creating guests:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  // Table mode handlers
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (viewMode === 'form') {
+      if (!validateForm()) {
+        toast.error('Please fix the form errors before submitting');
+        return;
+      }
+
+      setIsLoading(true);
+
+      try {
+        const selectedEvent = events.find(event => event.event_id === parseInt(formData.event_id));
+        const submitData = {
+          client_id: selectedEvent?.client_id || null,
+          customer_id: formData.customer_id ? parseInt(formData.customer_id) : null,
+          event_id: parseInt(formData.event_id),
+          subevent_id: null,
+          guest_first_name: formData.guest_first_name?.trim() || '',
+          guest_last_name: formData.guest_last_name?.trim() || '',
+          guest_email: formData.guest_email?.trim() || null,
+          guest_phone: formData.guest_phone_country_code + (formData.guest_phone?.trim() || ''),
+          guest_group_name: formData.guest_group_name?.trim() || null,
+          guest_status: 'Active',
+          guest_address: formData.guest_address?.trim() || null,
+          guest_city: formData.guest_city?.trim() || null,
+          guest_country: formData.guest_country?.trim() || null,
+          guest_dietary_preferences: formData.guest_dietary_preferences?.trim() || null,
+          guest_special_requirements: formData.guest_special_requirements?.trim() || null,
+          guest_notes: formData.guest_notes?.trim() || null,
+          guest_type: formData.guest_type?.trim() || null,
+          guest_rsvp_status: formData.guest_rsvp_status?.trim() || null      };
+
+        await guestAPI.createGuest(submitData);
+        toast.success('Guest created successfully');
+        
+        if (eventId) {
+          navigate(`/guests?eventId=${eventId}`);
+        } else {
+          navigate('/guests');
+        }
+      } catch (error) {
+        console.error('Error creating guest:', error);
+        if (error.response?.data?.errors) {
+          const backendErrors = {};
+          error.response.data.errors.forEach(err => {
+            const fieldName = err.param || err.field || 'general';
+            backendErrors[fieldName] = err.msg || err.message || 'Validation error';
+          });
+          setErrors(backendErrors);
+          toast.error('Please fix the form errors');
+        } else if (error.response?.data?.message) {
+          toast.error(error.response.data.message);
+        } else {
+          toast.error(error.message || 'Failed to create guest');
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      handleTableSubmit(e);
+    }
+  };
+
   const handleTableInputChange = (index, field, value) => {
     const updatedGuests = [...tableGuests];
     updatedGuests[index][field] = value;
@@ -431,7 +416,7 @@ const GuestCreate = () => {
           <div className={viewMode === 'table' ? 'col-12' : 'col-lg-10 col-xl-8'}>
             <div className="card glass-card">
               <div className="card-body p-4">
-                <form id="guestForm" onSubmit={viewMode === 'form' ? handleSubmit : handleTableSubmit}>
+                <form id="guestForm" onSubmit={handleSubmit}>
                   {/* Event and Customer Selection */}
                   <div className="row g-4 mb-4">
                     <div className="col-md-6">
@@ -629,10 +614,7 @@ const GuestCreate = () => {
                             </label>
                             <GuestGroupTypeahead
                               value={formData.guest_group_name}
-                              onChange={(value) => setFormData(prev => ({
-                                ...prev,
-                                guest_group_name: value
-                              }))}
+                              onChange={(value) => setFormData(prev => ({ ...prev, guest_group_name: value }))}
                               clientId={selectedEvent?.client_id}
                               eventId={formData.event_id}
                               disabled={isLoading}
@@ -641,6 +623,15 @@ const GuestCreate = () => {
                             />
                           </div>
                         </div>
+                      </div>
+
+                      {/* Additional Fields */}
+                      <div className="col-12">
+                        <GuestFields 
+                          formData={formData} 
+                          handleInputChange={handleInputChange} 
+                          errors={errors} 
+                        />
                       </div>
                     </div>
                   ) : (
@@ -788,22 +779,21 @@ const GuestCreate = () => {
                                 </td>
                                 <td>
                                   <GuestGroupTypeahead
-                                    value={guest.guest_group_name || ''}
+                                    value={guest.guest_group_name}
                                     onChange={(value) => handleTableInputChange(index, 'guest_group_name', value)}
-                                    clientId={events.find(e => e.event_id === parseInt(formData.event_id))?.client_id}
+                                    clientId={selectedEvent?.client_id}
                                     eventId={formData.event_id}
                                     disabled={isLoading}
-                                    placeholder="Type group name..."
-                                    className="form-control-sm"
+                                    placeholder="Type to search..."
+                                    size="sm"
                                   />
                                 </td>
-                                <td className="text-center">
+                                <td>
                                   <button
                                     type="button"
-                                    className="btn btn-sm btn-outline-danger"
+                                    className="btn btn-danger btn-sm"
                                     onClick={() => removeTableRow(index)}
-                                    disabled={isLoading || tableGuests.length <= 1}
-                                    title="Remove guest"
+                                    disabled={isLoading || tableGuests.length === 1}
                                   >
                                     <FaTimes />
                                   </button>
@@ -812,24 +802,6 @@ const GuestCreate = () => {
                             ))}
                           </tbody>
                         </table>
-                      </div>
-
-                      {/* Table Info */}
-                      <div className="mt-3 p-3 bg-light rounded glass-effect">
-                        <div className="d-flex align-items-start">
-                          <div className="flex-shrink-0">
-                            <FaInfoCircle className="text-primary" />
-                          </div>
-                          <div className="flex-grow-1 ms-3">
-                            <h6 className="mb-1">Table Mode Instructions</h6>
-                            <small className="text-muted">
-                              • First name and last name are required for each guest<br/>
-                              • Click "Add Row" to add more guests<br/>
-                              • Only rows with first and last names will be saved<br/>
-                              • All guests will be assigned to the selected event
-                            </small>
-                          </div>
-                        </div>
                       </div>
                     </div>
                   )}

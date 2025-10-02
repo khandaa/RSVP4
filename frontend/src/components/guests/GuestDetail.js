@@ -386,60 +386,58 @@ const GuestDetail = () => {
                       </div>
 
                       {/* Address Information */}
-                      {(guest.guest_address || guest.guest_city || guest.guest_state || guest.guest_country) && (
-                        <div className="col-12">
-                          <div className="info-item">
-                            <label className="form-label fw-semibold text-muted">
-                              <FaMapMarkerAlt className="me-2" />
-                              Address
-                            </label>
-                            <div className="text-dark">
-                              {guest.guest_address && <div>{guest.guest_address}</div>}
-                              <div>
-                                {[guest.guest_city, guest.guest_state, guest.guest_country]
-                                  .filter(Boolean)
-                                  .join(', ')
-                                }
-                              </div>
-                            </div>
+                      <div className="col-12">
+                        <div className="info-item">
+                          <label className="form-label fw-semibold text-muted">
+                            <FaMapMarkerAlt className="me-2" />
+                            Address
+                          </label>
+                          <div className="text-dark">
+                            {guest.guest_address ? (
+                              <>
+                                <div>{guest.guest_address}</div>
+                                <div>
+                                  {[guest.guest_city, guest.guest_state, guest.guest_country]
+                                    .filter(Boolean)
+                                    .join(', ')
+                                  }
+                                </div>
+                              </>
+                            ) : (
+                              <span className="text-muted">Not provided</span>
+                            )}
                           </div>
                         </div>
-                      )}
+                      </div>
 
                       {/* Additional Information */}
-                      {guest.guest_dietary_preferences && (
-                        <div className="col-md-6">
-                          <div className="info-item">
-                            <label className="form-label fw-semibold text-muted">
-                              Dietary Preferences
-                            </label>
-                            <p className="text-dark">{guest.guest_dietary_preferences}</p>
-                          </div>
+                      <div className="col-md-6">
+                        <div className="info-item">
+                          <label className="form-label fw-semibold text-muted">
+                            Dietary Preferences
+                          </label>
+                          <p className="text-dark">{guest.guest_dietary_preferences || <span className='text-muted'>Not provided</span>}</p>
                         </div>
-                      )}
+                      </div>
 
-                      {guest.guest_special_requirements && (
-                        <div className="col-md-6">
-                          <div className="info-item">
-                            <label className="form-label fw-semibold text-muted">
-                              Special Requirements
-                            </label>
-                            <p className="text-dark">{guest.guest_special_requirements}</p>
-                          </div>
+                      <div className="col-md-6">
+                        <div className="info-item">
+                          <label className="form-label fw-semibold text-muted">
+                            Special Requirements
+                          </label>
+                          <p className="text-dark">{guest.guest_special_requirements || <span className='text-muted'>Not provided</span>}</p>
                         </div>
-                      )}
+                      </div>
 
-                      {guest.guest_notes && (
-                        <div className="col-12">
-                          <div className="info-item">
-                            <label className="form-label fw-semibold text-muted">
-                              <FaFileAlt className="me-2" />
-                              Internal Notes
-                            </label>
-                            <p className="text-dark">{guest.guest_notes}</p>
-                          </div>
+                      <div className="col-12">
+                        <div className="info-item">
+                          <label className="form-label fw-semibold text-muted">
+                            <FaFileAlt className="me-2" />
+                            Internal Notes
+                          </label>
+                          <p className="text-dark">{guest.guest_notes || <span className='text-muted'>Not provided</span>}</p>
                         </div>
-                      )}
+                      </div>
 
                       <div className="col-md-6">
                         <div className="info-item">

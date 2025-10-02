@@ -228,6 +228,74 @@ The application is divided into several modules, each responsible for a specific
   - `PUT /:id`: Update venue
   - `DELETE /:id`: Delete venue
 
+## Backend API Routes
+
+- **Authentication** (`/api/authentication`)
+  - `POST /login`: User login
+  - `POST /register`: User registration
+  - `POST /forgot-password`: Forgot password
+  - `POST /reset-password`: Reset password
+
+- **Clients** (`/api/clients`)
+  - `GET /`: Get all clients
+  - `GET /:id`: Get client by ID
+  - `POST /`: Create new client
+  - `PUT /:id`: Update client
+  - `DELETE /:id`: Delete client
+
+- **Customers** (`/api/customers`)
+  - `GET /`: Get all customers
+  - `GET /:id`: Get customer by ID
+  - `POST /`: Create new customer
+  - `PUT /:id`: Update customer
+  - `DELETE /:id`: Delete customer
+  - `POST /bulk-import`: Bulk import customers
+
+- **Employee Management** (`/api/employee-management`)
+  - `GET /departments`: Get all departments
+  - `POST /departments`: Create new department
+  - `PUT /departments/:id`: Update department
+  - `DELETE /departments/:id`: Delete department
+  - `GET /teams`: Get all teams
+  - `POST /teams`: Create new team
+  - `GET /teams/:id`: Get team by ID
+  - `PUT /teams/:id`: Update team
+  - `DELETE /teams/:id`: Delete team
+  - `GET /employees`: Get all employees
+  - `POST /employees`: Create new employee
+  - `GET /employees/:id`: Get employee by ID
+  - `PUT /employees/:id`: Update employee
+  - `DELETE /employees/:id`: Delete employee
+
+- **Events** (`/api/events`)
+  - `GET /`: Get all events
+  - `GET /:id`: Get event by ID
+  - `POST /`: Create new event
+  - `PUT /:id`: Update event
+  - `DELETE /:id`: Delete event
+
+- **Guests** (`/api/guests`)
+  - `GET /`: Get all guests
+  - `GET /template`: Download CSV template
+  - `GET /:id`: Get guest by ID
+  - `POST /`: Create new guest
+  - `PUT /:id`: Update guest
+  - `DELETE /:id`: Delete guest
+  - `POST /bulk`: Bulk import guests
+
+- **Master Data** (`/api/master-data`)
+  - `GET /event-types`: Get all event types
+  - `POST /event-types`: Create new event type
+  - `PUT /event-types/:id`: Update event type
+  - `DELETE /event-types/:id`: Delete event type
+
+- **Venues** (`/api/venues`)
+  - `GET /`: Get all venues
+  - `GET /:id`: Get venue by ID
+  - `POST /`: Create new venue
+  - `PUT /:id`: Update venue
+  - `DELETE /:id`: Delete venue
+
 ## Frontend Screens
 
 - **Authentication**: Login, Register, Forgot Password, Reset Password
