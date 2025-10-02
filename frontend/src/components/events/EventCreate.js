@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import React, { useState, useEffect } from 'react';
+import Select from 'react-select';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { 
   FaSave, 
   FaTimes, 
@@ -8,9 +12,10 @@ import {
   FaUser, 
   FaFileAlt, 
   FaClock, 
-  FaTags
+  FaTags,
+  FaMapMarkerAlt
 } from 'react-icons/fa';
-import api, { eventAPI, clientAPI } from '../../services/api';
+import api, { eventAPI, clientAPI, venueAPI } from '../../services/api';
 
 const EventCreate = () => {
   const navigate = useNavigate();
@@ -19,7 +24,9 @@ const EventCreate = () => {
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [clients, setClients] = useState([]);
   const [eventTypes, setEventTypes] = useState([]);
+  const [venues, setVenues] = useState([]);
   const [formData, setFormData] = useState({
+    venue_ids: [],
     client_id: '',
     event_name: '',
     event_description: '',
@@ -45,12 +52,14 @@ const EventCreate = () => {
   const fetchData = async () => {
     try {
       setIsLoadingData(true);
-      const [clientsResponse, eventTypesResponse] = await Promise.all([
+      const [clientsResponse, eventTypesResponse, venuesResponse] = await Promise.all([
         clientAPI.getClients(),
-        api.get('/master-data/event-types')
+        api.get('/master-data/event-types'),
+        venueAPI.getAllVenues()
       ]);
       
       setClients(clientsResponse.data || []);
+      setVenues(venuesResponse.data || []);
       let types = [];
       if (Array.isArray(eventTypesResponse)) {
         types = eventTypesResponse;
@@ -358,6 +367,22 @@ const EventCreate = () => {
                       {errors.event_end_date && (
                         <div className="invalid-feedback">{errors.event_end_date}</div>
                       )}
+                    </div>
+
+                    {/* Venue Selection */}
+                    <div className="col-12">
+                      <label className="form-label fw-semibold">
+                        <FaMapMarkerAlt className="me-2 text-primary" />
+                        Venues
+                      </label>
+                      <Select
+                        isMulti
+                        name="venue_ids"
+                        options={venues.map(v => ({ value: v.venue_id, label: v.venue_name }))}
+                        className="basic-multi-select"
+                        classNamePrefix="select"
+                        onChange={(selectedOptions) => setFormData(prev => ({ ...prev, venue_ids: selectedOptions.map(o => o.value) }))}
+                      />
                     </div>
                   </div>
 

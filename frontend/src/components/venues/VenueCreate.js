@@ -120,15 +120,11 @@ const VenueCreate = () => {
     const errors = {};
     
     if (!formData.venue_name.trim()) errors.venue_name = 'Venue name is required';
-    if (!formData.address.trim()) errors.address = 'Address is required';
-    if (!formData.city.trim()) errors.city = 'City is required';
-    if (!formData.capacity) errors.capacity = 'Capacity is required';
-    else if (isNaN(formData.capacity) || parseInt(formData.capacity) < 1) {
+    if (formData.capacity && (isNaN(formData.capacity) || parseInt(formData.capacity) < 1)) {
       errors.capacity = 'Capacity must be a positive number';
     }
     
-    if (!formData.cost_per_day) errors.cost_per_day = 'Cost per day is required';
-    else if (isNaN(formData.cost_per_day) || parseFloat(formData.cost_per_day) < 0) {
+    if (formData.cost_per_day && (isNaN(formData.cost_per_day) || parseFloat(formData.cost_per_day) < 0)) {
       errors.cost_per_day = 'Cost must be a non-negative number';
     }
     
@@ -276,14 +272,13 @@ const VenueCreate = () => {
             <Row>
               <Col md={12}>
                 <Form.Group className="mb-3">
-                  <Form.Label>Address*</Form.Label>
+                  <Form.Label>Address</Form.Label>
                   <Form.Control
                     type="text"
                     name="address"
                     value={formData.address}
                     onChange={handleChange}
                     isInvalid={!!validationErrors.address}
-                    required
                   />
                   <Form.Control.Feedback type="invalid">
                     {validationErrors.address}
@@ -295,14 +290,13 @@ const VenueCreate = () => {
             <Row>
               <Col md={4}>
                 <Form.Group className="mb-3">
-                  <Form.Label>City*</Form.Label>
+                  <Form.Label>City</Form.Label>
                   <Form.Control
                     type="text"
                     name="city"
                     value={formData.city}
                     onChange={handleChange}
                     isInvalid={!!validationErrors.city}
-                    required
                   />
                   <Form.Control.Feedback type="invalid">
                     {validationErrors.city}
@@ -350,14 +344,13 @@ const VenueCreate = () => {
               
               <Col md={4}>
                 <Form.Group className="mb-3">
-                  <Form.Label>Capacity (people)*</Form.Label>
+                  <Form.Label>Capacity (people)</Form.Label>
                   <Form.Control
                     type="number"
                     name="capacity"
                     value={formData.capacity}
                     onChange={handleChange}
                     isInvalid={!!validationErrors.capacity}
-                    required
                   />
                   <Form.Control.Feedback type="invalid">
                     {validationErrors.capacity}
@@ -367,7 +360,7 @@ const VenueCreate = () => {
               
               <Col md={4}>
                 <Form.Group className="mb-3">
-                  <Form.Label>Cost per Day ($)*</Form.Label>
+                  <Form.Label>Cost per Day ($)</Form.Label>
                   <Form.Control
                     type="number"
                     step="0.01"
@@ -375,7 +368,6 @@ const VenueCreate = () => {
                     value={formData.cost_per_day}
                     onChange={handleChange}
                     isInvalid={!!validationErrors.cost_per_day}
-                    required
                   />
                   <Form.Control.Feedback type="invalid">
                     {validationErrors.cost_per_day}

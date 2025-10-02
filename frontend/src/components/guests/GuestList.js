@@ -52,7 +52,7 @@ const GuestList = () => {
 
   useEffect(() => {
     fetchData();
-  }, [eventId, subeventId, eventFilter]);
+  }, [eventId, subeventId, eventFilter, fetchData]);
 
   useEffect(() => {
     filterAndSortGuests();

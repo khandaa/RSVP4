@@ -122,6 +122,7 @@ const AccommodationManagement = () => {
 
   const handleAccommodationSubmit = async (e) => {
     e.preventDefault();
+    console.log('Submitting accommodation form:', accommodationForm);
     
     try {
       const url = editingAccommodation 
@@ -137,7 +138,19 @@ const AccommodationManagement = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
-        body: JSON.stringify(accommodationForm)
+        body: JSON.stringify({
+          guest_id: accommodationForm.guest_id,
+          event_id: accommodationForm.event_id,
+          venue_id: accommodationForm.venue_id,
+          room_id: accommodationForm.room_id,
+          check_in_date: accommodationForm.check_in_date,
+          check_out_date: accommodationForm.check_out_date,
+          accommodation_type: accommodationForm.room_type,
+          accommodation_details: accommodationForm.notes,
+          allocation_status: 'Assigned',
+          allocation_notes: accommodationForm.notes,
+          allocation_type: 'planned'
+        })
       });
 
       if (!response.ok) {

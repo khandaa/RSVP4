@@ -10,11 +10,80 @@ This is a full-stack RSVP management application built with a React frontend and
 - **Database**: SQLite
 - **Authentication**: JWT, bcryptjs
 
-## Database
+## Database Schema
 
-- **Type**: SQLite
-- **File**: `db/RSVP4.db`
-- **Schema Management**: The database schema is managed through migration files located in the `backend/migrations/` directory. The application automatically runs new migrations on startup. To understand the complete and up-to-date database schema, refer to the `data_update_scripts/migrations/rsvp4.sql` file. Before proposing any database changes, always consult this file to ensure your changes are consistent with the existing structure.
+To understand the complete and up-to-date database schema, refer to the `data_update_scripts/migrations/rsvp4.sql` file. Before proposing any database changes, always consult this file to ensure your changes are consistent with the existing structure.
+
+The database is a SQLite database located at `db/RSVP4.db`. The tables are organized by functionality as follows:
+
+### Customer & Client
+- **master_customers**: Core customer information.
+- **rsvp_master_clients**: Client records, linked to customers.
+- **rsvp_client_details**: Additional details for clients.
+- **rsvp_client_meeting_notes**: Notes from client meetings.
+
+### Events & Sub-events
+- **rsvp_master_events**: Main event records.
+- **rsvp_event_details**: Budget, location, and other event details.
+- **rsvp_event_documents**: Documents related to an event.
+- **rsvp_master_event_types**: Types of events (e.g., Wedding, Corporate).
+- **rsvp_master_subevents**: Individual activities or parts of a main event.
+- **rsvp_subevents_details**: Additional details for sub-events.
+
+### Guest Management
+- **rsvp_master_guests**: Core guest information.
+- **rsvp_guest_details**: Address and other personal details.
+- **rsvp_guest_documents**: Guest-specific documents (e.g., ID).
+- **rsvp_master_guest_groups**: For grouping guests (e.g., 'Bride's Family').
+- **rsvp_guest_group_details**: Links guests to guest groups.
+- **rsvp_guest_event_allocation**: Links guests to specific events and sub-events.
+
+### RSVP & Invitations
+- **rsvp_guest_rsvp**: Tracks guest responses to invitations.
+- **rsvp_guest_communication**: Logs communications sent to guests.
+- **rsvp_master_invites**: Stores invite templates.
+- **rsvp_invite_versions**: Different versions of an invite.
+- **rsvp_invite_distributions**: Tracks which guest received which invite version.
+- **rsvp_invite_analytics**: Analytics for sent invites (sent, read, responded).
+
+### Venue, Rooms & Accommodation
+- **rsvp_master_venues**: Information about venues.
+- **rsvp_venue_details**: Additional details for venues.
+- **rsvp_venue_event_allocation**: Links venues to events.
+- **rsvp_master_rooms**: Rooms within a venue.
+- **rsvp_event_room_allocation**: Allocates rooms to specific events or sub-events.
+- **rsvp_guest_accommodation**: Manages guest stays and room assignments.
+
+### Travel & Logistics
+- **rsvp_guest_travel**: Guest travel arrangements (arrival, departure).
+- **rsvp_guest_vehicle_allocation**: Assigns vehicles to guests.
+
+### Vendor Management
+- **rsvp_master_vendors**: Core vendor information.
+- **rsvp_vendor_details**: Additional details for vendors.
+- **rsvp_vendor_event_allocation**: Links vendors to events.
+
+### User & Team Management
+- **users_master**: Application users.
+- **roles_master**: User roles (e.g., Admin, Customer).
+- **user_roles_tx**: Links users to roles.
+- **permissions_master**: System permissions.
+- **role_permissions_tx**: Links roles to permissions.
+- **rsvp_master_employees**: Employee records.
+- **rsvp_employee_details**: Additional details for employees.
+- **rsvp_master_departments**: Company departments.
+- **rsvp_master_teams**: Teams within the organization.
+- **rsvp_employee_team_allocation**: Links employees to teams.
+
+### System & Miscellaneous
+- **feature_toggles**: Enables or disables application features.
+- **changelog**: Tracks database schema changes.
+- **rsvp_master_tasks**: Master list of tasks.
+- **rsvp_task_assignment_details**: Assigns tasks to employees.
+- **rsvp_task_event_subevent_mapping**: Links tasks to events or sub-events.
+- **rsvp_master_notifications**: Master list of notifications.
+- **rsvp_master_notification_types**: Types of notifications (e.g., Email, SMS).
+- **rsvp_notification_templates**: Templates for notifications.
 
 ## Setup Commands
 

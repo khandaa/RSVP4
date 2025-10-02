@@ -81,7 +81,7 @@ router.post('/', [
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { client_id, event_name, event_description, event_status, event_type_id, event_start_date, event_end_date } = req.body;
+    const { client_id, event_name, event_description, event_status, event_type_id, event_start_date, event_end_date, venue_ids } = req.body;
     const db = req.app.locals.db;
 
     // Check if client exists
@@ -95,13 +95,24 @@ router.post('/', [
       [client_id, event_name, event_description, event_status || 'Planned', event_type_id, event_start_date, event_end_date]
     );
 
+    const newEventId = result.lastID;
+
+    if (venue_ids && venue_ids.length > 0) {
+      for (const venue_id of venue_ids) {
+        await dbMethods.run(db,
+          'INSERT INTO rsvp_venue_event_allocation (event_id, venue_id, booking_status) VALUES (?, ?, ?)',
+          [newEventId, venue_id, 'Reserved']
+        );
+      }
+    }
+
     const newEvent = await dbMethods.get(db, 
       `SELECT e.*, c.client_name, et.event_type_name 
        FROM rsvp_master_events e 
        LEFT JOIN rsvp_master_clients c ON e.client_id = c.client_id 
        LEFT JOIN rsvp_master_event_types et ON e.event_type_id = et.event_type_id 
        WHERE e.event_id = ?`, 
-      [result.lastID]
+      [newEventId]
     );
     res.status(201).json(newEvent);
   } catch (error) {

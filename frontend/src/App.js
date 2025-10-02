@@ -253,6 +253,7 @@ function App() {
             <Route path="list" element={<SubeventList />} />
             <Route path="create" element={<SubeventCreate />} />
             <Route path=":id" element={<SubeventDetail />} />
+            <Route path=":id/edit" element={<SubeventCreate />} />
             <Route path="allocation" element={<SubeventAllocation />} />
             <Route path="timeline" element={<SubeventTimeline />} />
           </Route>
@@ -265,6 +266,7 @@ function App() {
             <Route path="import" element={<GuestImport />} />
             <Route path=":id" element={<GuestDetail />} />
             <Route path=":id/edit" element={<GuestCreate />} />
+            <Route path=":id/allocate" element={<GuestAllocation />} />
             <Route path="groups" element={<GuestGroupManagement />} />
             <Route path="groups/:id" element={<GuestGroupDetail />} />
           </Route>

@@ -52,3 +52,23 @@ show all attachments for the guest
 
 Add ability to upload documents for guests 
 Create a single page for managing all guest activities. It should be in tabular format and should have fields to add guests, have their RSVP statuses, invite them to various events and sub-events, manage their travel details, room allocation , no of guests coming with them, their preferences if any, This table should also have comments field where the customer should be able to add comments. The table should have fields that are linked to various actions like send invites, update guest details, update rsvp etc
+
+
+- [ ] **Implement WhatsApp integration**
+  - [ ] Research and select a library for WhatsApp integration (e.g., `whatsapp-web.js`).
+  - [ ] Create a backend service to manage the WhatsApp client and QR code generation.
+  - [ ] Develop a frontend component to display the QR code for linking a personal WhatsApp account.
+  - [ ] Implement functionality to send and schedule messages.
+
+
+- [ ] **Add hotel inspection checklist**
+  - [ ] Design a database schema for storing checklist templates and inspection results.
+  - [ ] Create a new section in the application for managing hotel inspection checklists.
+  - [ ] Develop a UI for creating, filling out, and viewing checklists.
+
+- [ ] **Implement travel details capture**
+  - [ ] Create a new form for capturing guest travel details.
+  - [ ] Ensure the form loads guest and event information correctly.
+  - [ ] Add fields for arrival location, pickup requirements, and travel mode.
+  - [ ] Implement a typeahead for arrival locations.
+
