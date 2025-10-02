@@ -59,8 +59,15 @@ const EventCreate = () => {
         types = eventTypesResponse.data;
       }
 
-      // Remove duplicates
-      const uniqueTypes = Array.from(new Map(types.map(item => [item.event_type_id, item])).values());
+      // Remove duplicates by name (case-insensitive) and sort
+      const nameKey = (s) => (s || '').toString().trim().toLowerCase();
+      const byNameMap = new Map();
+      types.forEach(item => {
+        const key = nameKey(item.event_type_name);
+        if (!byNameMap.has(key)) byNameMap.set(key, item);
+      });
+      const uniqueTypes = Array.from(byNameMap.values())
+        .sort((a, b) => a.event_type_name.localeCompare(b.event_type_name));
       setEventTypes(uniqueTypes);
     } catch (error) {
       console.error('Error fetching data:', error);

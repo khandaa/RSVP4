@@ -1,5 +1,14 @@
 ## [Unreleased]
 
+### 2025-10-01
+- Fixed duplicate options in Event Type dropdown on Create Event page by de-duplicating event types by name and sorting them in `frontend/src/components/events/EventCreate.js`.
+
+### 2025-09-25
+- Fixed a bug in the Logistics Dashboard that caused a crash due to a function being called before it was initialized.
+
+### 2025-09-19
+- Fixed a CORS error by adding the production frontend URL (`https://rsvp.hiringtests.in`) to the list of allowed origins in `backend/app.js`.
+
 ### 2025-09-18
 - Enhanced guest import functionality to include `guest_group` in the CSV template and backend processing.
 - Fixed duplicate guest names on the Customer Dashboard by de-duplicating the guests list before rendering.
