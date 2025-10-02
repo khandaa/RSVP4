@@ -409,7 +409,7 @@ const EventDetail = () => {
                       </button>
                       <button 
                         className="btn btn-outline-success glass-btn"
-                        onClick={() => navigate(`/guests?eventId=${id}`)}
+                        onClick={() => navigate(`/guests/create?eventId=${id}`)}
                       >
                         <FaUsers className="me-2" />
                         Manage Guests

@@ -48,7 +48,7 @@ a flag for need followup on master guest list
 add guest ids for each guest - 3 ids per guest 
 upload document ability 
 show all attachments for the guest 
-notification - to be added later 
 
 
-
+Add ability to upload documents for guests 
+Create a single page for managing all guest activities. It should be in tabular format and should have fields to add guests, have their RSVP statuses, invite them to various events and sub-events, manage their travel details, room allocation , no of guests coming with them, their preferences if any, This table should also have comments field where the customer should be able to add comments. The table should have fields that are linked to various actions like send invites, update guest details, update rsvp etc

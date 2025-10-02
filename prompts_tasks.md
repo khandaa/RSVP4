@@ -2,33 +2,7 @@
 
 This checklist is generated from `prompts_pending.md` and includes a breakdown of subtasks for each pending item.
 
-- [x] **Allow adding a new venue during event/sub-event creation**
-  - [x] Modify the event/sub-event creation form to include a "Create New Venue" button or modal trigger.
-  - [x] Create a new component for a quick-add venue form.
-  - [x] Check if there is an existing backend API to create venues.Implement the backend API endpoint to create a new venue.
-  - [x] Ensure the new venue is available in the venue selection dropdown immediately after creation.
-
-- [x] **Set sub-event start date to parent event's start date by default**
-  - [x] In the `SubeventCreate` component, fetch the parent event's details.
-  - [x] Set the initial state of the start date field in the sub-event form to the parent event's start date.
-
-- [x] **Improve UI for sub-event creation form**
-  - [x] Relocate the "Create Subevent" button to be visually closer to the form fields.
-  - [x] On successful creation, show a confirmation modal asking "Do you want to create another sub-event?".
-  - [x] If the user selects "Yes", reset the form; otherwise, navigate to the event detail page.
-
-- [x] **Enhance venue selection for sub-events**
-  - [x] Add a `venue_id` column to the `rsvp_master_subevents` table if it doesn't exist.
-  - [x] Modify the sub-event creation form to allow selecting a general venue, not just a room.
   - [ ] Update the backend to save the `venue_id` with the sub-event.
-
-- [x] **Filter sub-events list by parent event**
-  - [x] Ensure the "Add Subevent" button on the event page links to the sub-event list with the `eventId` as a query parameter.
-  - [x] Modify the `SubeventList` component to filter sub-events based on the `eventId` from the URL.
-
-- [x] **Fix guest group creation error**
-  - [x] Analyze the `SQLITE_CONSTRAINT: NOT NULL constraint failed: rsvp_master_guest_groups.client_id` error.
-  - [x] Update the backend route for creating guest groups to ensure `client_id` is always included in the INSERT statement.
   - [ ] Verify that the frontend sends the `client_id` in the request payload.
 
 - [ ] **Improve guest management**

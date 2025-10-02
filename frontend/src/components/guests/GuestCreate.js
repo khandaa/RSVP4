@@ -28,6 +28,7 @@ const GuestCreate = () => {
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [events, setEvents] = useState([]);
   const [customers, setCustomers] = useState([]);
+  const [selectedEvent, setSelectedEvent] = useState(null);
   const [viewMode, setViewMode] = useState('form'); // 'form' or 'table'
   const [tableGuests, setTableGuests] = useState([
     {
@@ -107,6 +108,15 @@ const GuestCreate = () => {
       setIsLoadingData(false);
     }
   }, [currentUser, hasRole]);
+
+  useEffect(() => {
+    if (formData.event_id) {
+      const event = events.find(e => e.event_id === parseInt(formData.event_id));
+      setSelectedEvent(event);
+    } else {
+      setSelectedEvent(null);
+    }
+  }, [formData.event_id, events]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -595,7 +605,7 @@ const GuestCreate = () => {
                                 ...prev,
                                 guest_group_name: value
                               }))}
-                              clientId={events.find(e => e.event_id === parseInt(formData.event_id))?.client_id}
+                              clientId={selectedEvent?.client_id}
                               eventId={formData.event_id}
                               disabled={isLoading}
                               placeholder="Type to search or create new group..."
