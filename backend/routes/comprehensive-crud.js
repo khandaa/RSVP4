@@ -79,6 +79,16 @@ const createCRUDRoutes = (tableName, primaryKey, requiredFields = [], joins = []
           }
         }
         newRecord = await dbMethods.get(db, `SELECT * FROM ${tableName} WHERE ${primaryKey} = ?`, [newRoleId]);
+      } else if (tableName === 'rsvp_master_guest_groups') {
+        const { group_name, group_description, client_id } = req.body;
+        
+        if (!client_id) {
+          return res.status(400).json({ error: 'Client ID is required to create a guest group.' });
+        }
+
+        const query = `INSERT INTO rsvp_master_guest_groups (group_name, group_description, client_id) VALUES (?, ?, ?)`;
+        const result = await dbMethods.run(db, query, [group_name, group_description, client_id]);
+        newRecord = await dbMethods.get(db, `SELECT * FROM rsvp_master_guest_groups WHERE guest_group_id = ?`, [result.lastID]);
       } else {
         const fields = Object.keys(req.body).filter(key => key !== primaryKey);
         const values = fields.map(field => req.body[field]);

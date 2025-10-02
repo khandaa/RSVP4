@@ -14,7 +14,26 @@ const { dbMethods } = require('../../modules/database/backend');
 router.get('/', authenticateToken, async (req, res) => {
   try {
     const db = req.app.locals.db;
-    const { event_id } = req.query;
+    let {
+      client_id, event_id, subevent_id, guest_first_name, guest_last_name,
+      guest_email, guest_phone, guest_status, guest_group_id, guest_group_name,
+      guest_type, guest_rsvp_status, guest_address, guest_city, guest_country,
+      guest_dietary_preferences, guest_special_requirements, guest_notes
+    } = req.body;
+    const db = req.app.locals.db;
+
+    // If client_id is not provided, infer it from the event
+    if (!client_id) {
+      const eventDetails = await dbMethods.get(db, 'SELECT client_id FROM rsvp_master_events WHERE event_id = ?', [event_id]);
+      if (eventDetails) {
+        client_id = eventDetails.client_id;
+      }
+    }
+
+    // Re-validate that we have a client_id now
+    if (!client_id) {
+      return res.status(400).json({ error: 'Could not determine client for the guest.' });
+    } event_id } = req.query;
     let query = `SELECT g.*, c.client_name, e.event_name, s.subevent_name 
                  FROM rsvp_master_guests g 
                  LEFT JOIN rsvp_master_clients c ON g.client_id = c.client_id 
@@ -120,7 +139,6 @@ router.get('/event/:eventId', authenticateToken, async (req, res) => {
 // POST /api/guests - Create new guest
 router.post('/', [
   authenticateToken,
-  body('client_id').isInt().withMessage('Client ID is required and must be an integer'),
   body('event_id').isInt().withMessage('Event ID is required and must be an integer'),
   body('guest_first_name').notEmpty().withMessage('Guest first name is required'),
   body('guest_last_name').notEmpty().withMessage('Guest last name is required'),
@@ -133,13 +151,7 @@ router.post('/', [
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const {
-      client_id, event_id, subevent_id, guest_first_name, guest_last_name,
-      guest_email, guest_phone, guest_status, guest_group_id, guest_group_name,
-      guest_type, guest_rsvp_status, guest_address, guest_city, guest_country,
-      guest_dietary_preferences, guest_special_requirements, guest_notes
-    } = req.body;
-    const db = req.app.locals.db;
+
 
     // Check if client and event exist
     const client = await dbMethods.get(db, 'SELECT client_id FROM rsvp_master_clients WHERE client_id = ?', [client_id]);

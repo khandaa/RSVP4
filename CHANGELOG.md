@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+### 2025-10-02
+- Fixed a bug that prevented guest groups from being created by ensuring the `client_id` is always included.
+- Fixed a `400 Bad Request` error when creating guests by ensuring `client_id` and `customer_id` are correctly passed from the frontend and handled on the backend.
+
 ### 2025-10-01
 - Fixed duplicate options in Event Type dropdown on Create Event page by de-duplicating event types by name and sorting them in `frontend/src/components/events/EventCreate.js`.
 

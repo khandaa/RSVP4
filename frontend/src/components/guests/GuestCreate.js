@@ -175,6 +175,7 @@ const GuestCreate = () => {
         // Only send fields that exist in the database table
         const submitData = {
           client_id: selectedEvent?.client_id || null,
+          customer_id: formData.customer_id ? parseInt(formData.customer_id) : null,
           event_id: parseInt(formData.event_id),
           subevent_id: null, // No subevent selection in this form
           guest_first_name: formData.guest_first_name?.trim() || '',
@@ -244,11 +245,15 @@ const GuestCreate = () => {
       const selectedEvent = events.find(event => event.event_id === parseInt(formData.event_id));
 
       const guestsToSubmit = validGuests.map(guest => ({
-        ...guest,
+        guest_first_name: guest.guest_first_name?.trim() || '',
+        guest_last_name: guest.guest_last_name?.trim() || '',
+        guest_email: guest.guest_email?.trim() || null,
+        guest_phone: guest.guest_phone?.trim() || null,
+        guest_group_name: guest.guest_group_name?.trim() || null,
+        guest_status: 'Active',
         client_id: selectedEvent?.client_id || null,
         customer_id: formData.customer_id ? parseInt(formData.customer_id) : null,
-        event_id: parseInt(formData.event_id),
-        guest_group_name: guest.guest_group_name || ''
+        event_id: parseInt(formData.event_id)
       }));
 
       // Submit all guests
