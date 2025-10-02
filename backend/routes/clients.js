@@ -64,8 +64,8 @@ router.post('/', [
   authenticateToken,
   body('customer_id').isInt().withMessage('Customer ID is required and must be an integer'),
   body('client_name').notEmpty().withMessage('Client name is required'),
-  body('client_email').optional().isEmail().withMessage('Invalid email format'),
-  body('client_phone').optional().isLength({ min: 10 }).withMessage('Phone number must be at least 10 digits')
+  body('email').optional().isEmail().withMessage('Invalid email format'),
+  body('phone').optional().isLength({ min: 10 }).withMessage('Phone number must be at least 10 digits')
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -188,8 +188,8 @@ router.put('/:id', [
   authenticateToken,
   body('customer_id').isInt().withMessage('Customer ID is required and must be an integer'),
   body('client_name').notEmpty().withMessage('Client name is required'),
-  body('client_email').optional().isEmail().withMessage('Invalid email format'),
-  body('client_phone').optional().isLength({ min: 10 }).withMessage('Phone number must be at least 10 digits')
+  body('email').optional().isEmail().withMessage('Invalid email format'),
+  body('phone').optional().isLength({ min: 10 }).withMessage('Phone number must be at least 10 digits')
 ], async (req, res) => {
   try {
     const errors = validationResult(req);

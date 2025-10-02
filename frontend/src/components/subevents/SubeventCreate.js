@@ -36,12 +36,14 @@ const SubeventCreate = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showVenueModal, setShowVenueModal] = useState(false);
   
+  const startDate = searchParams.get('startDate');
+
   const [formData, setFormData] = useState({
     event_id: eventId || '',
     subevent_name: '',
     subevent_description: '',
     subevent_status: 'Planned',
-    subevent_start_datetime: parentEvent?.event_start_date || '',
+    subevent_start_datetime: startDate || parentEvent?.event_start_date || '',
     subevent_end_datetime: '',
     venue_id: '',
     room_id: ''

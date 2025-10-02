@@ -50,7 +50,7 @@ const ClientEdit = () => {
         const clientResponse = await clientAPI.getClient(id);
         
         // Fetch customers for dropdown
-        const customersResponse = await api.get('/api/customers');
+        const customersResponse = await api.get('/customers');
         setCustomers(customersResponse.data);
         
         // Populate form with client data
@@ -210,8 +210,8 @@ const ClientEdit = () => {
                   >
                     <option value="">Select Customer</option>
                     {customers.map(customer => (
-                      <option key={customer.id} value={customer.id}>
-                        {customer.name}
+                      <option key={customer.customer_id} value={customer.customer_id}>
+                        {customer.customer_name}
                       </option>
                     ))}
                   </Form.Select>

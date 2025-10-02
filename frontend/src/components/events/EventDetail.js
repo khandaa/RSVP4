@@ -402,7 +402,7 @@ const EventDetail = () => {
                     <div className="d-grid gap-2">
                       <button 
                         className="btn btn-outline-primary glass-btn"
-                        onClick={() => navigate(`/subevents?eventId=${id}`)}
+                        onClick={() => navigate(`/subevents/create?eventId=${id}&startDate=${event.event_start_date}`)}
                       >
                         <FaPlus className="me-2" />
                         Add Sub Event

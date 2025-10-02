@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../contexts/AuthContext';
@@ -75,7 +75,7 @@ const GuestCreate = () => {
     fetchData();
   }, [fetchData]);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setIsLoadingData(true);
       const [eventsResponse, customersResponse] = await Promise.all([
@@ -106,7 +106,7 @@ const GuestCreate = () => {
     } finally {
       setIsLoadingData(false);
     }
-  };
+  }, [currentUser, hasRole]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
