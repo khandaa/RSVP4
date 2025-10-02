@@ -126,6 +126,42 @@ app.locals.eventBus = eventBus;
 // Run migrations
 const runMigrations = async () => {
   try {
+    const migrationsPath = path.join(__dirname, 'migrations');
+    const migrationFiles = fs.readdirSync(migrationsPath).sort();
+
+    for (const file of migrationFiles) {
+      const filePath = path.join(migrationsPath, file);
+      const migrationName = path.basename(file, '.sql');
+
+      const hasRun = await new Promise((resolve, reject) => {
+        db.get('SELECT name FROM applied_migrations WHERE name = ?', [migrationName], (err, row) => {
+          if (err) reject(err);
+          resolve(row);
+        });
+      });
+
+      if (!hasRun) {
+        const sql = fs.readFileSync(filePath, 'utf8');
+        await new Promise((resolve, reject) => {
+          db.exec(sql, (err) => {
+            if (err) reject(err);
+            resolve();
+          });
+        });
+
+        await new Promise((resolve, reject) => {
+          db.run('INSERT INTO applied_migrations (name) VALUES (?)', [migrationName], (err) => {
+            if (err) reject(err);
+            console.log(`Migration ${migrationName} applied.`);
+            resolve();
+          });
+        });
+      }
+    }
+  } catch (error) {
+    console.error('Error running migrations:', error);
+  }
+  try {
     const clientAdminRole = await new Promise((resolve, reject) => {
       db.get('SELECT role_id FROM roles_master WHERE name = ?', ['Client Admin'], (err, row) => {
         if (err) reject(err);
@@ -163,7 +199,13 @@ const runMigrations = async () => {
   }
 };
 
-runMigrations();
+db.run('CREATE TABLE IF NOT EXISTS applied_migrations (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL UNIQUE, applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)', (err) => {
+  if (err) {
+    console.error('Error creating migrations table:', err);
+  } else {
+    runMigrations();
+  }
+});
 
 // Register module routers
 // Load and register all modules from the modules directory

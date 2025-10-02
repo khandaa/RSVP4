@@ -14,6 +14,7 @@ import {
   FaMapMarkerAlt
 } from 'react-icons/fa';
 import { eventAPI, subeventAPI, venueAPI, roomAPI } from '../../services/api';
+import VenueCreateModal from '../venues/VenueCreateModal';
 
 const SubeventCreate = () => {
   const navigate = useNavigate();
@@ -31,16 +32,20 @@ const SubeventCreate = () => {
   const [filteredRooms, setFilteredRooms] = useState([]);
   const [parentEvent, setParentEvent] = useState(null);
   const [showParentDetails, setShowParentDetails] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showVenueModal, setShowVenueModal] = useState(false);
   
   const [formData, setFormData] = useState({
     event_id: eventId || '',
     subevent_name: '',
     subevent_description: '',
     subevent_status: 'Planned',
-    subevent_start_datetime: '',
+    subevent_start_datetime: parentEvent?.event_start_date || '',
     subevent_end_datetime: '',
     venue_id: '',
     room_id: ''
+  });
+
   });
   const [errors, setErrors] = useState({});
 
@@ -186,13 +191,7 @@ const SubeventCreate = () => {
       }
       
       toast.success('Sub event created successfully');
-      
-      // If we have a parent event ID, navigate back to that event's details
-      if (eventId) {
-        navigate(`/events/${eventId}?tab=subevents`);
-      } else {
-        navigate('/subevents');
-      }
+      setShowSuccessModal(true);
     } catch (error) {
       console.error('Error creating subevent:', error);
       toast.error('Failed to create sub event: ' + (error.response?.data?.error || error.message));
@@ -210,7 +209,14 @@ const SubeventCreate = () => {
   };
 
   if (isLoadingData) {
-    return (
+    const handleVenueCreated = (newVenue) => {
+    setVenues(prev => [...prev, newVenue]);
+    setFormData(prev => ({ ...prev, venue_id: newVenue.venue_id }));
+    setShowVenueModal(false);
+    toast.success('New venue created and selected!');
+  };
+
+  return (
       <div className="glass-bg min-vh-100 d-flex justify-content-center align-items-center">
         <div className="text-center">
           <div className="spinner-border text-primary mb-3" role="status">
@@ -244,35 +250,7 @@ const SubeventCreate = () => {
               </p>
             </div>
           </div>
-          <div className="d-flex gap-2">
-            <button 
-              type="button"
-              className="btn btn-outline-secondary glass-btn"
-              onClick={handleCancel}
-              disabled={isLoading}
-            >
-              <FaTimes className="me-2" />
-              Cancel
-            </button>
-            <button 
-              type="submit"
-              form="subeventForm"
-              className="btn btn-primary glass-btn-primary"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <>
-                  <span className="spinner-border spinner-border-sm me-2" role="status"></span>
-                  Creating...
-                </>
-              ) : (
-                <>
-                  <FaSave className="me-2" />
-                  Create Sub Event
-                </>
-              )}
-            </button>
-          </div>
+
         </div>
 
         {/* Parent Event Info (if applicable) */}
@@ -499,6 +477,7 @@ const SubeventCreate = () => {
                           </option>
                         ))}
                       </select>
+                      <button type="button" className="btn btn-sm btn-outline-primary mt-2" onClick={() => setShowVenueModal(true)}>+ Add New Venue</button>
                       {errors.venue_id && (
                         <div className="invalid-feedback">{errors.venue_id}</div>
                       )}
@@ -532,6 +511,36 @@ const SubeventCreate = () => {
                   </div>
 
                   {/* Form Info */}
+                  <div className="d-flex justify-content-end gap-2 mt-4">
+                    <button 
+                      type="button"
+                      className="btn btn-outline-secondary glass-btn"
+                      onClick={handleCancel}
+                      disabled={isLoading}
+                    >
+                      <FaTimes className="me-2" />
+                      Cancel
+                    </button>
+                    <button 
+                      type="submit"
+                      form="subeventForm"
+                      className="btn btn-primary glass-btn-primary"
+                      disabled={isLoading}
+                    >
+                      {isLoading ? (
+                        <>
+                          <span className="spinner-border spinner-border-sm me-2" role="status"></span>
+                          Creating...
+                        </>
+                      ) : (
+                        <>
+                          <FaSave className="me-2" />
+                          Create Sub Event
+                        </>
+                      )}
+                    </button>
+                  </div>
+
                   <div className="mt-4 p-3 bg-light rounded glass-effect">
                     <div className="d-flex align-items-start">
                       <div className="flex-shrink-0">
@@ -557,6 +566,40 @@ const SubeventCreate = () => {
         </div>
       </div>
     </div>
+    <Modal show={showSuccessModal} onHide={() => navigate(eventId ? `/events/${eventId}?tab=subevents` : '/subevents')} centered>
+      <Modal.Header closeButton>
+        <Modal.Title>Sub-Event Created</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <p>Your sub-event has been created successfully.</p>
+        <p>Would you like to create another one?</p>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={() => navigate(eventId ? `/events/${eventId}?tab=subevents` : '/subevents')}>
+          No, View Sub-Events
+        </Button>
+        <Button variant="primary" onClick={() => {
+          setShowSuccessModal(false);
+          setFormData({
+            event_id: eventId || '',
+            subevent_name: '',
+            subevent_description: '',
+            subevent_status: 'Planned',
+            subevent_start_datetime: parentEvent?.event_start_date || '',
+            subevent_end_datetime: '',
+            venue_id: '',
+            room_id: ''
+          });
+        }}>
+          Yes, Create Another
+        </Button>
+      </Modal.Footer>
+    </Modal>
+<VenueCreateModal 
+    show={showVenueModal} 
+    onHide={() => setShowVenueModal(false)} 
+    onVenueCreated={handleVenueCreated} 
+/>
   );
 };
 
