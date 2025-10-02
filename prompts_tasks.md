@@ -2,8 +2,8 @@
 
 This checklist is generated from `prompts_pending.md` and includes a breakdown of subtasks for each pending item.
 
-  - [ ] Update the backend to save the `venue_id` with the sub-event.
-  - [ ] Verify that the frontend sends the `client_id` in the request payload.
+  - [x] Update the backend to save the `venue_id` with the sub-event.
+  - [x] Verify that the frontend sends the `client_id` in the request payload.
 
 - [ ] **Improve guest management**
   - [ ] Make the `email` field optional for adding a guest.

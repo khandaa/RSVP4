@@ -79,6 +79,26 @@ const createCRUDRoutes = (tableName, primaryKey, requiredFields = [], joins = []
           }
         }
         newRecord = await dbMethods.get(db, `SELECT * FROM ${tableName} WHERE ${primaryKey} = ?`, [newRoleId]);
+      } else if (tableName === 'rsvp_master_subevents') {
+        const { venue_id, room_id, ...subeventData } = req.body;
+        const fields = Object.keys(subeventData);
+        const values = fields.map(field => subeventData[field]);
+
+        if (venue_id) {
+          fields.push('venue_id');
+          values.push(venue_id);
+        }
+
+        const placeholders = fields.map(() => '?').join(', ');
+        const query = `INSERT INTO rsvp_master_subevents (${fields.join(', ')}) VALUES (${placeholders})`;
+        const result = await dbMethods.run(db, query, values);
+        const newSubeventId = result.lastID;
+
+        if (room_id) {
+          await dbMethods.run(db, 'INSERT INTO rsvp_event_room_allocation (subevent_id, room_id) VALUES (?, ?)', [newSubeventId, room_id]);
+        }
+
+        newRecord = await dbMethods.get(db, `SELECT * FROM rsvp_master_subevents WHERE subevent_id = ?`, [newSubeventId]);
       } else if (tableName === 'rsvp_master_guest_groups') {
         const { group_name, group_description, client_id } = req.body;
         
