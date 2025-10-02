@@ -10,6 +10,12 @@ This is a full-stack RSVP management application built with a React frontend and
 - **Database**: SQLite
 - **Authentication**: JWT, bcryptjs
 
+## Database
+
+- **Type**: SQLite
+- **File**: `db/RSVP4.db`
+- **Schema Management**: The database schema is managed through migration files located in the `backend/migrations/` directory. The application automatically runs new migrations on startup. To understand the complete and up-to-date database schema, refer to the `data_update_scripts/migrations/rsvp4.sql` file. Before proposing any database changes, always consult this file to ensure your changes are consistent with the existing structure.
+
 ## Setup Commands
 
 - **Install all dependencies** (root, frontend, and backend):
@@ -71,6 +77,19 @@ This is a full-stack RSVP management application built with a React frontend and
 
 - **Title format**: `[component] Brief description` (e.g., `[frontend] Fix guest creation form`)
 - Before submitting a pull request, ensure that all tests pass and there are no linting errors.
+
+## Application Modules
+
+The application is divided into several modules, each responsible for a specific set of features. The modules are loaded in `backend/app.js` and include:
+
+- **authentication**: Manages user login, registration, and session management.
+- **user_management**: Handles user profiles, and permissions.
+- **role_management**: Manages user roles and their associated permissions.
+- **permission_management**: Defines the permissions available in the system.
+- **logging**: Provides logging services for events and errors.
+- **database**: Handles the database connection and schema.
+- **payment**: Integrates with payment gateways.
+- **dashboard**: Provides data for the main application dashboard.
 
 ## Backend API Routes
 

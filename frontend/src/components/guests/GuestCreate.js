@@ -37,6 +37,7 @@ const GuestCreate = () => {
       guest_last_name: '',
       guest_email: '',
       guest_phone: '',
+      guest_phone_country_code: '+91',
       guest_type: 'Bride\'s Family',
       guest_rsvp_status: 'Pending',
       guest_group_name: '',
@@ -56,6 +57,7 @@ const GuestCreate = () => {
     guest_last_name: '',
     guest_email: '',
     guest_phone: '',
+    guest_phone_country_code: '+91',
     guest_type: 'Bride\'s Family',
     guest_rsvp_status: 'Pending',
     guest_group_name: '',
@@ -156,8 +158,8 @@ const GuestCreate = () => {
     }
 
     // Phone validation (basic)
-    if (formData.guest_phone && formData.guest_phone.replace(/\D/g, '').length < 10) {
-      newErrors.guest_phone = 'Please enter a valid phone number (at least 10 digits)';
+    if (formData.guest_phone && formData.guest_phone.replace(/\D/g, '').length !== 10) {
+      newErrors.guest_phone = 'Phone number must be exactly 10 digits';
     }
     
     // Guest group validation is handled by the typeahead component
@@ -191,7 +193,7 @@ const GuestCreate = () => {
           guest_first_name: formData.guest_first_name?.trim() || '',
           guest_last_name: formData.guest_last_name?.trim() || '',
           guest_email: formData.guest_email?.trim() || null,
-          guest_phone: formData.guest_phone?.trim() || null,
+          guest_phone: formData.guest_phone_country_code + (formData.guest_phone?.trim() || ''),
           guest_group_name: formData.guest_group_name?.trim() || null,
           guest_status: 'Active' // Default status
         };
@@ -235,9 +237,22 @@ const GuestCreate = () => {
   const handleTableSubmit = async (e) => {
     e.preventDefault();
     // Validate table data
-    const validGuests = tableGuests.filter(guest => 
-      guest.guest_first_name.trim() && guest.guest_last_name.trim()
-    );
+    const validGuests = [];
+    const tableErrors = [];
+    tableGuests.forEach((guest, index) => {
+      if (guest.guest_first_name.trim() && guest.guest_last_name.trim()) {
+        if (guest.guest_phone && guest.guest_phone.replace(/\D/g, '').length !== 10) {
+          tableErrors.push(`Row ${index + 1}: Phone number must be 10 digits`);
+        } else {
+          validGuests.push(guest);
+        }
+      }
+    });
+
+    if (tableErrors.length > 0) {
+      toast.error(tableErrors.join(', '));
+      return;
+    }
 
     if (validGuests.length === 0) {
       toast.error('Please add at least one guest with first and last name');
@@ -258,7 +273,7 @@ const GuestCreate = () => {
         guest_first_name: guest.guest_first_name?.trim() || '',
         guest_last_name: guest.guest_last_name?.trim() || '',
         guest_email: guest.guest_email?.trim() || null,
-        guest_phone: guest.guest_phone?.trim() || null,
+        guest_phone: (guest.guest_phone_country_code || '+91') + (guest.guest_phone?.trim() || ''),
         guest_group_name: guest.guest_group_name?.trim() || null,
         guest_status: 'Active',
         client_id: selectedEvent?.client_id || null,
@@ -268,25 +283,23 @@ const GuestCreate = () => {
 
       // Submit all guests
       const results = await Promise.allSettled(guestsToSubmit.map(guestAPI.createGuest));
-      const failedCount = results.filter(result => result.status === 'rejected' || !result.value.success).length;
-      
-      if (failedCount === 0) {
-        toast.success(`Successfully created ${validGuests.length} guests`);
-        if (eventId) {
-          navigate(`/guests?eventId=${eventId}`);
-        } else {
-          navigate('/guests');
-        }
-      } else {
-        toast.warning(`Created ${validGuests.length - failedCount} guests, but ${failedCount} failed. Please review the table for errors.`);
+
+      const successfulCreations = results.filter(r => r.status === 'fulfilled').map(r => r.value);
+      const failedCreations = results.filter(r => r.status === 'rejected');
+
+      if (failedCreations.length > 0) {
+        failedCreations.forEach(fail => {
+          console.error('Guest creation failed:', fail.reason);
+        });
+        toast.error(`${failedCreations.length} guest(s) could not be created. Please check the console for details.`);
       }
-    } catch (error) {
-      console.error('Error creating guests:', error);
-      toast.error('Failed to create guests');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+
+      if (successfulCreations.length > 0) {
+        toast.success(`Successfully created ${successfulCreations.length} guest(s).`);
+      }
+
+      if (successfulCreations.length > 0 && failedCreations.length === 0) {
+      const mapHeaders = ({ header, index }) => header.toLowerCase().trim();
 
   // Table mode handlers
   const handleTableInputChange = (index, field, value) => {
@@ -302,6 +315,7 @@ const GuestCreate = () => {
       guest_last_name: '',
       guest_email: '',
       guest_phone: '',
+      guest_phone_country_code: '+91',
       guest_type: 'Bride\'s Family',
       guest_rsvp_status: 'Pending',
       guest_group_name: '',
@@ -535,17 +549,31 @@ const GuestCreate = () => {
                               <FaPhone className="me-2 text-primary" />
                               Phone
                             </label>
-                            <input
-                              type="tel"
-                              name="guest_phone"
-                              className={`form-control glass-input ${errors.guest_phone ? 'is-invalid' : ''}`}
-                              value={formData.guest_phone}
-                              onChange={handleInputChange}
-                              disabled={isLoading}
-                              placeholder="Enter phone number"
-                            />
+                            <div className="input-group">
+                              <select
+                                name="guest_phone_country_code"
+                                className="input-group-text glass-input"
+                                value={formData.guest_phone_country_code || '+91'}
+                                onChange={handleInputChange}
+                                disabled={isLoading}
+                              >
+                                <option value="+91">+91 (IN)</option>
+                                <option value="+1">+1 (US)</option>
+                                <option value="+44">+44 (UK)</option>
+                                <option value="+61">+61 (AU)</option>
+                              </select>
+                              <input
+                                type="tel"
+                                name="guest_phone"
+                                className={`form-control glass-input ${errors.guest_phone ? 'is-invalid' : ''}`}
+                                value={formData.guest_phone}
+                                onChange={handleInputChange}
+                                disabled={isLoading}
+                                placeholder="Enter phone number"
+                              />
+                            </div>
                             {errors.guest_phone && (
-                              <div className="invalid-feedback">{errors.guest_phone}</div>
+                              <div className="invalid-feedback d-block">{errors.guest_phone}</div>
                             )}
                           </div>
 
@@ -640,6 +668,7 @@ const GuestCreate = () => {
                               guest_last_name: '',
                               guest_email: '',
                               guest_phone: '',
+                              guest_phone_country_code: '+91',
                               guest_type: 'Bride\'s Family',
                               guest_rsvp_status: 'Pending',
                               guest_group_name: '',
@@ -711,14 +740,27 @@ const GuestCreate = () => {
                                   />
                                 </td>
                                 <td>
-                                  <input
-                                    type="tel"
-                                    className="form-control form-control-sm"
-                                    value={guest.guest_phone}
-                                    onChange={(e) => handleTableInputChange(index, 'guest_phone', e.target.value)}
-                                    disabled={isLoading}
-                                    placeholder="+1 (___) ___-____"
-                                  />
+                                  <div className="input-group">
+                                    <select
+                                      className="input-group-text glass-input"
+                                      value={guest.guest_phone_country_code || '+91'}
+                                      onChange={(e) => handleTableInputChange(index, 'guest_phone_country_code', e.target.value)}
+                                      disabled={isLoading}
+                                    >
+                                      <option value="+91">+91</option>
+                                      <option value="+1">+1</option>
+                                      <option value="+44">+44</option>
+                                      <option value="+61">+61</option>
+                                    </select>
+                                    <input
+                                      type="tel"
+                                      className="form-control form-control-sm"
+                                      value={guest.guest_phone}
+                                      onChange={(e) => handleTableInputChange(index, 'guest_phone', e.target.value)}
+                                      disabled={isLoading}
+                                      placeholder="Enter phone number"
+                                    />
+                                  </div>
                                 </td>
                                 <td>
                                   <select

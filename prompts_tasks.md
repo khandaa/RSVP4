@@ -2,22 +2,19 @@
 
 This checklist is generated from `prompts_pending.md` and includes a breakdown of subtasks for each pending item.
 
-  - [x] Update the backend to save the `venue_id` with the sub-event.
-  - [x] Verify that the frontend sends the `client_id` in the request payload.
-
-- [ ] **Improve guest management**
-  - [ ] Make the `email` field optional for adding a guest.
-  - [ ] On successful guest addition, redirect to the guest list for the current event.
-  - [ ] Add a country code dropdown to the phone number field.
-  - [ ] Implement input validation to restrict phone numbers to country code + 10 digits.
-  - [ ] Fix errors in the table mode for adding guests. It fails to add the guests 
-  - [ ] Fix errors in bulk import of guests. It is unable to add guests due to the errors. 
+- [x] **Improve guest management**
+  - [x] Make the `email` field optional for adding a guest.
+  - [x] On successful guest addition, redirect to the guest list for the current event.
+  - [x] Add a country code dropdown to the phone number field.
+  - [x] Implement input validation to restrict phone numbers to country code + 10 digits.
+  - [x] Fix errors in the table mode for adding guests. It fails to add the guests 
+  - [x] Fix errors in bulk import of guests. It is unable to add guests due to the errors. 
 
 
-- [ ] **Fix guest import functionality**
-  - [ ] Debug and resolve the error in the guest import process.
-  - [ ] Ensure the CSV parser correctly handles all columns.
-  - [ ] Improve error reporting for failed rows during import.
+- [x] **Fix guest import functionality**
+  - [x] Debug and resolve the error in the guest import process.
+  - [x] Ensure the CSV parser correctly handles all columns.
+  - [x] Improve error reporting for failed rows during import.
 
 - [ ] **Fix guest allocation to sub-events**
   - [ ] Review the `GuestAllocation` component and its backend counterpart.
@@ -38,26 +35,73 @@ This checklist is generated from `prompts_pending.md` and includes a breakdown o
 
 - [ ] **Enhance venue management**
   - [ ] Allow associating multiple venues with a single event.
-  - [ ] Add support for room categories and restaurants within a venue.
   - [ ] Make the `cost` field optional when creating a venue.
   - [ ] Fix the issue where `address`, `city`, and `capacity` are not being stored in the database.
 
 - [ ] **Fix sub-event management**
   - [ ] Debug and resolve the error in the "Edit Subevent" feature.
-  - [ ] Fix the issue with fetching sub-event details.
-  - [ ] Add a filter for events on the sub-event page.
 
-- [ ] **Create a Master Guest List**
-  - [ ] Develop a new component for a master guest list with an editable table view.
-  - [ ] Include columns for name, phone, email, travel details, hotel stay, RSVP status, and invited functions.
-  - [ ] Add a "needs followup" flag for each guest.
-  - [ ] Implement functionality to add up to three guest IDs for each guest.
+- [ ] **Guest Management Feature Task List**
+
+**Backend (Express.js & SQLite)**
+
+1.  **Database Schema Updates:**
+    *   Modify the `guests` table to include new fields:
+        *   `document_path` (for uploaded documents)
+        *   `sub_event_rsvps` (JSON or separate table to track RSVP to sub-events)
+        *   `travel_details` (JSON or separate table)
+        *   `room_allocation` (string or foreign key to a rooms table)
+        *   `additional_guests` (integer)
+        *   `preferences` (text)
+        *   `comments` (text)
+    *   Create a new `guest_documents` table to store metadata about uploaded files.
+    *   Create a new `sub_events` table if one doesn't exist.
+
+2.  **API Endpoints (`/api/guests`):**
+    *   **File Upload:**
+        *   Create a `POST /api/guests/:id/documents` endpoint to handle document uploads for a specific guest. This will involve using a library like `multer` for handling file uploads and storing files in a designated directory.
+    *   **Guest Data Management:**
+        *   Enhance the `GET /api/guests` endpoint to return the new fields.
+        *   Enhance the `PUT /api/guests/:id` endpoint to allow updating all the new fields, including travel, accommodation, and preferences.
+    *   **RSVP Management:**
+        *   Create a `POST /api/guests/:id/rsvp` endpoint to update the main RSVP status.
+        *   Create a `POST /api/guests/:id/sub-events/:sub_event_id/rsvp` endpoint to manage RSVP for sub-events.
+    *   **Invitations:**
+        *   Create a `POST /api/guests/send-invites` endpoint that can send invitations in bulk (this might integrate with an email service).
+
+**Frontend (React)**
+
+1.  **New Component: `GuestActivities.js`**
+    *   Create a new page/component to serve as the central hub for guest management.
+    *   Use a table library (like Material-UI's `DataGrid` or `react-table`) to display guest information.
+    *   **Table Columns:**
+        *   Guest Name
+        *   RSVP Status (with a dropdown/button to change it)
+        *   Events/Sub-events invited to (with RSVP status for each)
+        *   Travel Details (perhaps a modal popup to view/edit)
+        *   Room Allocation
+        *   No. of Accompanying Guests
+        *   Preferences
+        *   Documents (with a button to upload/view)
+        *   Comments (editable field or modal)
+        *   Actions (buttons for "Send Invite", "Update Details", "Delete Guest")
+
+2.  **Component Functionality:**
+    *   **Data Fetching:** Fetch all guest data on component mount.
+    *   **State Management:** Use React state to manage guest data, table sorting, and filtering.
+    *   **Actions:**
+        *   Implement functions to handle API calls for updating RSVP, guest details, etc.
+        *   Create a modal for uploading documents.
+        *   Create a modal for viewing/editing travel, accommodation, and other detailed information.
+
+3.  **Routing and Sidebar:**
+    *   Add a new route for the `GuestActivities` page in `App.js`.
+    *   Add a link to the new page in the appropriate sidebar configuration file (e.g., `AdminSidebar.js`).h guest.
 
 - [ ] **Implement document upload for guests**
   - [ ] Add the ability to upload documents for each guest.
   - [ ] Create a new database table to store document metadata.
   - [ ] Develop a UI to display all attachments for a guest.
-
 - [ ] **Implement WhatsApp integration**
   - [ ] Research and select a library for WhatsApp integration (e.g., `whatsapp-web.js`).
   - [ ] Create a backend service to manage the WhatsApp client and QR code generation.

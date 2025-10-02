@@ -366,9 +366,11 @@ router.post('/bulk', [authenticateToken, upload.single('file')], async (req, res
     // Parse CSV file
     const csvData = [];
 
+    const mapHeaders = ({ header, index }) => header.toLowerCase().trim();
+
     await new Promise((resolve, reject) => {
       fs.createReadStream(req.file.path)
-        .pipe(csv())
+        .pipe(csv({ mapHeaders }))
         .on('data', (data) => csvData.push(data))
         .on('end', resolve)
         .on('error', reject);
