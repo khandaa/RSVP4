@@ -83,7 +83,11 @@ import GuestGroupManagement from './components/guests/GuestGroupManagement';
 import GuestGroupDetail from './components/guests/GuestGroupDetail';
 import GuestCreate from './components/guests/GuestCreate';
 import GuestDetail from './components/guests/GuestDetail';
+import GuestEdit from './components/guests/GuestEdit';
 import GuestImport from './components/guests/GuestImport';
+import GuestActivities from './components/guests/GuestActivities';
+import GuestAllocation from './components/guests/GuestAllocation';
+import GuestDocuments from './components/guests/GuestDocuments';
 
 import RSVPList from './components/rsvp/RSVPForm';
 // import RSVPCalendar from './components/rsvp/RSVPCalendar';
@@ -262,11 +266,13 @@ function App() {
           <Route path="guests">
             <Route index element={<Navigate to="/guests/list" />} />
             <Route path="list" element={<GuestList />} />
+            <Route path="activities" element={<GuestActivities />} />
             <Route path="create" element={<GuestCreate />} />
             <Route path="import" element={<GuestImport />} />
             <Route path=":id" element={<GuestDetail />} />
-            <Route path=":id/edit" element={<GuestCreate />} />
+            <Route path=":id/edit" element={<GuestEdit />} />
             <Route path=":id/allocate" element={<GuestAllocation />} />
+            <Route path=":id/documents" element={<GuestDocuments />} />
             <Route path="groups" element={<GuestGroupManagement />} />
             <Route path="groups/:id" element={<GuestGroupDetail />} />
           </Route>

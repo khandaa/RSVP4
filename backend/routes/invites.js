@@ -534,4 +534,45 @@ router.get('/webhook', (req, res) => {
   }
 });
 
+// POST /api/invites/send-whatsapp - Send a single WhatsApp message
+router.post('/send-whatsapp', [
+  authenticateToken,
+  body('guest_id').isInt().withMessage('Guest ID is required'),
+  body('message').notEmpty().withMessage('Message is required')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { guest_id, message } = req.body;
+
+    if (!whatsappService.isConfigured()) {
+      return res.status(400).json({ error: 'WhatsApp service not configured' });
+    }
+
+    const db = req.app.locals.db;
+
+    // Get guest with phone number
+    const guest = await dbMethods.get(db, `
+      SELECT guest_id, guest_first_name, guest_last_name, guest_phone
+      FROM rsvp_master_guests
+      WHERE guest_id = ? AND guest_phone IS NOT NULL
+    `, [guest_id]);
+
+    if (!guest) {
+      return res.status(404).json({ error: 'Guest not found or has no phone number' });
+    }
+
+    const result = await whatsappService.sendMessage(guest.guest_phone, message);
+
+    res.json(result);
+
+  } catch (error) {
+    console.error('Error sending WhatsApp message:', error);
+    res.status(500).json({ error: 'Failed to send WhatsApp message' });
+  }
+});
+
 module.exports = router;

@@ -15,7 +15,8 @@ import {
   FaBed,
   FaCar,
   FaList,
-  FaWhatsapp
+  FaWhatsapp,
+  FaTasks
 } from 'react-icons/fa';
 
 export const customerMenuItems = [
@@ -50,6 +51,12 @@ export const customerMenuItems = [
         name: 'Guests',
         path: '/guests/list',
         icon: <FaUserCheck />,
+        permission: null
+      },
+      {
+        name: 'Guest Activities',
+        path: '/guests/activities',
+        icon: <FaTasks />,
         permission: null
       },
       {

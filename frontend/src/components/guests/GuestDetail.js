@@ -16,29 +16,28 @@ import {
   FaFileAlt,
   FaClipboardList,
   FaCheckCircle,
-  FaTimesCircle,
   FaClock,
   FaChartBar,
-  FaPlus
+  FaPlus,
+  FaWhatsapp,
+  FaPlane
 } from 'react-icons/fa';
 import { FaEye } from 'react-icons/fa';
 import api from '../../services/api';
+import WhatsAppIntegration from '../whatsapp/WhatsAppIntegration';
+import TravelDetails from '../logistics/TravelDetails';
 const GuestDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [guest, setGuest] = useState(null);
-  const [guestEvents, setGuestEvents] = useState([]);
+  const [guestEvents] = useState([]);
   const [guestSubevents, setGuestSubevents] = useState([]);
   const [rsvpHistory, setRsvpHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
 
-  useEffect(() => {
-    fetchGuestData();
-  }, [id]);
-
-  const fetchGuestData = async () => {
+  const fetchGuestData = useCallback(async () => {
     try {
       setIsLoading(true);
       
@@ -62,7 +61,11 @@ const GuestDetail = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [id, navigate]);
+
+  useEffect(() => {
+    fetchGuestData();
+  }, [fetchGuestData]);
 
   const handleDelete = async () => {
     try {
@@ -256,6 +259,24 @@ const GuestDetail = () => {
                 >
                   <FaClipboardList className="me-2" />
                   RSVP History ({rsvpHistory.length})
+                </button>
+              </li>
+              <li className="nav-item">
+                <button 
+                  className={`nav-link glass-btn ${activeTab === 'whatsapp' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('whatsapp')}
+                >
+                  <FaWhatsapp className="me-2" />
+                  WhatsApp
+                </button>
+              </li>
+              <li className="nav-item">
+                <button 
+                  className={`nav-link glass-btn ${activeTab === 'travel' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('travel')}
+                >
+                  <FaPlane className="me-2" />
+                  Travel
                 </button>
               </li>
             </ul>
@@ -613,6 +634,18 @@ const GuestDetail = () => {
                   )}
                 </div>
               </div>
+            </div>
+          )}
+
+          {activeTab === 'travel' && (
+            <div className="col-12">
+              <TravelDetails />
+            </div>
+          )}
+
+          {activeTab === 'whatsapp' && (
+            <div className="col-12">
+              <WhatsAppIntegration guestId={id} />
             </div>
           )}
 

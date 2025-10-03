@@ -604,6 +604,12 @@ export const guestAPI = {
     headers: {
       'Content-Type': 'multipart/form-data'
     }
+  }),
+  getDocuments: (guestId) => api.get(`/guests/${guestId}/documents`),
+  uploadDocument: (guestId, formData) => api.post(`/guests/${guestId}/documents`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
   })
 };
 
@@ -663,7 +669,9 @@ export const venueAPI = {
   // Additional operations
   getVenueEvents: (venueId) => api.get(`/venues/${venueId}/events`),
   checkVenueAvailability: (venueId, startDate, endDate) => api.get(`/venues/${venueId}/availability`, { params: { start_date: startDate, end_date: endDate } }),
-  getCustomers: () => api.get('/customers')
+  getCustomers: () => api.get('/customers'),
+  getChecklist: (venueId) => api.get(`/venues/${venueId}/checklist`),
+  updateChecklist: (venueId, checklist) => api.post(`/venues/${venueId}/checklist`, { checklist })
 };
 
 // Dashboard API
@@ -714,7 +722,10 @@ export const inviteAPI = {
 
   // RSVP confirmation
   verifyRsvpToken: (token) => api.get(`/invites/rsvp/verify/${token}`),
-  submitRsvpResponse: (token, data) => api.post(`/invites/rsvp/respond/${token}`, data)
+  submitRsvpResponse: (token, data) => api.post(`/invites/rsvp/respond/${token}`, data),
+
+  // WhatsApp messaging
+  sendWhatsAppMessage: (guestId, message) => api.post('/invites/send-whatsapp', { guest_id: guestId, message }),
 };
 
 export default api;

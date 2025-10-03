@@ -196,4 +196,38 @@ router.delete('/:id', authenticateToken, async (req, res) => {
   }
 });
 
+// GET /api/venues/:id/checklist - Get checklist for a venue
+router.get('/:id/checklist', authenticateToken, async (req, res) => {
+  try {
+    // Placeholder implementation
+    const checklist = [
+      { id: 1, text: 'Lobby and entrance clean and welcoming', checked: false },
+      { id: 2, text: 'Reception staff professional and friendly', checked: false },
+      { id: 3, text: 'Public areas (lounges, bars) well-maintained', checked: false },
+      { id: 4, text: 'Restrooms clean and well-stocked', checked: false },
+      { id: 5, text: 'Event spaces clean and properly set up', checked: false },
+      { id: 6, text: 'Audiovisual equipment functional', checked: false },
+      { id: 7, text: 'Guest rooms clean and well-appointed', checked: false },
+      { id: 8, text: 'Security measures in place', checked: false },
+    ];
+    res.json(checklist);
+  } catch (error) {
+    console.error('Error fetching checklist:', error);
+    res.status(500).json({ error: 'Failed to fetch checklist' });
+  }
+});
+
+// POST /api/venues/:id/checklist - Update checklist for a venue
+router.post('/:id/checklist', authenticateToken, async (req, res) => {
+  try {
+    const { checklist } = req.body;
+    // Placeholder implementation - just log the data for now
+    console.log(`Checklist for venue ${req.params.id} updated:`, checklist);
+    res.json({ message: 'Checklist updated successfully' });
+  } catch (error) {
+    console.error('Error updating checklist:', error);
+    res.status(500).json({ error: 'Failed to update checklist' });
+  }
+});
+
 module.exports = router;
