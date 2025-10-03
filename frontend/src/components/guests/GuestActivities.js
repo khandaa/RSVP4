@@ -18,7 +18,8 @@ import {
   FaQuestionCircle,
   FaPlane,
   FaBed,
-  FaFileAlt
+  FaFileAlt,
+  FaPlus
 } from 'react-icons/fa';
 import { DataGrid } from '@mui/x-data-grid';
 import {
@@ -218,10 +219,17 @@ const GuestActivities = () => {
   // DataGrid Columns
   const columns = [
     {
-      field: 'guest_name',
+      field: 'guest_first_name',
       headerName: 'Guest Name',
       width: 200,
-      valueGetter: (params) => `${params.row.guest_first_name} ${params.row.guest_last_name}`
+      renderCell: (params) => {
+        if (!params || !params.row) return null;
+        return (
+          <div>
+            {params.row.guest_first_name} {params.row.guest_last_name}
+          </div>
+        );
+      }
     },
     {
       field: 'guest_email',
@@ -242,122 +250,137 @@ const GuestActivities = () => {
       field: 'rsvp_status',
       headerName: 'RSVP Status',
       width: 150,
-      renderCell: (params) => getRsvpBadge(params.row.rsvp?.rsvp_status)
+      renderCell: (params) => {
+        if (!params || !params.row) return null;
+        return getRsvpBadge(params.row.rsvp?.rsvp_status);
+      }
     },
     {
       field: 'subevents',
       headerName: 'Sub-events',
       width: 120,
-      renderCell: (params) => (
-        <Badge bg="info">
-          {params.row.subevent_allocations?.length || 0}
-        </Badge>
-      )
+      renderCell: (params) => {
+        if (!params || !params.row) return null;
+        return (
+          <Badge bg="info">
+            {params.row.subevent_allocations?.length || 0}
+          </Badge>
+        );
+      }
     },
     {
       field: 'travel',
       headerName: 'Travel',
       width: 100,
-      renderCell: (params) => (
-        params.row.travel?.length > 0 ? (
+      renderCell: (params) => {
+        if (!params || !params.row) return null;
+        return params.row.travel?.length > 0 ? (
           <OverlayTrigger
             placement="top"
             overlay={<Tooltip>{params.row.travel.length} travel record(s)</Tooltip>}
           >
             <span><FaPlane className="text-primary" /></span>
           </OverlayTrigger>
-        ) : null
-      )
+        ) : null;
+      }
     },
     {
       field: 'accommodation',
       headerName: 'Room',
       width: 100,
-      renderCell: (params) => (
-        params.row.accommodation?.length > 0 ? (
+      renderCell: (params) => {
+        if (!params || !params.row) return null;
+        return params.row.accommodation?.length > 0 ? (
           <OverlayTrigger
             placement="top"
             overlay={<Tooltip>{params.row.accommodation[0]?.room_name || 'Allocated'}</Tooltip>}
           >
             <span><FaBed className="text-success" /></span>
           </OverlayTrigger>
-        ) : null
-      )
+        ) : null;
+      }
     },
     {
       field: 'documents',
       headerName: 'Docs',
       width: 100,
-      renderCell: (params) => (
-        <Badge bg="secondary">
-          {params.row.documents?.length || 0}
-        </Badge>
-      )
+      renderCell: (params) => {
+        if (!params || !params.row) return null;
+        return (
+          <Badge bg="secondary">
+            {params.row.documents?.length || 0}
+          </Badge>
+        );
+      }
     },
     {
       field: 'dietary',
       headerName: 'Preferences',
       width: 150,
-      renderCell: (params) => (
-        params.row.details?.dietary_restrictions ? (
+      renderCell: (params) => {
+        if (!params || !params.row) return null;
+        return params.row.details?.dietary_restrictions ? (
           <OverlayTrigger
             placement="top"
             overlay={<Tooltip>{params.row.details.dietary_restrictions}</Tooltip>}
           >
             <Badge bg="warning">Dietary</Badge>
           </OverlayTrigger>
-        ) : null
-      )
+        ) : null;
+      }
     },
     {
       field: 'actions',
       headerName: 'Actions',
       width: 200,
       sortable: false,
-      renderCell: (params) => (
-        <div className="d-flex gap-2">
-          <Button
-            size="sm"
-            variant="outline-primary"
-            onClick={() => navigate(`/guests/${params.row.guest_id}`)}
-          >
-            <FaEye />
-          </Button>
-          <Button
-            size="sm"
-            variant="outline-warning"
-            onClick={() => navigate(`/guests/${params.row.guest_id}/edit`)}
-          >
-            <FaEdit />
-          </Button>
-          <Dropdown>
-            <Dropdown.Toggle size="sm" variant="outline-secondary">
-              •••
-            </Dropdown.Toggle>
-            <Dropdown.Menu>
-              <Dropdown.Item onClick={() => {
-                setSelectedGuest(params.row);
-                setRsvpStatus(params.row.rsvp?.rsvp_status || 'Pending');
-                setShowRsvpModal(true);
-              }}>
-                Update RSVP
-              </Dropdown.Item>
-              <Dropdown.Item onClick={() => {
-                setSelectedGuest(params.row);
-                setShowUploadModal(true);
-              }}>
-                <FaUpload /> Upload Document
-              </Dropdown.Item>
-              <Dropdown.Item onClick={() => {
-                setSelectedGuest(params.row);
-                setShowDetailsModal(true);
-              }}>
-                <FaEye /> View Details
-              </Dropdown.Item>
-            </Dropdown.Menu>
-          </Dropdown>
-        </div>
-      )
+      renderCell: (params) => {
+        if (!params || !params.row) return null;
+        return (
+          <div className="d-flex gap-2">
+            <Button
+              size="sm"
+              variant="outline-primary"
+              onClick={() => navigate(`/guests/${params.row.guest_id}`)}
+            >
+              <FaEye />
+            </Button>
+            <Button
+              size="sm"
+              variant="outline-warning"
+              onClick={() => navigate(`/guests/${params.row.guest_id}/edit`)}
+            >
+              <FaEdit />
+            </Button>
+            <Dropdown>
+              <Dropdown.Toggle size="sm" variant="outline-secondary">
+                •••
+              </Dropdown.Toggle>
+              <Dropdown.Menu>
+                <Dropdown.Item onClick={() => {
+                  setSelectedGuest(params.row);
+                  setRsvpStatus(params.row.rsvp?.rsvp_status || 'Pending');
+                  setShowRsvpModal(true);
+                }}>
+                  Update RSVP
+                </Dropdown.Item>
+                <Dropdown.Item onClick={() => {
+                  setSelectedGuest(params.row);
+                  setShowUploadModal(true);
+                }}>
+                  <FaUpload /> Upload Document
+                </Dropdown.Item>
+                <Dropdown.Item onClick={() => {
+                  setSelectedGuest(params.row);
+                  setShowDetailsModal(true);
+                }}>
+                  <FaEye /> View Details
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+          </div>
+        );
+      }
     }
   ];
 
@@ -368,19 +391,29 @@ const GuestActivities = () => {
           <div className="card">
             <div className="card-header d-flex justify-content-between align-items-center">
               <h3 className="mb-0">Guest Activities Management</h3>
-              <Button
-                variant="primary"
-                onClick={() => {
-                  if (selectedGuestIds.length === 0) {
-                    toast.warning('Please select guests to send invites');
-                    return;
-                  }
-                  setShowInviteModal(true);
-                }}
-                disabled={selectedGuestIds.length === 0}
-              >
-                <FaEnvelope /> Send Invites ({selectedGuestIds.length})
-              </Button>
+              <div className="d-flex gap-2">
+                <Button
+                  variant="success"
+                  onClick={() => navigate('/guests/create')}
+                >
+                  <FaPlus className="me-2" />
+                  Add New Guest
+                </Button>
+                <Button
+                  variant="primary"
+                  onClick={() => {
+                    if (selectedGuestIds.length === 0) {
+                      toast.warning('Please select guests to send invites');
+                      return;
+                    }
+                    setShowInviteModal(true);
+                  }}
+                  disabled={selectedGuestIds.length === 0}
+                >
+                  <FaEnvelope className="me-2" />
+                  Send Invites ({selectedGuestIds.length})
+                </Button>
+              </div>
             </div>
             <div className="card-body">
               {/* Filters */}
