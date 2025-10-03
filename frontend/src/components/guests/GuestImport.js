@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../contexts/AuthContext';
@@ -31,11 +31,7 @@ const GuestImport = () => {
   const [selectedEvent, setSelectedEvent] = useState(eventId || '');
   const [selectedCustomer, setSelectedCustomer] = useState('');
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setIsLoadingData(true);
       const [eventsResponse, customersResponse] = await Promise.all([
@@ -67,7 +63,11 @@ const GuestImport = () => {
     } finally {
       setIsLoadingData(false);
     }
-  };
+  }, [currentUser, hasRole]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
