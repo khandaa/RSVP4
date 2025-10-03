@@ -31,7 +31,7 @@ const GuestList = () => {
   const [accommodations, setAccommodations] = useState([]);
   const [travels, setTravels] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+  const [sortConfig, setSortConfig] = useState({ key: 'guest_name', direction: 'asc' });
   const [rsvpFilter, setRsvpFilter] = useState('all');
   const [eventFilter, setEventFilter] = useState('all');
   const [customerFilter, setCustomerFilter] = useState('all');
@@ -46,142 +46,95 @@ const GuestList = () => {
   const eventId = searchParams.get('eventId');
   const subeventId = searchParams.get('subeventId');
 
-  // RSVP status options
   const rsvpStatusOptions = ['Pending', 'Confirmed', 'Declined', 'Tentative'];
   const guestTypeOptions = ['Individual', 'Family', 'Corporate', 'VIP', 'Media'];
 
-  useEffect(() => {
-    fetchData();
-  }, [eventId, subeventId, eventFilter, fetchData]);
-
-  useEffect(() => {
-    filterAndSortGuests();
-  }, [guests, searchTerm, sortConfig, rsvpFilter, eventFilter, customerFilter, clientFilter, guestTypeFilter]);
-
   const fetchData = useCallback(async () => {
+    setIsLoading(true);
     try {
-      setIsLoading(true);
-      let guestsUrl = '/api/guests';
-      
-      // Filter by event or subevent if specified
       const params = new URLSearchParams();
       if (eventId) params.append('event_id', eventId);
       if (subeventId) params.append('subevent_id', subeventId);
       if (clientFilter !== 'all') params.append('client_id', clientFilter);
-      if (params.toString()) {
-        guestsUrl += `?${params.toString()}`;
-      }
 
-      const promises = [
-        fetch(guestsUrl, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } }).then(res => res.json()),
-        fetch('/api/events', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } }).then(res => res.json()),
-        fetch('/api/customers', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } }).then(res => res.json()),
-        fetch('/api/clients', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } }).then(res => res.json())
-      ];
+      const [guestsResponse, eventsResponse, customersResponse, clientsResponse] = await Promise.all([
+        api.get('/guests', { params }),
+        api.get('/events'),
+        api.get('/customers'),
+        api.get('/clients'),
+      ]);
+
+      setGuests(guestsResponse.data || []);
+      setEvents(eventsResponse.data || []);
+      setCustomers(customersResponse.data || []);
+      setClients(clientsResponse.data || []);
 
       if (eventFilter !== 'all') {
-        promises.push(api.get(`/comprehensive-crud/guest-accommodation?event_id=${eventFilter}`).then(res => res.data).catch(() => []));
-        promises.push(api.get(`/comprehensive-crud/guest-travel?event_id=${eventFilter}`).then(res => res.data).catch(() => []));
+        const [accommodationResponse, travelResponse] = await Promise.all([
+          api.get(`/comprehensive-crud/guest-accommodation?event_id=${eventFilter}`).catch(() => ({ data: [] })),
+          api.get(`/comprehensive-crud/guest-travel?event_id=${eventFilter}`).catch(() => ({ data: [] }))
+        ]);
+        setAccommodations(accommodationResponse.data || []);
+        setTravels(travelResponse.data || []);
       } else {
         setAccommodations([]);
         setTravels([]);
       }
-
-      const [guestsResponse, eventsResponse, customersResponse, clientsResponse, accommodationResponse, travelResponse] = await Promise.all(promises);
-      
-      setGuests(guestsResponse.data || guestsResponse || []);
-      setEvents(eventsResponse.data || eventsResponse || []);
-      setCustomers(customersResponse.data || customersResponse || []);
-      setClients(clientsResponse.data || clientsResponse || []);
-      if (accommodationResponse) setAccommodations(accommodationResponse || []);
-      if (travelResponse) setTravels(travelResponse || []);
     } catch (error) {
-      console.error('Error fetching guests data:', error);
-      toast.error('Failed to fetch guests data');
+      console.error('Error fetching data:', error);
+      toast.error('Failed to fetch data. Please try again.');
     } finally {
       setIsLoading(false);
     }
-  }, [eventId, subeventId]);
+  }, [eventId, subeventId, clientFilter, eventFilter]);
 
   const filterAndSortGuests = useCallback(() => {
     let filtered = [...guests];
 
-    // Apply search filter
     if (searchTerm) {
       filtered = filtered.filter(guest =>
         `${guest.guest_first_name} ${guest.guest_last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
         guest.guest_email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        guest.guest_phone?.includes(searchTerm) ||
-        guest.guest_organization?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        guest.customer_name?.toLowerCase().includes(searchTerm.toLowerCase())
+        guest.guest_phone?.includes(searchTerm)
       );
     }
 
-    // Apply RSVP filter
-    if (rsvpFilter !== 'all') {
-      filtered = filtered.filter(guest => guest.guest_rsvp_status === rsvpFilter);
-    }
+    if (rsvpFilter !== 'all') filtered = filtered.filter(g => g.guest_rsvp_status === rsvpFilter);
+    if (eventFilter !== 'all') filtered = filtered.filter(g => g.event_id === parseInt(eventFilter));
+    if (customerFilter !== 'all') filtered = filtered.filter(g => g.customer_id === parseInt(customerFilter));
+    if (clientFilter !== 'all') filtered = filtered.filter(g => g.client_id === parseInt(clientFilter));
+    if (guestTypeFilter !== 'all') filtered = filtered.filter(g => g.guest_type === guestTypeFilter);
 
-    // Apply event filter
-    if (eventFilter !== 'all') {
-      filtered = filtered.filter(guest => guest.event_id === parseInt(eventFilter));
-    }
-
-    // Apply customer filter
-    if (customerFilter !== 'all') {
-      filtered = filtered.filter(guest => guest.customer_id === parseInt(customerFilter));
-    }
-
-    // Apply client filter
-    if (clientFilter !== 'all') {
-      filtered = filtered.filter(guest => guest.client_id === parseInt(clientFilter));
-    }
-
-    // Apply guest type filter
-    if (guestTypeFilter !== 'all') {
-      filtered = filtered.filter(guest => guest.guest_type === guestTypeFilter);
-    }
-
-    // Apply sorting
     if (sortConfig.key) {
       filtered.sort((a, b) => {
         let aValue = a[sortConfig.key] || '';
         let bValue = b[sortConfig.key] || '';
-        
-        // Handle name sorting
         if (sortConfig.key === 'guest_name') {
           aValue = `${a.guest_first_name} ${a.guest_last_name}`;
           bValue = `${b.guest_first_name} ${b.guest_last_name}`;
         }
-        
-        // Handle date sorting
-        if (sortConfig.key.includes('date')) {
-          aValue = aValue ? new Date(aValue) : new Date(0);
-          bValue = bValue ? new Date(bValue) : new Date(0);
-          return sortConfig.direction === 'asc' 
-            ? aValue.getTime() - bValue.getTime()
-            : bValue.getTime() - aValue.getTime();
-        }
-        
-        if (aValue < bValue) {
-          return sortConfig.direction === 'asc' ? -1 : 1;
-        }
-        if (aValue > bValue) {
-          return sortConfig.direction === 'asc' ? 1 : -1;
-        }
+        if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+        if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
         return 0;
       });
     }
 
     setFilteredGuests(filtered);
-  }, [guests, searchTerm, sortConfig, rsvpFilter, eventFilter, customerFilter, guestTypeFilter]);
+  }, [guests, searchTerm, sortConfig, rsvpFilter, eventFilter, customerFilter, clientFilter, guestTypeFilter]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  useEffect(() => {
+    filterAndSortGuests();
+  }, [filterAndSortGuests]);
 
   const handleSort = (key) => {
-    let direction = 'asc';
-    if (sortConfig.key === key && sortConfig.direction === 'asc') {
-      direction = 'desc';
-    }
-    setSortConfig({ key, direction });
+    setSortConfig(prevConfig => ({
+      key,
+      direction: prevConfig.key === key && prevConfig.direction === 'asc' ? 'desc' : 'asc'
+    }));
   };
 
   const getSortIcon = (columnName) => {
@@ -197,20 +150,11 @@ const GuestList = () => {
   };
 
   const confirmDelete = async () => {
+    if (!guestToDelete) return;
     try {
-      const response = await fetch(`/api/guests/${guestToDelete.guest_id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete guest');
-      }
-
+      await api.delete(`/guests/${guestToDelete.guest_id}`);
       toast.success('Guest deleted successfully');
-      fetchData();
+      fetchData(); // Refresh data
       setShowDeleteModal(false);
       setGuestToDelete(null);
     } catch (error) {
@@ -221,51 +165,37 @@ const GuestList = () => {
 
   const exportToCSV = () => {
     const headers = ['ID', 'Name', 'Email', 'Phone', 'Organization', 'Customer', 'Event', 'RSVP Status', 'Guest Type', 'Created Date'];
-    const csvContent = [
-      headers.join(','),
-      ...filteredGuests.map(guest => [
-        guest.guest_id,
-        `"${guest.guest_first_name} ${guest.guest_last_name}"`,
-        `"${guest.guest_email || ''}"`,
-        `"${guest.guest_phone || ''}"`,
-        `"${guest.guest_organization || ''}"`,
-        `"${guest.customer_name || ''}"`,
-        `"${guest.event_name || ''}"`,
-        guest.guest_rsvp_status || 'Pending',
-        guest.guest_type || '',
-        guest.created_at ? new Date(guest.created_at).toLocaleDateString() : ''
-      ].join(','))
-    ].join('\n');
+    const csvData = filteredGuests.map(guest => [
+      guest.guest_id,
+      `"${guest.guest_first_name} ${guest.guest_last_name}"`,
+      `"${guest.guest_email || ''}"`,
+      `"${guest.guest_phone || ''}"`,
+      `"${guest.guest_organization || ''}"`,
+      `"${guest.customer_name || ''}"`,
+      `"${guest.event_name || ''}"`,
+      guest.guest_rsvp_status || 'Pending',
+      guest.guest_type || '',
+      guest.created_at ? new Date(guest.created_at).toLocaleDateString() : ''
+    ].join(','));
 
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.setAttribute('hidden', '');
-    a.setAttribute('href', url);
-    a.setAttribute('download', `guests_${new Date().toISOString().split('T')[0]}.csv`);
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
+    const csvContent = [headers.join(','), ...csvData].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute('download', `guests_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const getRSVPBadgeClass = (status) => {
-    switch (status) {
-      case 'Confirmed': return 'bg-success';
-      case 'Declined': return 'bg-danger';
-      case 'Tentative': return 'bg-warning';
-      default: return 'bg-secondary';
-    }
+    const classes = { Confirmed: 'bg-success', Declined: 'bg-danger', Tentative: 'bg-warning' };
+    return classes[status] || 'bg-secondary';
   };
 
   const getGuestTypeBadgeClass = (type) => {
-    switch (type) {
-      case 'VIP': return 'bg-warning';
-      case 'Corporate': return 'bg-info';
-      case 'Family': return 'bg-success';
-      case 'Media': return 'bg-primary';
-      default: return 'bg-secondary';
-    }
+    const classes = { VIP: 'bg-warning', Corporate: 'bg-info', Family: 'bg-success', Media: 'bg-primary' };
+    return classes[type] || 'bg-secondary';
   };
 
   if (isLoading) {
