@@ -28,8 +28,8 @@ const GuestList = () => {
   const [events, setEvents] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [clients, setClients] = useState([]);
-  const [accommodations, setAccommodations] = useState([]);
-  const [travels, setTravels] = useState([]);
+  const [accommodationMap, setAccommodationMap] = useState(new Map());
+  const [travelMap, setTravelMap] = useState(new Map());
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: 'guest_name', direction: 'asc' });
   const [rsvpFilter, setRsvpFilter] = useState('all');
@@ -74,11 +74,16 @@ const GuestList = () => {
           api.get(`/comprehensive-crud/guest-accommodation?event_id=${eventFilter}`).catch(() => ({ data: [] })),
           api.get(`/comprehensive-crud/guest-travel?event_id=${eventFilter}`).catch(() => ({ data: [] }))
         ]);
-        setAccommodations(accommodationResponse.data || []);
-        setTravels(travelResponse.data || []);
+        
+        const accommodationData = accommodationResponse.data || [];
+        const travelData = travelResponse.data || [];
+
+        setAccommodationMap(new Map(accommodationData.map(item => [item.guest_id, item])));
+        setTravelMap(new Map(travelData.map(item => [item.guest_id, item])));
+
       } else {
-        setAccommodations([]);
-        setTravels([]);
+        setAccommodationMap(new Map());
+        setTravelMap(new Map());
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -430,99 +435,106 @@ const GuestList = () => {
                   </td>
                 </tr>
               ) : (
-                filteredGuests.map((guest) => (
-                  <tr key={guest.guest_id}>
-                    <td>
-                      {guest.event_name ? (
-                        <span className="badge bg-primary glass-badge">
-                          {guest.event_name}
-                        </span>
-                      ) : (
-                        <span className="text-muted">-</span>
-                      )}
-                    </td>
-                    <td className="fw-semibold">
-                      <div className="d-flex align-items-center">
-                        <FaUsers className="text-primary me-2" />
+                filteredGuests.map((guest) => {
+                  if (!guest || !guest.guest_id) return null;
+
+                  const travelData = travelMap.get(guest.guest_id);
+                  const accommodationData = accommodationMap.get(guest.guest_id);
+
+                  return (
+                    <tr key={guest.guest_id}>
+                      <td>
+                        {guest.event_name ? (
+                          <span className="badge bg-primary glass-badge">
+                            {guest.event_name}
+                          </span>
+                        ) : (
+                          <span className="text-muted">-</span>
+                        )}
+                      </td>
+                      <td className="fw-semibold">
+                        <div className="d-flex align-items-center">
+                          <FaUsers className="text-primary me-2" />
+                          <div>
+                            <Link to={`/guests/${guest.guest_id}`}>{guest.guest_first_name} {guest.guest_last_name}</Link>
+                            {guest.guest_designation && (
+                              <small className="text-muted">{guest.guest_designation}</small>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                      <td>
                         <div>
-                          <Link to={`/guests/${guest.guest_id}`}>{guest.guest_first_name} {guest.guest_last_name}</Link>
-                          {guest.guest_designation && (
-                            <small className="text-muted">{guest.guest_designation}</small>
+                          {guest.guest_email && (
+                            <div className="d-flex align-items-center mb-1">
+                              <FaEnvelope className="text-muted me-1" size={12} />
+                              <small>{guest.guest_email}</small>
+                            </div>
+                          )}
+                          {guest.guest_phone && (
+                            <div className="d-flex align-items-center">
+                              <FaPhone className="text-muted me-1" size={12} />
+                              <small>{guest.guest_phone}</small>
+                            </div>
                           )}
                         </div>
-                      </div>
-                    </td>
-                    <td>
-                      <div>
-                        {guest.guest_email && (
-                          <div className="d-flex align-items-center mb-1">
-                            <FaEnvelope className="text-muted me-1" size={12} />
-                            <small>{guest.guest_email}</small>
-                          </div>
-                        )}
-                        {guest.guest_phone && (
-                          <div className="d-flex align-items-center">
-                            <FaPhone className="text-muted me-1" size={12} />
-                            <small>{guest.guest_phone}</small>
-                          </div>
-                        )}
-                      </div>
-                    </td>
-                    <td>
-                      <span className={`badge glass-badge ${getRSVPBadgeClass(guest.guest_rsvp_status)}`}>
-                        {guest.guest_rsvp_status || 'Pending'}
-                      </span>
-                    </td>
-                    <td>
-                      {guest.guest_type ? (
-                        <span className={`badge glass-badge ${getGuestTypeBadgeClass(guest.guest_type)}`}>
-                          {guest.guest_type}
+                      </td>
+                      <td>
+                        <span className={`badge glass-badge ${getRSVPBadgeClass(guest.guest_rsvp_status)}`}>
+                          {guest.guest_rsvp_status || 'Pending'}
                         </span>
-                      ) : (
-                        <span className="text-muted">-</span>
+                      </td>
+                      <td>
+                        {guest.guest_type ? (
+                          <span className={`badge glass-badge ${getGuestTypeBadgeClass(guest.guest_type)}`}>
+                            {guest.guest_type}
+                          </span>
+                        ) : (
+                          <span className="text-muted">-</span>
+                        )}
+                      </td>
+                      <td>{guest.additional_guests || 0}</td>
+                      <td>{guest.guest_special_requirements || '-'}</td>
+                      {eventFilter !== 'all' && (
+                        <>
+                          <td>
+                            {travelData?.travel_datetime || '-'}
+                          </td>
+                          <td>
+                            {accommodationData?.hotel_name || '-'}
+                            <br />
+                            <small>{accommodationData?.room_number || ''}</small>
+                          </td>
+                        </>
                       )}
-                    </td>
-                    <td>{guest.additional_guests || 0}</td>
-                    <td>{guest.guest_special_requirements || '-'}</td>
-                    {eventFilter !== 'all' && (
-                      <>
-                        <td>
-                          {travels.find(t => t.guest_id === guest.guest_id)?.travel_datetime || '-'}
-                        </td>
-                        <td>
-                          {accommodations.find(a => a.guest_id === guest.guest_id)?.hotel_name || '-'}
-                          <br />
-                          <small>{accommodations.find(a => a.guest_id === guest.guest_id)?.room_number || ''}</small>
-                        </td>
-                      </>
-                    )}
-                    <td>
-                      <div className="btn-group" role="group">
-                        <button
-                          className="btn btn-sm btn-outline-info glass-btn"
-                          onClick={() => navigate(`/guests/${guest.guest_id}`)}
-                          title="View Details"
-                        >
-                          <FaEye />
-                        </button>
-                        <button
-                          className="btn btn-sm btn-outline-primary glass-btn"
-                          onClick={() => navigate(`/guests/${guest.guest_id}/edit`)}
-                          title="Edit Guest"
-                        >
-                          <FaEdit />
-                        </button>
-                        <button
-                          className="btn btn-sm btn-outline-danger glass-btn"
-                          onClick={() => handleDelete(guest)}
-                          title="Delete Guest"
-                        >
-                          <FaTrash />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                      <td>
+                        <div className="btn-group" role="group">
+                          <button
+                            className="btn btn-sm btn-outline-info glass-btn"
+                            onClick={() => navigate(`/guests/${guest.guest_id}`)}
+                            title="View Details"
+                          >
+                            <FaEye />
+                          </button>
+                          <button
+                            className="btn btn-sm btn-outline-primary glass-btn"
+                            onClick={() => navigate(`/guests/${guest.guest_id}/edit`)}
+                            title="Edit Guest"
+                          >
+                            <FaEdit />
+                          </button>
+                          <button
+                            className="btn btn-sm btn-outline-danger glass-btn"
+                            onClick={() => handleDelete(guest)}
+                            title="Delete Guest"
+                          >
+                            <FaTrash />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
