@@ -127,13 +127,18 @@ const GuestActivities = () => {
     }
     switch (rsvpStatus) {
       case 'Attending':
-        return <Badge bg="success"><FaCheckCircle /> Attending</Badge>;
+      case 'Confirmed':
+        return <Badge bg="success"><FaCheckCircle /> {rsvpStatus === 'Confirmed' ? 'Confirmed' : 'Attending'}</Badge>;
       case 'Not Attending':
+      case 'Declined':
         return <Badge bg="danger"><FaTimesCircle /> Not Attending</Badge>;
       case 'Maybe':
+      case 'Tentative':
         return <Badge bg="warning"><FaQuestionCircle /> Maybe</Badge>;
-      default:
+      case 'Pending':
         return <Badge bg="secondary"><FaClock /> Pending</Badge>;
+      default:
+        return <Badge bg="secondary"><FaClock /> {rsvpStatus}</Badge>;
     }
   };
 
@@ -458,6 +463,7 @@ const GuestActivities = () => {
                   >
                     <option value="all">All RSVP Status</option>
                     <option value="Pending">Pending</option>
+                    <option value="Confirmed">Confirmed</option>
                     <option value="Attending">Attending</option>
                     <option value="Not Attending">Not Attending</option>
                     <option value="Maybe">Maybe</option>
@@ -515,6 +521,7 @@ const GuestActivities = () => {
             <Form.Select value={rsvpStatus} onChange={(e) => setRsvpStatus(e.target.value)}>
               <option value="">Select Status</option>
               <option value="Pending">Pending</option>
+              <option value="Confirmed">Confirmed</option>
               <option value="Attending">Attending</option>
               <option value="Not Attending">Not Attending</option>
               <option value="Maybe">Maybe</option>

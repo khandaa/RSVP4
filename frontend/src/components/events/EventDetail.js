@@ -84,8 +84,14 @@ const EventDetail = () => {
       // Calculate stats
       const stats = {
         totalGuests: guestsResponse?.length || 0,
-        confirmedGuests: guestsResponse?.filter(g => g.rsvp_status === 'Confirmed').length || 0,
-        pendingRSVPs: guestsResponse?.filter(g => g.rsvp_status === 'Pending' || !g.rsvp_status).length || 0,
+        confirmedGuests: guestsResponse?.filter(g => {
+          const status = g.rsvp?.rsvp_status || g.rsvp_status;
+          return status === 'Confirmed' || status === 'Attending';
+        }).length || 0,
+        pendingRSVPs: guestsResponse?.filter(g => {
+          const status = g.rsvp?.rsvp_status || g.rsvp_status;
+          return status === 'Pending' || !status;
+        }).length || 0,
         totalSubevents: scheduleResponse.data?.length || 0
       };
       setEventStats(stats);
@@ -124,14 +130,43 @@ const EventDetail = () => {
 
   const formatDateRange = (startDate, endDate) => {
     if (!startDate) return 'No date set';
-    
+
     const start = new Date(startDate);
     const end = endDate ? new Date(endDate) : null;
-    
+
     if (end && start.toDateString() !== end.toDateString()) {
       return `${start.toLocaleDateString()} - ${end.toLocaleDateString()}`;
     }
     return start.toLocaleDateString();
+  };
+
+  const handleRsvpStatusChange = async (guestId, newStatus) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`/api/guests/${guestId}/rsvp`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          rsvp_status: newStatus,
+          communication_id: 1 // Default communication ID
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update RSVP status');
+      }
+
+      toast.success('RSVP status updated successfully');
+
+      // Refresh the guest list
+      fetchEventData();
+    } catch (error) {
+      console.error('Error updating RSVP status:', error);
+      toast.error('Failed to update RSVP status');
+    }
   };
 
   if (isLoading) {
@@ -636,35 +671,68 @@ const EventDetail = () => {
                           </tr>
                         </thead>
                         <tbody>
-                          {guests.slice(0, 10).map((guest) => (
-                            <tr key={guest.guest_id}>
-                              <td>
-                                <div className="fw-semibold">
-                                  {guest.guest_first_name} {guest.guest_last_name}
-                                </div>
-                              </td>
-                              <td>{guest.guest_email || '-'}</td>
-                              <td>{guest.guest_phone || '-'}</td>
-                              <td>
-                                <span className={`badge glass-badge ${
-                                  guest.rsvp_status === 'Confirmed' ? 'bg-success' :
-                                  guest.rsvp_status === 'Declined' ? 'bg-danger' :
-                                  'bg-warning'
-                                }`}>
-                                  {guest.rsvp_status || 'Pending'}
-                                </span>
-                              </td>
-                              <td>
-                                <button
-                                  className="btn btn-sm btn-outline-info glass-btn"
-                                  onClick={() => navigate(`/guests/${guest.guest_id}`)}
-                                  title="View Details"
-                                >
-                                  <FaEye />
-                                </button>
-                              </td>
-                            </tr>
-                          ))}
+                          {guests.slice(0, 10).map((guest) => {
+                            const currentRsvpStatus = guest.rsvp?.rsvp_status || guest.rsvp_status || 'Pending';
+                            return (
+                              <tr key={guest.guest_id}>
+                                <td>
+                                  <div className="fw-semibold">
+                                    {guest.guest_first_name} {guest.guest_last_name}
+                                  </div>
+                                </td>
+                                <td>{guest.guest_email || '-'}</td>
+                                <td>{guest.guest_phone || '-'}</td>
+                                <td>
+                                  <select
+                                    className="form-select form-select-sm"
+                                    value={currentRsvpStatus}
+                                    onChange={(e) => handleRsvpStatusChange(guest.guest_id, e.target.value)}
+                                    style={{
+                                      width: 'auto',
+                                      backgroundColor:
+                                        currentRsvpStatus === 'Confirmed' || currentRsvpStatus === 'Attending' ? '#d4edda' :
+                                        currentRsvpStatus === 'Not Attending' || currentRsvpStatus === 'Declined' ? '#f8d7da' :
+                                        currentRsvpStatus === 'Maybe' || currentRsvpStatus === 'Tentative' ? '#fff3cd' :
+                                        '#e2e3e5',
+                                      border: '1px solid',
+                                      borderColor:
+                                        currentRsvpStatus === 'Confirmed' || currentRsvpStatus === 'Attending' ? '#c3e6cb' :
+                                        currentRsvpStatus === 'Not Attending' || currentRsvpStatus === 'Declined' ? '#f5c6cb' :
+                                        currentRsvpStatus === 'Maybe' || currentRsvpStatus === 'Tentative' ? '#ffeaa7' :
+                                        '#d3d4d5',
+                                      fontWeight: '500'
+                                    }}
+                                  >
+                                    <option value="Pending">Pending</option>
+                                    <option value="Confirmed">Confirmed</option>
+                                    <option value="Attending">Attending</option>
+                                    <option value="Not Attending">Not Attending</option>
+                                    <option value="Declined">Declined</option>
+                                    <option value="Maybe">Maybe</option>
+                                    <option value="Tentative">Tentative</option>
+                                  </select>
+                                </td>
+                                <td>
+                                  <div className="btn-group" role="group">
+                                    <button
+                                      className="btn btn-sm btn-outline-info glass-btn"
+                                      onClick={() => navigate(`/guests/${guest.guest_id}`)}
+                                      title="View Details"
+                                    >
+                                      <FaEye />
+                                    </button>
+                                    <button
+                                      className="btn btn-sm btn-outline-primary glass-btn"
+                                      onClick={() => navigate(`/guests/${guest.guest_id}/edit`)}
+                                      title="Edit Guest"
+                                    >
+                                      <FaEdit />
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            );
+                          })}
                         </tbody>
                       </table>
                       {guests.length > 10 && (

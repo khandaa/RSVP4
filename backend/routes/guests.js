@@ -712,7 +712,7 @@ router.post('/:id/documents', [authenticateToken, documentsUpload.single('docume
 // POST /api/guests/:id/rsvp - Update main RSVP status
 router.post('/:id/rsvp', [
   authenticateToken,
-  body('rsvp_status').isIn(['Pending', 'Attending', 'Not Attending', 'Maybe']).withMessage('Invalid RSVP status'),
+  body('rsvp_status').isIn(['Pending', 'Confirmed', 'Attending', 'Not Attending', 'Maybe', 'Declined', 'Tentative']).withMessage('Invalid RSVP status'),
   body('communication_id').optional().isInt().withMessage('Communication ID must be an integer')
 ], async (req, res) => {
   try {

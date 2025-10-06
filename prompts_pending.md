@@ -72,3 +72,11 @@ Create a single page for managing all guest activities. It should be in tabular 
   - [ ] Add fields for arrival location, pickup requirements, and travel mode.
   - [ ] Implement a typeahead for arrival locations.
 
+
+
+
+Guest add error - email
+mobile number field is not restricted to 10 digits
+Guest activities RSVP status is not reflecting correctly
+guest import is not working correctly
+RSVP status is incorrect and guest edit functionality is not there from within the event/subevent 
