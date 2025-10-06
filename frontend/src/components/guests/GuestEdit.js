@@ -113,11 +113,23 @@ const GuestEdit = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    
+
+    // Restrict phone number to 10 digits only
+    if (name === 'guest_phone') {
+      const numericValue = value.replace(/\D/g, '');
+      if (numericValue.length <= 10) {
+        setFormData(prev => ({
+          ...prev,
+          [name]: numericValue
+        }));
+      }
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
+
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -406,7 +418,9 @@ const GuestEdit = () => {
                               value={formData.guest_phone}
                               onChange={handleInputChange}
                               disabled={isLoading}
-                              placeholder="Enter phone number"
+                              placeholder="Enter 10-digit phone number"
+                              maxLength="10"
+                              pattern="[0-9]{10}"
                             />
                           </div>
                           {errors.guest_phone && (

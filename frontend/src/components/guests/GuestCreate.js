@@ -120,11 +120,23 @@ const GuestCreate = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    
+
+    // Restrict phone number to 10 digits only
+    if (name === 'guest_phone') {
+      const numericValue = value.replace(/\D/g, '');
+      if (numericValue.length <= 10) {
+        setFormData(prev => ({
+          ...prev,
+          [name]: numericValue
+        }));
+      }
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
+
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -289,7 +301,17 @@ const GuestCreate = () => {
 
   const handleTableInputChange = (index, field, value) => {
     const updatedGuests = [...tableGuests];
-    updatedGuests[index][field] = value;
+
+    // Restrict phone number to 10 digits only
+    if (field === 'guest_phone') {
+      const numericValue = value.replace(/\D/g, '');
+      if (numericValue.length <= 10) {
+        updatedGuests[index][field] = numericValue;
+      }
+    } else {
+      updatedGuests[index][field] = value;
+    }
+
     setTableGuests(updatedGuests);
   };
 
@@ -554,7 +576,9 @@ const GuestCreate = () => {
                                 value={formData.guest_phone}
                                 onChange={handleInputChange}
                                 disabled={isLoading}
-                                placeholder="Enter phone number"
+                                placeholder="Enter 10-digit phone number"
+                                maxLength="10"
+                                pattern="[0-9]{10}"
                               />
                             </div>
                             {errors.guest_phone && (
@@ -749,7 +773,9 @@ const GuestCreate = () => {
                                       value={guest.guest_phone}
                                       onChange={(e) => handleTableInputChange(index, 'guest_phone', e.target.value)}
                                       disabled={isLoading}
-                                      placeholder="Enter phone number"
+                                      placeholder="10-digit phone"
+                                      maxLength="10"
+                                      pattern="[0-9]{10}"
                                     />
                                   </div>
                                 </td>
