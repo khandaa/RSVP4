@@ -1,5 +1,8 @@
 ## [Unreleased]
 
+### 2025-10-06
+- Fixed a bug in the guest edit page that caused a crash when loading guest data with `null` values. The component now sanitizes the data, replacing `null` with empty strings to prevent errors.
+
 ### 2025-10-02
 - Fixed a bug that prevented guest groups from being created by ensuring the `client_id` is always included.
 - Fixed a `400 Bad Request` error when creating guests by ensuring `client_id` and `customer_id` are correctly passed from the frontend and handled on the backend.

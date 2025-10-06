@@ -102,7 +102,10 @@ const GuestActivities = () => {
 
     // RSVP filter
     if (rsvpFilter !== 'all') {
-      filtered = filtered.filter(g => g.rsvp?.rsvp_status === rsvpFilter);
+      filtered = filtered.filter(g => {
+        const status = g.rsvp?.rsvp_status || 'Pending';
+        return status === rsvpFilter;
+      });
     }
 
     // Search filter
@@ -252,7 +255,8 @@ const GuestActivities = () => {
       width: 150,
       renderCell: (params) => {
         if (!params || !params.row) return null;
-        return getRsvpBadge(params.row.rsvp?.rsvp_status);
+        const status = params.row.rsvp?.rsvp_status || null;
+        return getRsvpBadge(status);
       }
     },
     {

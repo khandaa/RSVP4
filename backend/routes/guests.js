@@ -292,7 +292,8 @@ router.put('/:id', [
       client_id, event_id, subevent_id, guest_first_name, guest_last_name,
       guest_email, guest_phone, guest_status, guest_group_name,
       guest_type, guest_rsvp_status, guest_address, guest_city, guest_country,
-      guest_dietary_preferences, guest_special_requirements, guest_notes
+      guest_dietary_preferences, guest_special_requirements, guest_notes,
+      travel_info, accommodation_info
     } = req.body;
     const db = req.app.locals.db;
 

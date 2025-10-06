@@ -61,7 +61,32 @@ const GuestEdit = () => {
         customerAPI.getCustomers()
       ]);
 
-      setFormData(guestResponse.data);
+      const guestData = guestResponse.data;
+      const sanitizedData = Object.keys(formData).reduce((acc, key) => {
+        acc[key] = guestData[key] === null || guestData[key] === undefined ? '' : guestData[key];
+        return acc;
+      }, {});
+
+      if (guestData.guest_phone) {
+        const phoneString = String(guestData.guest_phone);
+        if (phoneString.startsWith('+91')) {
+          sanitizedData.guest_phone_country_code = '+91';
+          sanitizedData.guest_phone = phoneString.substring(3);
+        } else if (phoneString.startsWith('+1')) {
+          sanitizedData.guest_phone_country_code = '+1';
+          sanitizedData.guest_phone = phoneString.substring(2);
+        } else if (phoneString.startsWith('+44')) {
+          sanitizedData.guest_phone_country_code = '+44';
+          sanitizedData.guest_phone = phoneString.substring(3);
+        } else if (phoneString.startsWith('+61')) {
+          sanitizedData.guest_phone_country_code = '+61';
+          sanitizedData.guest_phone = phoneString.substring(3);
+        } else {
+          sanitizedData.guest_phone = phoneString;
+        }
+      }
+
+      setFormData(prev => ({ ...prev, ...sanitizedData }));
       setEvents(eventsResponse.data || eventsResponse || []);
       setCustomers(customersResponse.data || customersResponse || []);
 
