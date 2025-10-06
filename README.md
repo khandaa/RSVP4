@@ -13,6 +13,10 @@ The backend authentication module now logs helpful debug information upon succes
 
 # EmployDEX Base Platform
 
+Note (2025-10-06): Enhanced the Event Detail page to correctly display and update guest RSVP statuses.
+
+Note (2025-10-06): Fixed an issue where error messages were not displayed during bulk guest imports. The backend now sends correctly formatted error messages that the frontend can display.
+
 Note (2025-10-01): Event Type dropdown duplicates fixed. See `frontend/src/components/events/EventCreate.js` where event types are de-duplicated by name (case-insensitive) and sorted before rendering.
 
 A foundational system providing essential user management capabilities, including user registration, authentication, role-based access control, and an administrative dashboard.

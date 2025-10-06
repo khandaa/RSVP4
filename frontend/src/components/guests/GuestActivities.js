@@ -265,6 +265,20 @@ const GuestActivities = () => {
       }
     },
     {
+      field: 'additional_guests',
+      headerName: 'Add. Guests',
+      width: 110,
+      renderCell: (params) => {
+        if (!params || !params.row) return null;
+        const count = params.row.additional_guests || 0;
+        return (
+          <Badge bg={count > 0 ? 'primary' : 'secondary'}>
+            +{count}
+          </Badge>
+        );
+      }
+    },
+    {
       field: 'subevents',
       headerName: 'Sub-events',
       width: 120,

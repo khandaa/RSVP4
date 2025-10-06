@@ -40,6 +40,7 @@ const GuestEdit = () => {
     guest_type: 'Bride\'s Family',
     guest_rsvp_status: 'Pending',
     guest_group_name: '',
+    additional_guests: 0,
     guest_address: '',
     guest_city: '',
     guest_country: '',
@@ -149,7 +150,8 @@ const GuestEdit = () => {
     if (!formData.event_id) {
       newErrors.event_id = 'Event is required';
     }
-    if (formData.guest_email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.guest_email)) {
+    // Email is optional, but if provided, must be valid
+    if (formData.guest_email?.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.guest_email.trim())) {
       newErrors.guest_email = 'Please enter a valid email address';
     }
     if (formData.guest_phone && formData.guest_phone.replace(/\D/g, '').length !== 10) {
@@ -182,6 +184,7 @@ const GuestEdit = () => {
         guest_phone: formData.guest_phone_country_code + (formData.guest_phone?.trim() || ''),
         guest_group_name: formData.guest_group_name?.trim() || null,
         guest_status: 'Active',
+        additional_guests: parseInt(formData.additional_guests) || 0,
         guest_address: formData.guest_address?.trim() || null,
         guest_city: formData.guest_city?.trim() || null,
         guest_country: formData.guest_country?.trim() || null,
@@ -377,7 +380,7 @@ const GuestEdit = () => {
                         <div className="col-md-6">
                           <label className="form-label fw-semibold">
                             <FaEnvelope className="me-2 text-primary" />
-                            Email
+                            Email <span className="text-muted">(Optional)</span>
                           </label>
                           <input
                             type="email"
@@ -386,7 +389,7 @@ const GuestEdit = () => {
                             value={formData.guest_email}
                             onChange={handleInputChange}
                             disabled={isLoading}
-                            placeholder="Enter email"
+                            placeholder="Enter email (optional)"
                           />
                           {errors.guest_email && (
                             <div className="invalid-feedback">{errors.guest_email}</div>
@@ -466,6 +469,27 @@ const GuestEdit = () => {
                               </option>
                             ))}
                           </select>
+                        </div>
+
+                        <div className="col-md-6">
+                          <label className="form-label fw-semibold">
+                            <FaUsers className="me-2 text-primary" />
+                            Additional Guests
+                          </label>
+                          <input
+                            type="number"
+                            name="additional_guests"
+                            className="form-control glass-input"
+                            value={formData.additional_guests}
+                            onChange={handleInputChange}
+                            disabled={isLoading}
+                            min="0"
+                            max="99"
+                            placeholder="Number of additional guests"
+                          />
+                          <small className="text-muted">
+                            Number of additional guests accompanying this guest
+                          </small>
                         </div>
                       </div>
                     </div>

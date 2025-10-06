@@ -1,6 +1,12 @@
 ## [Unreleased]
 
 ### 2025-10-06
+- Enhanced the Event Detail page to correctly display guest RSVP statuses by updating the backend to join the RSVP table. Also enabled direct RSVP status updates from the guest list on this page.
+
+### 2025-10-06
+- Fixed a bug in the bulk guest import where error messages were not displayed on the frontend. The backend now sends error objects with a `message` property, which the frontend correctly interprets and displays.
+
+### 2025-10-06
 - Fixed a bug in the guest edit page that caused a crash when loading guest data with `null` values. The component now sanitizes the data, replacing `null` with empty strings to prevent errors.
 
 ### 2025-10-02

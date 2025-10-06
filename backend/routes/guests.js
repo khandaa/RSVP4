@@ -94,19 +94,20 @@ router.get('/', authenticateToken, async (req, res) => {
 router.get('/template', authenticateToken, async (req, res) => {
   try {
     const csvHeaders = [
-      'client_id',
       'event_id',
-      'subevent_id',
       'guest_first_name',
       'guest_last_name',
       'guest_email',
       'guest_phone',
-      'guest_status'
+      'guest_status',
+      'guest_group',
+      'client_id',
+      'subevent_id'
     ];
 
     const sampleData = [
-      '1,1,,John,Doe,john.doe@example.com,+1234567890,Active',
-      '1,1,,Jane,Smith,jane.smith@example.com,+1234567891,Active'
+      '1,John,Doe,john.doe@example.com,9876543210,Active,VIP Guests,,',
+      '1,Jane,Smith,jane.smith@example.com,9876543211,Active,Family,,'
     ];
 
     const csvContent = [
@@ -153,14 +154,22 @@ router.get('/:id', authenticateToken, async (req, res) => {
 router.get('/event/:eventId', authenticateToken, async (req, res) => {
   try {
     const db = req.app.locals.db;
-    const guests = await dbMethods.all(db, 
-      `SELECT g.*, c.client_name, e.event_name, s.subevent_name 
-       FROM rsvp_master_guests g 
-       LEFT JOIN rsvp_master_clients c ON g.client_id = c.client_id 
-       LEFT JOIN rsvp_master_events e ON g.event_id = e.event_id 
-       LEFT JOIN rsvp_master_subevents s ON g.subevent_id = s.subevent_id 
-       WHERE g.event_id = ? 
-       ORDER BY g.created_at DESC`, 
+    const guests = await dbMethods.all(db,
+      `SELECT 
+         g.*, 
+         c.client_name, 
+         e.event_name, 
+         s.subevent_name,
+         r.rsvp_status as rsvp_status,
+         r.rsvp_id,
+         r.communication_id
+       FROM rsvp_master_guests g
+       LEFT JOIN rsvp_master_clients c ON g.client_id = c.client_id
+       LEFT JOIN rsvp_master_events e ON g.event_id = e.event_id
+       LEFT JOIN rsvp_master_subevents s ON g.subevent_id = s.subevent_id
+       LEFT JOIN rsvp_guest_rsvp r ON g.guest_id = r.guest_id AND g.event_id = r.event_id
+       WHERE g.event_id = ?
+       ORDER BY g.created_at DESC`,
       [req.params.eventId]
     );
     res.json(guests);
@@ -176,8 +185,8 @@ router.post('/', [
   body('event_id').isInt().withMessage('Event ID is required and must be an integer'),
   body('guest_first_name').notEmpty().withMessage('Guest first name is required'),
   body('guest_last_name').notEmpty().withMessage('Guest last name is required'),
-  body('guest_email').optional().isEmail().withMessage('Invalid email format'),
-  body('guest_phone').optional().isLength({ min: 10 }).withMessage('Phone number must be at least 10 digits')
+  body('guest_email').optional({ checkFalsy: true }).isEmail().withMessage('Invalid email format'),
+  body('guest_phone').optional({ checkFalsy: true }).isLength({ min: 10 }).withMessage('Phone number must be at least 10 digits')
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -189,7 +198,7 @@ router.post('/', [
     let {
       client_id, event_id, subevent_id, guest_first_name, guest_last_name,
       guest_email, guest_phone, guest_status, guest_group_id, guest_group_name,
-      guest_type, guest_rsvp_status, guest_address, guest_city, guest_country,
+      guest_type, guest_rsvp_status, additional_guests, guest_address, guest_city, guest_country,
       guest_dietary_preferences, guest_special_requirements, guest_notes
     } = req.body;
 
@@ -219,8 +228,8 @@ router.post('/', [
 
     // Create the guest record first
     const result = await dbMethods.run(db,
-      'INSERT INTO rsvp_master_guests (client_id, event_id, subevent_id, guest_first_name, guest_last_name, guest_email, guest_phone, guest_status, guest_type, guest_rsvp_status, guest_address, guest_city, guest_country, guest_dietary_preferences, guest_special_requirements, guest_notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [client_id, event_id, subevent_id, guest_first_name, guest_last_name, guest_email, guest_phone, guest_status || 'Active', guest_type, guest_rsvp_status, guest_address, guest_city, guest_country, guest_dietary_preferences, guest_special_requirements, guest_notes]
+      'INSERT INTO rsvp_master_guests (client_id, event_id, subevent_id, guest_first_name, guest_last_name, guest_email, guest_phone, guest_status, guest_type, guest_rsvp_status, additional_guests, guest_address, guest_city, guest_country, guest_dietary_preferences, guest_special_requirements, guest_notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [client_id, event_id, subevent_id, guest_first_name, guest_last_name, guest_email, guest_phone, guest_status || 'Active', guest_type, guest_rsvp_status, additional_guests || 0, guest_address, guest_city, guest_country, guest_dietary_preferences, guest_special_requirements, guest_notes]
     );
 
     const guestId = result.lastID;
@@ -279,8 +288,8 @@ router.put('/:id', [
   body('event_id').isInt().withMessage('Event ID is required and must be an integer'),
   body('guest_first_name').notEmpty().withMessage('Guest first name is required'),
   body('guest_last_name').notEmpty().withMessage('Guest last name is required'),
-  body('guest_email').optional().isEmail().withMessage('Invalid email format'),
-  body('guest_phone').optional().isLength({ min: 10 }).withMessage('Phone number must be at least 10 digits')
+  body('guest_email').optional({ checkFalsy: true }).isEmail().withMessage('Invalid email format'),
+  body('guest_phone').optional({ checkFalsy: true }).isLength({ min: 10 }).withMessage('Phone number must be at least 10 digits')
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -291,7 +300,7 @@ router.put('/:id', [
     const {
       client_id, event_id, subevent_id, guest_first_name, guest_last_name,
       guest_email, guest_phone, guest_status, guest_group_name,
-      guest_type, guest_rsvp_status, guest_address, guest_city, guest_country,
+      guest_type, guest_rsvp_status, additional_guests, guest_address, guest_city, guest_country,
       guest_dietary_preferences, guest_special_requirements, guest_notes,
       travel_info, accommodation_info
     } = req.body;
@@ -315,8 +324,8 @@ router.put('/:id', [
 
     // Update main guest record
     await dbMethods.run(db,
-      'UPDATE rsvp_master_guests SET client_id = ?, event_id = ?, subevent_id = ?, guest_first_name = ?, guest_last_name = ?, guest_email = ?, guest_phone = ?, guest_status = ?, guest_type = ?, guest_rsvp_status = ?, guest_address = ?, guest_city = ?, guest_country = ?, guest_dietary_preferences = ?, guest_special_requirements = ?, guest_notes = ?, updated_at = CURRENT_TIMESTAMP WHERE guest_id = ?',
-      [client_id, event_id, subevent_id, guest_first_name, guest_last_name, guest_email, guest_phone, guest_status, guest_type, guest_rsvp_status, guest_address, guest_city, guest_country, guest_dietary_preferences, guest_special_requirements, guest_notes, req.params.id]
+      'UPDATE rsvp_master_guests SET client_id = ?, event_id = ?, subevent_id = ?, guest_first_name = ?, guest_last_name = ?, guest_email = ?, guest_phone = ?, guest_status = ?, guest_type = ?, guest_rsvp_status = ?, additional_guests = ?, guest_address = ?, guest_city = ?, guest_country = ?, guest_dietary_preferences = ?, guest_special_requirements = ?, guest_notes = ?, updated_at = CURRENT_TIMESTAMP WHERE guest_id = ?',
+      [client_id, event_id, subevent_id, guest_first_name, guest_last_name, guest_email, guest_phone, guest_status, guest_type, guest_rsvp_status, additional_guests || 0, guest_address, guest_city, guest_country, guest_dietary_preferences, guest_special_requirements, guest_notes, req.params.id]
     );
 
 
@@ -481,68 +490,83 @@ router.post('/bulk', [authenticateToken, upload.single('file')], async (req, res
 
       try {
         // Validate required fields
-        if (!row.client_id || !row.event_id || !row.guest_first_name || !row.guest_last_name) {
+        if (!row.event_id || !row.guest_first_name || !row.guest_last_name) {
           errors.push({
             row: i + 1,
-            error: 'Missing required fields: client_id, event_id, guest_first_name, guest_last_name'
+            message: 'Missing required fields: event_id, guest_first_name, guest_last_name'
           });
           continue;
         }
 
         // Convert string IDs to integers
-        const client_id = parseInt(row.client_id);
         const event_id = parseInt(row.event_id);
         const subevent_id = row.subevent_id ? parseInt(row.subevent_id) : null;
+
+        // Validate event exists and get client_id
+        const event = await dbMethods.get(db, 'SELECT event_id, client_id FROM rsvp_master_events WHERE event_id = ?', [event_id]);
+        if (!event) {
+          errors.push({
+            row: i + 1,
+            message: `Event ID ${event_id} not found`
+          });
+          continue;
+        }
+
+        // Use client_id from CSV if provided, otherwise use from event
+        const client_id = row.client_id ? parseInt(row.client_id) : event.client_id;
 
         // Validate client exists
         const client = await dbMethods.get(db, 'SELECT client_id FROM rsvp_master_clients WHERE client_id = ?', [client_id]);
         if (!client) {
           errors.push({
             row: i + 1,
-            error: `Client ID ${client_id} not found`
+            message: `Client ID ${client_id} not found`
           });
           continue;
         }
 
-        // Validate event exists
-        const event = await dbMethods.get(db, 'SELECT event_id FROM rsvp_master_events WHERE event_id = ?', [event_id]);
-        if (!event) {
+        // Validate email format if provided (trim and check if not empty)
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (row.guest_email && row.guest_email.trim() && !emailRegex.test(row.guest_email.trim())) {
           errors.push({
             row: i + 1,
-            error: `Event ID ${event_id} not found`
+            message: 'Invalid email format'
           });
           continue;
         }
 
-        // Validate email format if provided
-        if (row.guest_email && !row.guest_email.includes('@')) {
-          errors.push({
-            row: i + 1,
-            error: 'Invalid email format'
-          });
-          continue;
+        // Validate phone number if provided (should be 10 digits after removing non-numeric characters)
+        if (row.guest_phone && row.guest_phone.trim()) {
+          const phoneDigits = row.guest_phone.replace(/\D/g, '');
+          if (phoneDigits.length > 0 && phoneDigits.length < 10) {
+            errors.push({
+              row: i + 1,
+              message: 'Phone number must be at least 10 digits'
+            });
+            continue;
+          }
         }
 
         // Check if guest already exists (by email or combination of name+event)
         let existingGuest = null;
-        if (row.guest_email) {
+        if (row.guest_email && row.guest_email.trim()) {
           existingGuest = await dbMethods.get(db,
             'SELECT guest_id FROM rsvp_master_guests WHERE guest_email = ? AND event_id = ?',
-            [row.guest_email, event_id]
+            [row.guest_email.trim(), event_id]
           );
         }
 
         if (!existingGuest) {
           existingGuest = await dbMethods.get(db,
             'SELECT guest_id FROM rsvp_master_guests WHERE guest_first_name = ? AND guest_last_name = ? AND event_id = ?',
-            [row.guest_first_name, row.guest_last_name, event_id]
+            [row.guest_first_name.trim(), row.guest_last_name.trim(), event_id]
           );
         }
 
         if (existingGuest) {
           errors.push({
             row: i + 1,
-            error: 'Guest already exists in this event'
+            message: 'Guest already exists in this event'
           });
           continue;
         }
@@ -602,7 +626,7 @@ router.post('/bulk', [authenticateToken, upload.single('file')], async (req, res
         console.error(`Error processing row ${i + 1}:`, error);
         errors.push({
           row: i + 1,
-          error: error.message || 'Unknown error occurred'
+          message: error.message || 'Unknown error occurred'
         });
       }
     }

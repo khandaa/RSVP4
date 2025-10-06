@@ -143,29 +143,43 @@ const EventDetail = () => {
   const handleRsvpStatusChange = async (guestId, newStatus) => {
     try {
       const token = localStorage.getItem('token');
+      const guest = guests.find(g => g.guest_id === guestId);
+
+      const payload = {
+        rsvp_status: newStatus,
+      };
+
+      // communication_id is required by the backend ONLY when creating a new RSVP record.
+      // If the guest has an associated communication_id, we pass it.
+      // If not, we pass a default value that the backend can use for creating the initial record.
+      if (guest && guest.communication_id) {
+        payload.communication_id = guest.communication_id;
+      } else {
+        // A default or placeholder is needed if no communication has been sent yet.
+        payload.communication_id = 1; 
+      }
+
       const response = await fetch(`/api/guests/${guestId}/rsvp`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          rsvp_status: newStatus,
-          communication_id: 1 // Default communication ID
-        })
+        body: JSON.stringify(payload)
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update RSVP status');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to update RSVP status');
       }
 
       toast.success('RSVP status updated successfully');
 
-      // Refresh the guest list
+      // Refresh the guest list to show the new status
       fetchEventData();
     } catch (error) {
       console.error('Error updating RSVP status:', error);
-      toast.error('Failed to update RSVP status');
+      toast.error(error.message || 'Failed to update RSVP status');
     }
   };
 

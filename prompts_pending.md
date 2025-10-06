@@ -75,8 +75,16 @@ Create a single page for managing all guest activities. It should be in tabular 
 
 
 
-Guest add error - email
-mobile number field is not restricted to 10 digits
-Guest activities RSVP status is not reflecting correctly
-guest import is not working correctly
+Guest add error - email - done 
+mobile number field is not restricted to 10 digits - done 
+Guest activities RSVP status is not reflecting correctly 
 RSVP status is incorrect and guest edit functionality is not there from within the event/subevent 
+edit from event page is now available 
+Add "Additional guest" field in add guest and edit guest pages
+
+
+
+
+guest activities page columns should be editable so that the details can be managed from this same page 
+travel - instead of route, it should be sector 
+

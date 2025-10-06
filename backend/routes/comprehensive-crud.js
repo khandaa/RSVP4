@@ -19,14 +19,26 @@ const createCRUDRoutes = (tableName, primaryKey, requiredFields = [], joins = []
     try {
       const db = req.app.locals.db;
       let query = `SELECT * FROM ${tableName}`;
-      
+      const params = [];
+
       if (joins.length > 0) {
         query = joins.join(' ');
       }
-      
+
+      // Add WHERE clause for query parameters
+      const queryParams = req.query;
+      if (queryParams && Object.keys(queryParams).length > 0) {
+        const whereConditions = [];
+        for (const [key, value] of Object.entries(queryParams)) {
+          whereConditions.push(`${tableName}.${key} = ?`);
+          params.push(value);
+        }
+        query += ' WHERE ' + whereConditions.join(' AND ');
+      }
+
       query += ' ORDER BY created_at DESC';
-      
-      const records = await dbMethods.all(db, query, []);
+
+      const records = await dbMethods.all(db, query, params);
       res.json(records);
     } catch (error) {
       console.error(`Error fetching ${tableName}:`, error);
