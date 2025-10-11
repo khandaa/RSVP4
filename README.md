@@ -1,3 +1,5 @@
+**Note (2025-10-11):** The `AGENTS.md` file has been updated with critical "Development Best Practices and Error Prevention" guidelines. All contributors must review this new section to understand standardized procedures for authentication, API development, environment setup, and data handling.
+
 ### Authentication Session Persistence
 
 On successful login, the frontend now immediately stores the authenticated user's profile, roles, and permissions in `localStorage` and in the in-memory auth context.
@@ -327,6 +329,40 @@ All demo users share the password: User@123
 ## Database Structure
 
 Refer to the PRD (`base_v1.MD`) for detailed database structure information.
+
+## Stock Screener
+
+A Python script is available to screen for stocks that have experienced recent volume spikes along with a price increase. This can be useful for identifying stocks with potential momentum.
+
+### Features
+
+- Fetches stock data from Yahoo Finance.
+- Screens S&P 500 tickers by default, or a custom list of tickers.
+- Identifies stocks where the recent volume is a specified multiplier of the average volume.
+- Checks for a positive price increase over the last week.
+- Saves the results to a timestamped CSV file.
+
+### How to Use
+
+1.  **Install Dependencies:**
+
+    ```bash
+    pip install yfinance pandas
+    ```
+
+2.  **Run the Screener:**
+
+    Navigate to the `stock_screener` directory and run the script:
+
+    ```bash
+    python volume_spike_screener.py
+    ```
+
+    You can also customize the screening parameters:
+
+    ```bash
+    python volume_spike_screener.py --days 7 --multiplier 2.5 --min-price 10.0
+    ```
 
 ## License
 

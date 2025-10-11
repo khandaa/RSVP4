@@ -1,5 +1,12 @@
 ## [Unreleased]
 
+### 2025-10-11
+- Updated `AGENTS.md` with a "Development Best Practices and Error Prevention" section to provide clear guidelines on authentication, API contracts, environment setup, and data integrity, based on a review of recurring errors in `prompt-history.md`.
+
+### 2025-10-10
+- Created a Python script `stock_screener/volume_spike_screener.py` to identify stocks with large volume spikes and price increases.
+- Added `agents_screener.md` to document the process of creating stock screener queries based on an external guide.
+
 ### 2025-10-06
 - Enhanced the Event Detail page to correctly display guest RSVP statuses by updating the backend to join the RSVP table. Also enabled direct RSVP status updates from the guest list on this page.
 

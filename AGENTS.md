@@ -85,6 +85,37 @@ The database is a SQLite database located at `db/RSVP4.db`. The tables are organ
 - **rsvp_master_notification_types**: Types of notifications (e.g., Email, SMS).
 - **rsvp_notification_templates**: Templates for notifications.
 
+## Development Best Practices and Error Prevention
+
+To reduce common errors and streamline development, all contributors must adhere to the following guidelines.
+
+### 1. Standardize Authentication and Context Handling
+- **Problem**: `401 Unauthorized` and `SQLITE_CONSTRAINT: NOT NULL` errors are common. They often happen when the user's context (like `customer_id` or `client_id`) is not correctly passed to or used by the backend.
+- **Guideline**:
+    - All authenticated API requests **must** include the JWT in the `Authorization: Bearer <token>` header.
+    - The backend **must** derive context-specific identifiers (e.g., `customer_id`, `client_id`, `user_id`) from the authenticated user's JWT payload, not from the request body. This is especially critical for `CREATE`, `UPDATE`, and `DELETE` operations to ensure data integrity and proper ownership.
+
+### 2. Define API Contracts Before Implementation
+- **Problem**: `404 Not Found` errors and bugs where data isn't saved correctly often stem from a mismatch between frontend expectations and backend reality.
+- **Guideline**:
+    - For any new feature or modification, the backend API contract **must** be defined first. This includes the route, HTTP method, a clear schema for the request body (marking required vs. optional fields), and the expected response format.
+    - Document this contract directly in the corresponding backend route file as a comment block.
+    - Frontend development for a feature should only commence once the API contract is clear and stable.
+
+### 3. Enforce a Consistent Environment Setup
+- **Problem**: CORS errors, port conflicts, and dependency mismatches slow down development.
+- **Guideline**:
+    - **Frontend**: Must run on `http://localhost:3001`.
+    - **Backend**: Must run on `http://localhost:5001`.
+    - **Dependencies**: Always use `npm run install:all` from the root directory to install dependencies for all workspaces. Do not run `npm install` in individual `frontend` or `backend` directories unless you are certain it's necessary.
+    - **Environment Variables**: A `.env` file must be present in the `backend` directory with all required variables defined. Refer to `.env.example` for the complete list.
+
+### 4. Ensure Data Integrity and Filtering
+- **Problem**: Pages often show data for all users instead of being filtered for the logged-in user (e.g., a customer seeing all clients instead of just their own).
+- **Guideline**:
+    - When fetching lists of resources (e.g., clients, events, guests), the backend query **must** include a `WHERE` clause that filters the results based on the `customer_id` or `user_id` obtained from the authenticated user's JWT.
+    - Always refer to `data_update_scripts/migrations/rsvp4.sql` to check for `NOT NULL` constraints before creating or updating backend endpoints to ensure all required fields are handled.
+
 ## Setup Commands
 
 - **Install all dependencies** (root, frontend, and backend):
@@ -323,4 +354,4 @@ The application is divided into several modules, each responsible for a specific
 ## Additional Notes
 
 - Default admin credentials are `admin` / `Admin@123`.
-- All prompts given to the agent are logged in `prompts_<date>.md` files in the root directory.
+- All prompts given to the agent are logged in `prompt-history.md` files in the root directory.
